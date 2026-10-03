@@ -1,0 +1,11 @@
+[
+  { "id": "band", "name": "밴드부", "career": "arts", "artsKind": "music", "emoji": "🎸", "desc": "합주실은 늘 시끄럽고 즐겁다." },
+  { "id": "art", "name": "미술부", "career": "arts", "artsKind": "art", "emoji": "🖌️", "desc": "물감 냄새 가득한 조용한 작업실." },
+  { "id": "drama", "name": "연극부", "career": "arts", "artsKind": "acting", "emoji": "🎭", "desc": "무대 위에서는 누구든 될 수 있다." },
+  { "id": "dance", "name": "댄스부", "career": "arts", "artsKind": "dance", "bonusCareer": { "sports": 2 }, "emoji": "💃", "desc": "거울 앞에서 땀으로 맞추는 칼군무." },
+  { "id": "ball", "name": "축구·농구부", "career": "sports", "emoji": "⚽", "desc": "방과 후 운동장의 주인공." },
+  { "id": "science", "name": "과학탐구반", "career": "academic", "emoji": "🔬", "desc": "실험실 불은 늦게까지 켜져 있다." },
+  { "id": "coding", "name": "코딩반", "career": "academic", "emoji": "💻", "desc": "버그와 싸우는 밤샘 해커톤." },
+  { "id": "broadcast", "name": "방송부", "career": "comm", "emoji": "📻", "desc": "점심시간 교내 방송을 책임진다." },
+  { "id": "startup", "name": "창업동아리", "career": "biz", "emoji": "🚀", "desc": "매점 옆 작은 가게를 꿈꾸는 사람들." }
+]

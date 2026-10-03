@@ -1,0 +1,8 @@
+[
+  { "id": "advanced", "name": "심화반", "emoji": "📐", "desc": "공부에 진심인 친구들이 모인 반", "require": { "stats": { "study": 60 } }, "effects": { "stats": { "study": 5 }, "career": { "academic": 4 } } },
+  { "id": "athletics", "name": "운동부", "emoji": "🏅", "desc": "새벽 훈련으로 하루를 연다", "require": { "stats": { "stamina": 60 } }, "effects": { "stats": { "stamina": 5 }, "career": { "sports": 4 } } },
+  { "id": "council", "name": "학생회", "emoji": "📣", "desc": "학교 행사를 직접 만든다", "require": { "stats": { "social": 60 } }, "effects": { "stats": { "social": 5 }, "career": { "comm": 4 } } },
+  { "id": "arts", "name": "예술반", "emoji": "🎨", "desc": "실기 수업이 절반인 반", "require": { "career": { "arts": 2 } }, "effects": { "stress": -5, "career": { "arts": 4 } } },
+  { "id": "economy", "name": "경제반", "emoji": "📈", "desc": "모의 투자 대회로 유명한 반", "require": { "money": 50000 }, "effects": { "stats": { "luck": 5 }, "career": { "biz": 4 } } },
+  { "id": "general", "name": "일반반", "emoji": "🙂", "desc": "무난하고 편한 우리 반", "effects": { "stress": -10 } }
+]

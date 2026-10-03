@@ -1,0 +1,57 @@
+[
+  {
+    "id": "talent",
+    "name": "재능형",
+    "emoji": "✨",
+    "desc": "머리가 빨리 돌아가는 타고난 천재. 대신 쉽게 지루해한다.",
+    "stats": { "study": 60, "stamina": 30, "social": 30, "luck": 40 },
+    "stress": 10,
+    "ability": "시험 판정 항상 +2",
+    "weakness": "학업 상승량 −5 (최소 +1)",
+    "activeAbility": false
+  },
+  {
+    "id": "effort",
+    "name": "노력형",
+    "emoji": "🔥",
+    "desc": "넘어져도 다시 일어나는 끈기의 아이콘. 늘 조금 지쳐 있다.",
+    "stats": { "study": 50, "stamina": 45, "social": 40, "luck": 25 },
+    "stress": 30,
+    "ability": "학업 판정에 실패해도 학업 +3",
+    "weakness": "없음 (대신 시작 스트레스가 높다)",
+    "activeAbility": false
+  },
+  {
+    "id": "athlete",
+    "name": "운동형",
+    "emoji": "🏃",
+    "desc": "땀 흘리면 다 잊는 체력왕. 책상 앞은 조금 힘들다.",
+    "stats": { "study": 25, "stamina": 65, "social": 40, "luck": 30 },
+    "stress": 20,
+    "ability": "스트레스 증가량 항상 −5 (최소 0)",
+    "weakness": "시험 난이도 +1",
+    "activeAbility": false
+  },
+  {
+    "id": "insider",
+    "name": "인싸형",
+    "emoji": "🎉",
+    "desc": "어딜 가나 아는 사람이 있는 마당발. 부탁을 거절하면 마음이 쓰인다.",
+    "stats": { "study": 30, "stamina": 35, "social": 65, "luck": 30 },
+    "stress": 20,
+    "ability": "1년에 2번, 판정 기준을 인맥으로 바꾼다",
+    "weakness": "부탁을 거절하는 선택지에서 스트레스 +10",
+    "activeAbility": true
+  },
+  {
+    "id": "lucky",
+    "name": "운빨형",
+    "emoji": "🍀",
+    "desc": "이상하게 일이 잘 풀리는 행운아. 실력은 아직 반신반의.",
+    "stats": { "study": 35, "stamina": 35, "social": 30, "luck": 60 },
+    "stress": 10,
+    "ability": "1년에 2번, 대실패를 일반 실패로 바꾼다",
+    "weakness": "없음",
+    "activeAbility": true
+  }
+]

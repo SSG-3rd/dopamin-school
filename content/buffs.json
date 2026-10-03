@@ -1,0 +1,10 @@
+[
+  { "id": "part_timer", "name": "성실 알바생", "emoji": "🧾", "desc": "다음 용돈 1.5배", "endsOn": "allowance" },
+  { "id": "prestudy", "name": "선행학습", "emoji": "📘", "desc": "시험 판정 +2", "endsOn": "exam" },
+  { "id": "recharged", "name": "충전 완료", "emoji": "🔋", "desc": "스트레스가 오르지 않음", "moves": 3 },
+  { "id": "practice", "name": "연습벌레", "emoji": "🏋️", "desc": "연습한 분야 진로 경험치 2배", "moves": 3 },
+  { "id": "travel", "name": "여행의 추억", "emoji": "🧳", "desc": "인맥 판정 +2", "endsOn": "social_judge" },
+  { "id": "teacher_trust", "name": "선생님의 신뢰", "emoji": "🍎", "desc": "교실·상담실 사건에 해금 선택지 추가", "endsOn": "promotion" },
+  { "id": "energy_drink", "name": "에너지 드링크", "emoji": "🥤", "desc": "다음 판정 +1", "endsOn": "judge" },
+  { "id": "allnighter", "name": "밤샘 후유증", "emoji": "😵", "desc": "모든 판정 −1", "debuff": true, "moves": 2 }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "surprise_leak",
+    "title": "시험지 유출 소문",
+    "text": "\"이번 시험지 유출됐대!\" 복도에 수상한 소문이 돈다. 진짜일까, 헛소문일까?",
+    "label": "소문을 확인해 본다",
+    "check": { "by": "luck", "diff": 8 },
+    "onSuccess": { "stats": { "study": 10 }, "career": { "academic": 3 } },
+    "onFail": { "stress": 15 },
+    "resultText": { "success": "알고 보니 선생님이 강조한 핵심 범위였다. 덕분에 제대로 복습!", "fail": "헛소문이었다. 괜히 마음만 졸였다." }
+  },
+  {
+    "id": "surprise_lottery",
+    "title": "축제 행운권 추첨",
+    "text": "축제 마지막 순서, 행운권 추첨! 내 손에 쥔 번호는 77번이다.",
+    "label": "두 손 모아 기도한다",
+    "check": { "by": "luck", "diff": 8 },
+    "onSuccess": { "money": 20000, "career": { "biz": 3 } },
+    "onFail": {},
+    "resultText": { "success": "\"77번!\" 상품권 2만 원 당첨! 쓸 계획부터 세웠다.", "fail": "옆 사람이 당첨됐다. 박수는 열심히 쳐 줬다." }
+  },
+  {
+    "id": "surprise_pop_quiz",
+    "title": "깜짝 쪽지시험",
+    "text": "\"책 덮어라, 쪽지시험 본다.\" 선생님의 한마디에 교실이 얼어붙었다.",
+    "label": "찍기 신공 발휘",
+    "check": { "by": "luck", "diff": 8 },
+    "onSuccess": { "stats": { "study": 5 }, "records": { "praise": 1 } },
+    "onFail": { "stress": 10 },
+    "resultText": { "success": "찍은 게 다 맞았다! 선생님이 칭찬해 주셨다.", "fail": "답안지가 거의 백지다. 오늘은 복습 각이다." }
+  },
+  {
+    "id": "surprise_gym_clothes",
+    "title": "체육복을 안 가져왔다",
+    "text": "체육 시간 5분 전, 사물함이 텅 비어 있다. 체육복을 집에 두고 왔다!",
+    "label": "옆 반에 빌리러 간다",
+    "check": { "by": "luck", "diff": 8 },
+    "onSuccess": { "stats": { "social": 5 }, "career": { "comm": 3 } },
+    "onFail": { "stats": { "stamina": -5 }, "records": { "late": 1 } },
+    "resultText": { "success": "옆 반 친구가 흔쾌히 빌려줬다. 덕분에 새 친구도 생겼다.", "fail": "빌리러 다니다 수업에 늦었다. 벌로 운동장 두 바퀴." }
+  },
+  {
+    "id": "surprise_casting",
+    "title": "기획사의 눈에 띄다",
+    "text": "축제 영상을 본 기획사 관계자가 학교에 연락했다는 소문이 돈다. 혹시 나?",
+    "label": "연락을 기다려 본다",
+    "check": { "by": "luck", "diff": 8 },
+    "onSuccess": { "career": { "arts": 3 }, "flag": "casting" },
+    "onFail": {},
+    "resultText": { "success": "\"혹시 시간 괜찮아요?\" 명함 한 장이 내 손에 들어왔다.", "fail": "다른 학교 이야기였다. 그래도 하루 종일 설렜다." }
+  },
+  {
+    "id": "surprise_viral",
+    "title": "학교 SNS에 내 영상이",
+    "text": "학교 SNS에 올라간 축제 영상 속에 내가 크게 나왔다. 댓글이 달리기 시작한다.",
+    "label": "댓글창을 열어 본다",
+    "check": { "by": "luck", "diff": 8 },
+    "onSuccess": { "stats": { "social": 10 }, "career": { "comm": 3 }, "flag": "viral" },
+    "onFail": { "stress": 10 },
+    "resultText": { "success": "조회수 10만! 하루아침에 학교 스타가 됐다.", "fail": "하필 눈 감은 장면이 썸네일이다. 부끄러워…" }
+  },
+  {
+    "id": "surprise_relay",
+    "title": "체육대회 깜짝 계주",
+    "text": "계주 주자가 배탈로 빠졌다! 담임 선생님이 나를 가리키신다.",
+    "label": "바통을 받아 든다",
+    "check": { "by": "luck", "diff": 8 },
+    "onSuccess": { "stats": { "stamina": 5 }, "career": { "sports": 3 } },
+    "onFail": { "stats": { "stamina": -5 } },
+    "resultText": { "success": "두 명을 제치고 결승선 통과! 반 전체가 환호했다.", "fail": "출발하자마자 운동화가 벗겨졌다. 다리가 욱신거린다." }
+  }
+]

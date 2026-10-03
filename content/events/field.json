@@ -1,0 +1,77 @@
+[
+  {
+    "id": "field_y1_dodgeball",
+    "tile": "field",
+    "years": [1, 2],
+    "title": "체육대회 반 대항 피구",
+    "text": "체육대회 피구 예선이 코앞이다. 우리 반 단톡방이 작전 회의로 뜨겁다.",
+    "options": [
+      { "id": "lunch_practice", "kind": "growth", "label": "점심시간에 특훈한다", "effects": { "stats": { "stamina": 8 }, "stress": 10, "career": { "sports": 3 } }, "resultText": { "done": "공 피하는 게 춤추는 것처럼 자연스러워졌다." } },
+      { "id": "ace", "kind": "adventure", "label": "에이스로 나선다", "check": { "by": "stamina", "diff": 8 }, "onSuccess": { "career": { "sports": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "sports": 1 } }, "resultText": { "success": "끝까지 살아남아 역전승! 반 친구들이 나를 헹가래쳤다.", "fail": "첫 공에 아웃. 그래도 응원석이 따뜻했다." } },
+      { "id": "cheer", "kind": "rest", "label": "응원단으로 참여", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "목이 쉬도록 응원했다. 반 친구들과 한층 가까워졌다." } },
+      { "id": "relay_anchor", "kind": "adventure", "label": "계주 대표로 뛴다", "unlock": { "career": "sports", "level": 2 }, "check": { "by": "sports", "diff": 8 }, "onSuccess": { "stats": { "stamina": 5 }, "career": { "sports": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "sports": 1 } }, "resultText": { "success": "마지막 주자로 두 명을 제쳤다! 체육대회 MVP!", "fail": "바통을 놓칠 뻔했다. 아슬아슬하게 2위." } }
+    ]
+  },
+  {
+    "id": "field_y1_festival_rehearsal",
+    "tile": "field",
+    "years": [1, 3],
+    "title": "축제 무대 리허설",
+    "text": "운동장에 축제 무대가 세워졌다. 리허설 중인데 사람이 모자란다며 SOS가 왔다.",
+    "options": [
+      { "id": "props", "kind": "growth", "label": "무대 소품을 만든다", "effects": { "stats": { "stamina": 5 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "골판지 성이 진짜 성 같다. 손은 물감투성이다." } },
+      { "id": "fill_in", "kind": "adventure", "label": "빈자리를 채워 무대로", "check": { "by": "social", "diff": 8 }, "onSuccess": { "career": { "arts": 5 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "즉석 투입인데 박수가 쏟아졌다! 무대 체질인가?", "fail": "동선을 헷갈려 반대로 돌았다. 그래도 다들 웃었다." } },
+      { "id": "audience", "kind": "rest", "label": "관객석에서 즐기기", "effects": { "stress": -15 }, "resultText": { "done": "응원봉을 흔들며 실컷 즐겼다." } },
+      { "id": "main_stage", "kind": "adventure", "label": "축제 메인 무대에 선다", "unlock": { "career": "arts", "level": 2 }, "check": { "by": "arts", "diff": 8 }, "onSuccess": { "stats": { "social": 10 }, "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "앙코르가 터졌다! 축제 최고 인기상 수상!", "fail": "반주가 끊겼지만 끝까지 버텼다. 나에게 박수를." } }
+    ]
+  },
+  {
+    "id": "field_y2_festival_booth",
+    "tile": "field",
+    "years": [2, 3],
+    "title": "축제 부스 모집",
+    "text": "축제 먹거리 부스 운영팀을 모집한다. 반마다 메뉴 경쟁이 벌써 치열하다.",
+    "options": [
+      { "id": "cost", "kind": "growth", "label": "원가를 계산한다", "effects": { "stats": { "study": 5 }, "stress": 10, "career": { "biz": 3 } }, "resultText": { "done": "컵 하나당 이익 300원. 계산기가 뜨끈해졌다." } },
+      { "id": "barker", "kind": "adventure", "label": "호객 담당을 맡는다", "check": { "by": "social", "diff": 8 }, "onSuccess": { "money": 10000, "career": { "biz": 5 } }, "onFail": { "stress": 10, "career": { "biz": 1 } }, "resultText": { "success": "내 목소리에 줄이 길게 늘어섰다. 수익 배분 1만 원!", "fail": "옆 부스 호객이 한 수 위였다. 손님이 다 그쪽으로…" } },
+      { "id": "food_tour", "kind": "rest", "label": "부스 음식 먹으러 다니기", "effects": { "stress": -10 }, "resultText": { "done": "닭꼬치, 슬러시, 와플. 오늘은 배부른 날." } },
+      { "id": "run_booth", "kind": "adventure", "label": "부스를 직접 운영한다", "unlock": { "career": "biz", "level": 2 }, "check": { "by": "biz", "diff": 8 }, "onSuccess": { "money": 20000, "career": { "biz": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "biz": 1 } }, "resultText": { "success": "완판에 매출 1위! 최우수 부스상과 수익금을 받았다.", "fail": "재료를 너무 많이 샀다. 남은 건 반 친구들 간식으로." } }
+    ]
+  },
+  {
+    "id": "field_y2_mural",
+    "tile": "field",
+    "years": [2],
+    "title": "운동장 벽화",
+    "text": "낡은 운동장 담벼락에 벽화를 그릴 학생을 모집한다는 공지가 떴다.",
+    "options": [
+      { "id": "paint", "kind": "growth", "label": "주말마다 벽화 작업", "effects": { "stats": { "stamina": 5 }, "stress": 12, "career": { "arts": 3 } }, "resultText": { "done": "페인트 냄새에도 익숙해졌다. 담벼락이 점점 살아난다." } },
+      { "id": "design_contest", "kind": "adventure", "label": "디자인 공모에 낸다", "check": { "by": "arts", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "내 디자인이 당선! 벽 한쪽에 내 이름이 작게 새겨졌다.", "fail": "아쉽게 2등. 대신 하늘 부분 색칠을 맡았다." } },
+      { "id": "visit_later", "kind": "rest", "label": "완성되면 보러 가기", "effects": { "stress": -10 }, "resultText": { "done": "완성된 벽화 앞에서 인생 사진을 건졌다." } }
+    ]
+  },
+  {
+    "id": "field_y3_tug_of_war",
+    "tile": "field",
+    "years": [3],
+    "title": "마지막 체육대회 줄다리기",
+    "text": "고3의 마지막 체육대회. 종목은 전통의 줄다리기다. 다들 눈빛이 비장하다.",
+    "options": [
+      { "id": "train", "kind": "growth", "label": "줄다리기 특훈", "effects": { "stats": { "stamina": 8 }, "stress": 10, "career": { "sports": 3 } }, "resultText": { "done": "손바닥에 굳은살이 박였다. 자세만큼은 국가대표급." } },
+      { "id": "cheer_leader", "kind": "adventure", "label": "응원단장을 맡는다", "check": { "by": "social", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "응원 퍼포먼스로 응원상을 받았다! 영상이 여기저기 돈다.", "fail": "안무를 까먹었다. 대신 목청만큼은 1등이었다." } },
+      { "id": "photos", "kind": "rest", "label": "사진을 잔뜩 찍는다", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "단체 사진만 200장. 하나하나 소중한 추억이다." } }
+    ]
+  },
+  {
+    "id": "field_y1_flea_market",
+    "tile": "field",
+    "years": [1, 3],
+    "title": "운동장 벼룩시장",
+    "text": "주말에 운동장에서 벼룩시장이 열린다. 안 쓰는 물건을 팔아 볼까?",
+    "options": [
+      { "id": "polish", "kind": "growth", "label": "물건을 깨끗이 손질한다", "effects": { "stats": { "stamina": 5 }, "stress": 8, "career": { "biz": 3 }, "money": 5000 }, "resultText": { "done": "반짝반짝 닦은 물건이 금방 팔렸다. 5천 원 수입!" } },
+      { "id": "haggle", "kind": "adventure", "label": "흥정에 도전한다", "check": { "by": "luck", "diff": 8 }, "onSuccess": { "money": 15000, "career": { "biz": 5 } }, "onFail": { "stress": 10, "career": { "biz": 1 } }, "resultText": { "success": "흥정 성공! 옛날 게임기가 1만 5천 원에 팔렸다.", "fail": "자꾸 깎아 주다 보니 남는 게 없었다." } },
+      { "id": "browse", "kind": "rest", "label": "구경하며 산책한다", "effects": { "stress": -10 }, "resultText": { "done": "추억의 장난감 구경에 시간 가는 줄 몰랐다." } }
+    ]
+  }
+]

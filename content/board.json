@@ -1,0 +1,18 @@
+[
+  { "index": 0, "name": "진급", "kind": "corner", "type": "promotion", "icon": "🎓" },
+  { "index": 1, "name": "등굣길", "kind": "place", "type": "commute", "icon": "🚌" },
+  { "index": 2, "name": "급식실", "kind": "general", "type": "cafeteria", "icon": "🍱" },
+  { "index": 3, "name": "교실", "kind": "place", "type": "classroom", "icon": "🏫" },
+  { "index": 4, "name": "1학기 시험", "kind": "corner", "type": "exam", "icon": "📝" },
+  { "index": 5, "name": "돌발", "kind": "general", "type": "surprise", "icon": "❗" },
+  { "index": 6, "name": "도서관", "kind": "place", "type": "library", "icon": "📖" },
+  { "index": 7, "name": "보건실", "kind": "general", "type": "nurse", "icon": "🩹" },
+  { "index": 8, "name": "여름방학", "kind": "corner", "type": "summer", "icon": "🏖️" },
+  { "index": 9, "name": "동아리방", "kind": "place", "type": "club", "icon": "🎸" },
+  { "index": 10, "name": "돌발", "kind": "general", "type": "surprise", "icon": "❗" },
+  { "index": 11, "name": "운동장", "kind": "place", "type": "field", "icon": "🏟️" },
+  { "index": 12, "name": "2학기 시험", "kind": "corner", "type": "exam", "icon": "📝" },
+  { "index": 13, "name": "상담실", "kind": "place", "type": "counsel", "icon": "💬" },
+  { "index": 14, "name": "교무실", "kind": "general", "type": "staffroom", "icon": "🗂️" },
+  { "index": 15, "name": "돌발", "kind": "general", "type": "surprise", "icon": "❗" }
+]

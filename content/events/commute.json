@@ -1,0 +1,75 @@
+[
+  {
+    "id": "commute_y1_missed_bus",
+    "tile": "commute",
+    "years": [1],
+    "title": "놓쳐 버린 버스",
+    "text": "눈앞에서 버스 문이 닫혔다. 다음 버스는 15분 뒤, 1교시 시작은 20분 뒤다.",
+    "options": [
+      { "id": "sprint", "kind": "growth", "label": "학교까지 전력 질주", "effects": { "stats": { "stamina": 8 }, "stress": 10, "career": { "sports": 3 } }, "resultText": { "done": "숨이 턱까지 찼지만 종 치기 직전에 골인!" } },
+      { "id": "bike", "kind": "adventure", "label": "친구 자전거 얻어 타기", "check": { "by": "social", "diff": 8 }, "onSuccess": { "stats": { "social": 5 }, "career": { "comm": 5 } }, "onFail": { "stress": 10, "career": { "comm": 1 }, "records": { "late": 1 } }, "resultText": { "success": "지나가던 친구가 뒷자리를 내줬다. 아침 바람이 시원하다!", "fail": "아는 얼굴이 하나도 안 지나간다. 결국 지각이다." } },
+      { "id": "next_bus", "kind": "rest", "label": "느긋하게 다음 버스", "effects": { "stress": -10, "records": { "late": 1 } }, "resultText": { "done": "창밖 풍경을 실컷 구경했다. 지각 도장은 덤." } }
+    ]
+  },
+  {
+    "id": "commute_y1_grandma",
+    "tile": "commute",
+    "years": [1, 2],
+    "title": "무거운 짐 든 할머니",
+    "text": "등굣길 언덕에서 할머니가 커다란 짐수레를 끌고 힘겹게 올라가신다.",
+    "options": [
+      { "id": "pull", "kind": "growth", "label": "짐수레를 대신 끈다", "effects": { "stats": { "stamina": 6 }, "stress": 5, "career": { "sports": 3 } }, "resultText": { "done": "언덕 꼭대기에서 할머니가 사탕 한 줌을 쥐여 주셨다." } },
+      { "id": "together", "kind": "adventure", "label": "친구들과 함께 돕는다", "check": { "by": "social", "diff": 8 }, "onSuccess": { "stats": { "social": 8 }, "career": { "comm": 5 }, "records": { "praise": 1 } }, "onFail": { "stress": 10, "career": { "comm": 1 } }, "resultText": { "success": "다 같이 영차영차! 지나가던 선생님이 엄지를 들어 주셨다.", "fail": "다들 바쁘다며 지나갔다. 혼자 낑낑대다 진이 빠졌다." } },
+      { "id": "ignore", "kind": "rest", "label": "못 본 척 지나간다", "tags": ["refuseFavor"], "effects": { "stress": -10 }, "resultText": { "done": "이어폰 볼륨을 올렸다. 아침이 조용하다." } }
+    ]
+  },
+  {
+    "id": "commute_y2_homework",
+    "tile": "commute",
+    "years": [2],
+    "title": "숙제 좀 보여 줘",
+    "text": "교문 앞에서 친구가 두 손을 모은다. \"수학 숙제 딱 5분만 보여 줘!\"",
+    "options": [
+      { "id": "explain", "kind": "growth", "label": "같이 풀며 설명해 준다", "effects": { "stats": { "social": 6 }, "stress": 8, "career": { "comm": 3 } }, "resultText": { "done": "설명하다 보니 나도 확실히 알게 됐다." } },
+      { "id": "basketball", "kind": "adventure", "label": "내기 농구를 제안한다", "check": { "by": "stamina", "diff": 8 }, "onSuccess": { "stats": { "stamina": 5 }, "career": { "sports": 5 } }, "onFail": { "stress": 10, "career": { "sports": 1 } }, "resultText": { "success": "버저비터 성공! 친구는 숙제를 스스로 풀기로 했다.", "fail": "공이 림만 돌다 나왔다. 내기에 져서 숙제를 보여 줬다." } },
+      { "id": "refuse", "kind": "rest", "label": "단호하게 거절한다", "tags": ["refuseFavor"], "effects": { "stress": -10 }, "resultText": { "done": "\"스스로 해 봐!\" 말하고 나니 속이 다 시원하다." } }
+    ]
+  },
+  {
+    "id": "commute_y2_running_crew",
+    "tile": "commute",
+    "years": [2, 3],
+    "title": "아침 러닝 크루",
+    "text": "등굣길 공원에 형광 조끼를 입은 러닝 크루가 모여 있다. 같이 뛰자고 손짓한다.",
+    "options": [
+      { "id": "run", "kind": "growth", "label": "크루와 3km 달리기", "effects": { "stats": { "stamina": 10 }, "stress": 10, "career": { "sports": 3 } }, "resultText": { "done": "다리는 후들거리지만 머리는 맑다." } },
+      { "id": "team_race", "kind": "adventure", "label": "단체전에 출전한다", "check": { "by": "stamina", "diff": 8 }, "onSuccess": { "career": { "sports": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "sports": 1 } }, "resultText": { "success": "크루 단체전 3위! 메달을 목에 걸고 등교했다.", "fail": "중간에 옆구리가 결렸다. 완주에 의의를 두자." } },
+      { "id": "cheer", "kind": "rest", "label": "벤치에서 응원한다", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "응원 고맙다며 크루가 바나나를 나눠 줬다." } },
+      { "id": "tryout", "kind": "adventure", "label": "대표 선발전 추천받기", "unlock": { "career": "sports", "level": 2 }, "check": { "by": "sports", "diff": 8 }, "onSuccess": { "stats": { "stamina": 5 }, "career": { "sports": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "sports": 1 } }, "resultText": { "success": "코치님이 내 기록을 보고 고개를 끄덕였다. 선발 확정!", "fail": "0.3초 차로 아깝게 탈락. 다음엔 꼭!" } }
+    ]
+  },
+  {
+    "id": "commute_y3_flyer",
+    "tile": "commute",
+    "years": [3],
+    "title": "교문 앞 전단지 알바",
+    "text": "전단지를 나눠 주던 동네 분식집 사장님이 잠깐만 도와 달라고 하신다. 수고비도 주신단다.",
+    "options": [
+      { "id": "hand_out", "kind": "growth", "label": "전단지를 나눠 준다", "effects": { "stats": { "social": 5 }, "stress": 10, "career": { "comm": 3 }, "money": 5000 }, "resultText": { "done": "인사만 백 번 했다. 수고비 5천 원 획득!" } },
+      { "id": "pitch", "kind": "adventure", "label": "말솜씨로 두 배 나눠 주기", "check": { "by": "social", "diff": 8 }, "onSuccess": { "money": 10000, "career": { "comm": 5 } }, "onFail": { "stress": 10, "career": { "comm": 1 } }, "resultText": { "success": "재치 있는 멘트에 다들 웃으며 받아 갔다. 수고비 두둑!", "fail": "다들 이어폰을 끼고 지나갔다. 목만 쉬었다." } },
+      { "id": "decline", "kind": "rest", "label": "바빠서 거절한다", "tags": ["refuseFavor"], "effects": { "stress": -10 }, "resultText": { "done": "\"죄송해요, 1교시가 시험이라서요!\" 하고 교문을 통과했다." } }
+    ]
+  },
+  {
+    "id": "commute_y1_closing_gate",
+    "tile": "commute",
+    "years": [1, 3],
+    "title": "닫히는 교문",
+    "text": "8시 29분. 학생부 선생님이 교문을 천천히 밀고 계신다. 남은 거리는 50미터!",
+    "options": [
+      { "id": "slide", "kind": "growth", "label": "있는 힘껏 슬라이딩", "effects": { "stats": { "stamina": 7 }, "stress": 10, "career": { "sports": 3 } }, "resultText": { "done": "교복 무릎은 흙투성이지만, 세이프!" } },
+      { "id": "greet", "kind": "adventure", "label": "넉살 좋게 인사한다", "check": { "by": "social", "diff": 8 }, "onSuccess": { "career": { "comm": 5 }, "records": { "praise": 1 } }, "onFail": { "stress": 10, "career": { "comm": 1 }, "records": { "late": 1 } }, "resultText": { "success": "\"선생님, 오늘 넥타이 멋지세요!\" 웃으며 들여보내 주셨다.", "fail": "\"인사는 고맙다. 그래도 지각.\" 명단에 이름이 올랐다." } },
+      { "id": "walk", "kind": "rest", "label": "포기하고 천천히 걷는다", "effects": { "stress": -15, "records": { "late": 1 } }, "resultText": { "done": "어차피 늦은 거, 아침 햇살이나 즐기자." } }
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "title": "교무실",
+  "text": "담임 선생님이 부르신다. 그동안 쌓인 일을 한꺼번에 정리해 주신단다.",
+  "rules": {
+    "scholarship": { "text": "성적 우수 장학금 대상이 됐다! 선생님이 봉투를 건네주셨다.", "minStudy": 70, "effects": { "money": 30000 } },
+    "award": { "text": "그동안 받은 상장과 상금을 챙겨 주셨다. 진열장에 내 이름이!", "effects": { "money": 10000 } },
+    "praise": { "text": "\"요즘 열심히더라.\" 칭찬과 함께 심부름 간식값을 받았다.", "effects": { "money": 5000, "stats": { "social": 5 } } },
+    "late": { "text": "지각이 너무 잦다며 한참 잔소리를 들었다. 내일부터는 일찍 오자.", "minLate": 2, "effects": { "stress": 10 } },
+    "none": { "text": "선생님과 요즘 사는 이야기를 나눴다. 괜히 마음이 든든하다.", "effects": { "stats": { "social": 3 } } }
+  }
+}

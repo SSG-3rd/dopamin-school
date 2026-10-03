@@ -1,0 +1,75 @@
+[
+  {
+    "id": "library_y1_new_books",
+    "tile": "library",
+    "years": [1, 2],
+    "title": "신착 도서 코너",
+    "text": "도서관에 새 책이 잔뜩 들어왔다. 갓 뜯은 책 냄새가 코끝을 간지럽힌다.",
+    "options": [
+      { "id": "intro_book", "kind": "growth", "label": "전공 입문서를 정독한다", "effects": { "stats": { "study": 8 }, "stress": 10, "career": { "academic": 3 } }, "resultText": { "done": "어려웠지만 하고 싶은 공부가 조금 보이기 시작했다." } },
+      { "id": "essay_contest", "kind": "adventure", "label": "독서 감상문 대회 출전", "check": { "by": "study", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "최우수상! 내 글이 도서관 게시판에 붙었다.", "fail": "마감 1분 전에 겨우 냈다. 결과는 참가상." } },
+      { "id": "comics", "kind": "rest", "label": "만화책 코너로 직행", "effects": { "stress": -15 }, "resultText": { "done": "시리즈 다섯 권을 한 번에 끝냈다. 행복하다." } }
+    ]
+  },
+  {
+    "id": "library_y1_window_doodle",
+    "tile": "library",
+    "years": [1, 3],
+    "title": "창가 자리 낙서",
+    "text": "도서관 창가 자리. 연습장 귀퉁이에 끄적인 낙서가 생각보다 그럴듯하다.",
+    "options": [
+      { "id": "art_book", "kind": "growth", "label": "화집을 따라 그린다", "effects": { "stats": { "study": 5 }, "stress": 5, "career": { "arts": 3 } }, "resultText": { "done": "명화 한 장을 따라 그리니 선이 달라졌다." } },
+      { "id": "drawing_contest", "kind": "adventure", "label": "교내 그림 대회 출품", "check": { "by": "arts", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "금상! 낙서가 작품이 되는 순간이다.", "fail": "심사평: '독창적이지만 주제와 무관함.'" } },
+      { "id": "gaze", "kind": "rest", "label": "창밖 보며 멍때리기", "effects": { "stress": -15 }, "resultText": { "done": "구름이 고래 모양이었다. 마음이 말랑해졌다." } }
+    ]
+  },
+  {
+    "id": "library_y2_invention",
+    "tile": "library",
+    "years": [2, 3],
+    "title": "발명 공모전 포스터",
+    "text": "도서관 입구에 청소년 발명 공모전 포스터가 붙었다. 대상은 특허 출원 지원!",
+    "options": [
+      { "id": "patent_study", "kind": "growth", "label": "특허 자료를 공부한다", "effects": { "stats": { "study": 8 }, "stress": 12, "career": { "academic": 3 } }, "resultText": { "done": "특허 명세서 읽는 법을 익혔다. 머리는 지끈, 눈은 반짝." } },
+      { "id": "submit", "kind": "adventure", "label": "아이디어를 출품한다", "check": { "by": "study", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "award": 1 }, "flag": "contest" }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "'자동 우산 건조대'가 입상! 특허 상담까지 받게 됐다.", "fail": "비슷한 발명품이 이미 있었다. 다음 아이디어로!" } },
+      { "id": "idea_chat", "kind": "rest", "label": "친구와 아이디어 수다", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "말도 안 되는 아이디어로 한참을 웃었다." } },
+      { "id": "olympiad_rep", "kind": "adventure", "label": "경시대회 대표로 출전", "unlock": { "career": "academic", "level": 2 }, "check": { "by": "academic", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "학교 대표로 나가 은상을 받았다! 교장 선생님이 악수해 주셨다.", "fail": "문제가 생각보다 어려웠다. 경험은 남았다." } }
+    ]
+  },
+  {
+    "id": "library_y2_webnovel",
+    "tile": "library",
+    "years": [2],
+    "title": "웹소설 쓰기 교실",
+    "text": "방과 후 도서관에서 웹소설 쓰기 교실이 열렸다. 첫 문장부터 막막하다.",
+    "options": [
+      { "id": "daily", "kind": "growth", "label": "매일 한 편씩 쓴다", "effects": { "stats": { "study": 5 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "열흘째 연재 중. 문장이 점점 매끄러워진다." } },
+      { "id": "upload", "kind": "adventure", "label": "연재 플랫폼에 올린다", "check": { "by": "luck", "diff": 8 }, "onSuccess": { "stats": { "social": 5 }, "career": { "arts": 5 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "조회수 1만 돌파! 반 친구들이 다음 화를 조른다.", "fail": "조회수 3. 그중 2는 나였다." } },
+      { "id": "read_others", "kind": "rest", "label": "남의 소설만 읽는다", "effects": { "stress": -10 }, "resultText": { "done": "역시 남이 쓴 소설이 제일 재밌다." } }
+    ]
+  },
+  {
+    "id": "library_y3_study_room",
+    "tile": "library",
+    "years": [3],
+    "title": "스터디룸 자리 전쟁",
+    "text": "수능 D-100. 도서관 스터디룸 자리를 잡으려는 눈치 싸움이 치열하다.",
+    "options": [
+      { "id": "until_close", "kind": "growth", "label": "문 닫을 때까지 공부", "effects": { "stats": { "study": 10 }, "stress": 15, "career": { "academic": 3 } }, "resultText": { "done": "사서 선생님이 불을 끄실 때까지 버텼다." } },
+      { "id": "tutor", "kind": "adventure", "label": "후배 공부를 봐 준다", "check": { "by": "study", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "praise": 1 } }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "후배 점수가 20점 올랐다! 선생님 귀에도 들어갔다.", "fail": "설명하다 나도 헷갈렸다. 같이 다시 공부하자." } },
+      { "id": "give_seat", "kind": "rest", "label": "친구에게 자리 양보", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "친구가 고맙다며 음료수를 사 왔다." } }
+    ]
+  },
+  {
+    "id": "library_y3_portfolio",
+    "tile": "library",
+    "years": [3],
+    "title": "포트폴리오 준비",
+    "text": "입시용 포트폴리오를 정리할 시간. 작품은 많은데 설명 칸이 텅 비어 있다.",
+    "options": [
+      { "id": "captions", "kind": "growth", "label": "작품 설명을 다듬는다", "effects": { "stats": { "study": 5 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "작품마다 이야기가 생기니 훨씬 그럴듯하다." } },
+      { "id": "exhibit", "kind": "adventure", "label": "도서관 전시를 신청한다", "check": { "by": "arts", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "첫날부터 방명록이 꽉 찼다. 우수 전시상!", "fail": "신청이 벌써 마감됐다. 작품은 내 방 벽에 걸었다." } },
+      { "id": "stroll", "kind": "rest", "label": "머리 식히러 산책", "effects": { "stress": -15 }, "resultText": { "done": "운동장 한 바퀴에 머리가 맑아졌다." } }
+    ]
+  }
+]

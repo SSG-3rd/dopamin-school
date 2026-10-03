@@ -1,0 +1,236 @@
+[
+  {
+    "id": "club_band_jam",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "band" },
+    "title": "합주실의 불협화음",
+    "text": "합주 날, 드럼과 기타 박자가 자꾸 어긋난다. 축제까지는 딱 3주 남았다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "메트로놈 맞춰 연습", "effects": { "stats": { "stamina": 8 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "백 번째 반복에서 드디어 박자가 딱 맞았다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 노래방 가기", "effects": { "stress": -15 }, "resultText": { "done": "합주실보다 노래방에서 호흡이 더 잘 맞았다." } },
+      { "id": "challenge", "kind": "adventure", "label": "교내 밴드 경연 도전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "앙코르 요청까지 받았다! 밴드 경연 대상!", "fail": "기타 줄이 끊어졌다. 그래도 끝까지 연주했다." } }
+    ]
+  },
+  {
+    "id": "club_band_busking",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "band" },
+    "title": "버스킹 제안",
+    "text": "선배가 주말 공원 버스킹에 같이 나가자고 한다. 진짜 관객 앞은 처음이다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "새 곡을 연습한다", "effects": { "stats": { "stamina": 6 }, "stress": 8, "career": { "arts": 3 } }, "resultText": { "done": "손끝이 얼얼하지만 새 곡을 완벽하게 외웠다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 떡볶이 회식", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "떡볶이 앞에서 다음 공연 곡이 정해졌다." } },
+      { "id": "challenge", "kind": "adventure", "label": "버스킹 대회에 나간다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "지나가던 사람들이 멈춰 섰다. 지역 버스킹 대회 입상!", "fail": "긴장해서 첫 소절을 놓쳤다. 다음엔 더 잘할 거다." } }
+    ]
+  },
+  {
+    "id": "club_art_still_life",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "art" },
+    "title": "정물화 수업",
+    "text": "미술부 선생님이 사과 세 개를 올려놓으셨다. 오늘의 주제는 '빛과 그림자'.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "명암 연습에 몰두", "effects": { "stats": { "study": 8 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "연필 끝으로 빛을 만드는 법을 알았다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 수다 타임", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "물감을 짜다 말고 수다꽃이 활짝 피었다." } },
+      { "id": "challenge", "kind": "adventure", "label": "미술 대회에 출품한다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "입선! 내 그림이 시청 로비에 걸렸다.", "fail": "물감이 덜 말라 번졌다. 그것도 나름 예술이다." } }
+    ]
+  },
+  {
+    "id": "club_art_festival_poster",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "art" },
+    "title": "축제 포스터 의뢰",
+    "text": "학생회가 축제 포스터를 미술부에 맡겼다. 마감은 이번 주 금요일!",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "시안을 여러 장 그린다", "effects": { "stats": { "study": 6 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "시안 다섯 장 중 하나가 마음에 쏙 들었다." } },
+      { "id": "play", "kind": "rest", "label": "작업실에서 낮잠", "effects": { "stress": -15 }, "resultText": { "done": "물감 냄새 속 낮잠은 의외로 꿀맛이었다." } },
+      { "id": "challenge", "kind": "adventure", "label": "포스터 공모전 도전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "내 포스터가 대상! 학교 곳곳에 붙었다.", "fail": "마감을 10분 넘겼다. 아쉽지만 다음 기회에." } }
+    ]
+  },
+  {
+    "id": "club_drama_script",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "drama" },
+    "title": "대본 리딩",
+    "text": "연극부 첫 대본 리딩. 내가 맡은 역할 대사만 A4 열 장이다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "대사를 통째로 외운다", "effects": { "stats": { "social": 8 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "잠꼬대로도 대사가 튀어나온다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 즉흥극 놀이", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "웃다가 배꼽 빠지는 줄 알았다." } },
+      { "id": "challenge", "kind": "adventure", "label": "청소년 연극제 출전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "관객들이 기립 박수를 쳤다. 연기상 수상!", "fail": "소품 문이 안 열렸다. 애드리브로 넘겼지만 아쉽다." } }
+    ]
+  },
+  {
+    "id": "club_drama_audition",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "drama" },
+    "title": "배역 오디션",
+    "text": "정기 공연 배역 오디션 날. 탐나는 역할 하나에 지원자가 다섯 명이다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "발성 연습을 한다", "effects": { "stats": { "social": 6 }, "stress": 8, "career": { "arts": 3 } }, "resultText": { "done": "복식 호흡으로 강당 끝까지 목소리가 닿았다." } },
+      { "id": "play", "kind": "rest", "label": "분장실 간식 파티", "effects": { "stress": -10 }, "resultText": { "done": "분장 지우다 서로 얼굴 보고 빵 터졌다." } },
+      { "id": "challenge", "kind": "adventure", "label": "정기 공연 주연 도전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "주연을 따냈다! 공연은 매진, 최우수 연기상까지!", "fail": "조연을 맡았다. 대사는 한 줄이지만 제일 웃겼다." } }
+    ]
+  },
+  {
+    "id": "club_dance_mirror",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "dance" },
+    "title": "칼군무 연습",
+    "text": "거울 앞에서 여덟 명이 한 동작을 맞춘다. 내 팔 각도만 자꾸 다르다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "동작을 백 번 반복", "effects": { "stats": { "stamina": 8 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "드디어 거울 속 여덟 명이 한 사람처럼 움직였다." } },
+      { "id": "play", "kind": "rest", "label": "연습 끝나고 편의점", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "아이스크림 하나에 피로가 사르르 녹았다." } },
+      { "id": "challenge", "kind": "adventure", "label": "댄스 대회에 나간다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "칼군무 완벽! 청소년 댄스 대회 장려상!", "fail": "음악이 늦게 나와 박자가 밀렸다. 다음엔 꼭!" } }
+    ]
+  },
+  {
+    "id": "club_dance_challenge_video",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "dance" },
+    "title": "챌린지 영상 촬영",
+    "text": "댄스부가 학교 홍보용 챌린지 영상을 찍기로 했다. 센터는 누가 맡을까?",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "안무를 새로 짠다", "effects": { "stats": { "stamina": 6 }, "stress": 10, "career": { "arts": 3 } }, "resultText": { "done": "새 안무가 부원들 사이에서 대유행이다." } },
+      { "id": "play", "kind": "rest", "label": "NG 모음 보며 웃기", "effects": { "stress": -15 }, "resultText": { "done": "본편보다 NG 영상이 백배 재밌다." } },
+      { "id": "challenge", "kind": "adventure", "label": "축제 오프닝 무대 도전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "arts": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "arts": 1 } }, "resultText": { "success": "오프닝 무대가 끝나자 함성이 터졌다. 공연상 수상!", "fail": "의상 끈이 풀렸다. 그래도 웃으며 마무리했다." } }
+    ]
+  },
+  {
+    "id": "club_ball_league",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "ball" },
+    "title": "교내 리그전",
+    "text": "방과 후 축구·농구부 리그전이 시작됐다. 주전 자리가 걸려 있다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "슈팅 연습 200개", "effects": { "stats": { "stamina": 8 }, "stress": 10, "career": { "sports": 3 } }, "resultText": { "done": "발목이 뻐근하지만 슈팅 감이 확 왔다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 컵라면 먹기", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "땀 흘린 뒤 컵라면은 세상에서 제일 맛있다." } },
+      { "id": "challenge", "kind": "adventure", "label": "지역 대회에 출전한다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "sports": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "sports": 1 } }, "resultText": { "success": "결승골을 넣었다! 지역 대회 우승!", "fail": "연장전 끝에 아깝게 졌다. 다들 서로 어깨를 두드렸다." } }
+    ]
+  },
+  {
+    "id": "club_ball_rainy_day",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "ball" },
+    "title": "비 오는 날 훈련",
+    "text": "갑자기 비가 쏟아진다. 감독 선생님이 오늘은 체육관 훈련이라고 하신다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "체육관 체력 훈련", "effects": { "stats": { "stamina": 10 }, "stress": 12, "career": { "sports": 3 } }, "resultText": { "done": "버피 테스트 100개. 다리가 내 다리가 아니다." } },
+      { "id": "play", "kind": "rest", "label": "빗소리 들으며 쉬기", "effects": { "stress": -15 }, "resultText": { "done": "처마 밑에서 부원들과 빗소리를 들었다." } },
+      { "id": "challenge", "kind": "adventure", "label": "학교 대항 친선 경기", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "sports": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "sports": 1 } }, "resultText": { "success": "역전 버저비터! 친선 경기 MVP 트로피 획득!", "fail": "젖은 공에 실수가 잦았다. 다음엔 더 잘하자." } }
+    ]
+  },
+  {
+    "id": "club_science_experiment",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "science" },
+    "title": "실패하는 실험",
+    "text": "과학탐구반 실험이 또 실패했다. 비커 속 용액 색이 오늘도 이상하다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "실험 노트를 다시 쓴다", "effects": { "stats": { "study": 8 }, "stress": 10, "career": { "academic": 3 } }, "resultText": { "done": "변인 하나를 바꾸자 드디어 결과가 나왔다!" } },
+      { "id": "play", "kind": "rest", "label": "부원들과 별 보기", "effects": { "stress": -15 }, "resultText": { "done": "옥상 망원경으로 토성 고리를 봤다." } },
+      { "id": "challenge", "kind": "adventure", "label": "과학 탐구 대회 출전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "탐구 대회 금상! 심사위원이 질문을 세 개나 했다.", "fail": "발표 중에 실험 장치가 넘어졌다. 다음엔 테이프를 챙기자." } }
+    ]
+  },
+  {
+    "id": "club_science_water_rocket",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "science" },
+    "title": "물로켓 발사",
+    "text": "과학의 날 물로켓 대회가 열린다. 우리 팀 시험 발사 기록은 아직 0m.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "날개 각도를 계산한다", "effects": { "stats": { "study": 6 }, "stress": 8, "career": { "academic": 3 } }, "resultText": { "done": "공기 저항까지 계산했다. 이론은 완벽하다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 과자 내기", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "종이비행기 멀리 날리기 내기로 과자를 땄다." } },
+      { "id": "challenge", "kind": "adventure", "label": "물로켓 대회에 나간다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "로켓이 운동장 끝까지 날아갔다! 최우수상!", "fail": "로켓이 빙글 돌아 교장 선생님 발밑에 착지했다." } }
+    ]
+  },
+  {
+    "id": "club_coding_bug",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "coding" },
+    "title": "끝나지 않는 버그",
+    "text": "코딩반 프로젝트 마감 전날. 버그 하나가 도무지 잡히지 않는다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "끝까지 디버깅한다", "effects": { "stats": { "study": 8 }, "stress": 12, "career": { "academic": 3 } }, "resultText": { "done": "범인은 세미콜론 하나였다. 허무하지만 기쁘다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 게임 한 판", "effects": { "stress": -15 }, "resultText": { "done": "딱 한 판만 하려다 세 판 했다. 그래도 개운하다." } },
+      { "id": "challenge", "kind": "adventure", "label": "해커톤에 참가한다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "청소년 해커톤 우수상! 우리 앱이 무대에서 시연됐다.", "fail": "시연 직전에 서버가 멈췄다. 그래도 많이 배웠다." } }
+    ]
+  },
+  {
+    "id": "club_coding_lunch_app",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "coding" },
+    "title": "급식 앱 만들기",
+    "text": "급식 메뉴를 알려 주는 앱을 만들자는 아이디어가 나왔다. 다들 눈이 반짝인다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "알고리즘 문제를 푼다", "effects": { "stats": { "study": 6 }, "stress": 10, "career": { "academic": 3 } }, "resultText": { "done": "어제는 못 풀던 문제가 오늘은 풀린다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 치킨 회식", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "앱 이름을 정하다가 치킨이 다 식었다." } },
+      { "id": "challenge", "kind": "adventure", "label": "앱 공모전에 출품한다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "academic": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "academic": 1 } }, "resultText": { "success": "급식 앱이 공모전 입상! 전교생이 내 앱을 쓴다.", "fail": "심사 당일 메뉴가 안 떴다. 하필 그날만." } }
+    ]
+  },
+  {
+    "id": "club_broadcast_lunch_show",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "broadcast" },
+    "title": "점심 방송 5분 전",
+    "text": "점심 방송 5분 전, 진행자가 결석했다. 마이크가 내 앞에 놓였다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "원고를 소리 내 연습", "effects": { "stats": { "social": 8 }, "stress": 10, "career": { "comm": 3 } }, "resultText": { "done": "발음 연습만 한 시간. 이제 혀가 꼬이지 않는다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 신청곡 고르기", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "사연을 읽다가 다 같이 울컥했다." } },
+      { "id": "challenge", "kind": "adventure", "label": "방송 대회에 출전한다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "comm": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "comm": 1 } }, "resultText": { "success": "청소년 방송 대회 아나운서 부문 수상!", "fail": "큐 사인을 놓쳐 3초간 정적. 다음엔 꼭 보자." } }
+    ]
+  },
+  {
+    "id": "club_broadcast_interview",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "broadcast" },
+    "title": "교장 선생님 인터뷰",
+    "text": "방송부 특집으로 교장 선생님 인터뷰가 잡혔다. 질문지는 아직 백지다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "질문지를 다듬는다", "effects": { "stats": { "social": 6 }, "stress": 8, "career": { "comm": 3 } }, "resultText": { "done": "질문 열 개가 날카롭게 다듬어졌다." } },
+      { "id": "play", "kind": "rest", "label": "방송실에서 음악 감상", "effects": { "stress": -15 }, "resultText": { "done": "좋아하는 노래를 크게 틀고 푹 쉬었다." } },
+      { "id": "challenge", "kind": "adventure", "label": "영상 공모전 도전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "comm": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "comm": 1 } }, "resultText": { "success": "인터뷰 영상이 교육청 공모전 우수상!", "fail": "녹화 버튼을 안 눌렀다. 다시 찍기로 했다." } }
+    ]
+  },
+  {
+    "id": "club_startup_pitch",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "startup" },
+    "title": "아이디어 피칭",
+    "text": "창업동아리 아이디어 피칭 날. 발표 시간은 단 3분!",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "사업 계획서를 쓴다", "effects": { "stats": { "study": 8 }, "stress": 10, "career": { "biz": 3 } }, "resultText": { "done": "표와 그래프를 넣으니 진짜 회사 같다." } },
+      { "id": "play", "kind": "rest", "label": "부원들과 매점 탐방", "effects": { "stats": { "social": 5 } }, "resultText": { "done": "시장 조사라는 이름으로 신상 과자를 다 먹었다." } },
+      { "id": "challenge", "kind": "adventure", "label": "창업 경진대회 도전", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "biz": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "biz": 1 } }, "resultText": { "success": "청소년 창업 경진대회 장려상! 심사위원이 명함을 줬다.", "fail": "질문 공세에 말문이 막혔다. 숫자를 더 공부하자." } }
+    ]
+  },
+  {
+    "id": "club_startup_goods",
+    "tile": "club",
+    "years": [1, 2, 3],
+    "requires": { "clubId": "startup" },
+    "title": "학교 굿즈 제작",
+    "text": "학교 마스코트 굿즈를 만들어 팔자는 안건이 올라왔다. 예산은 빠듯하다.",
+    "options": [
+      { "id": "practice", "kind": "growth", "label": "원가표를 정리한다", "effects": { "stats": { "study": 6 }, "stress": 10, "career": { "biz": 3 } }, "resultText": { "done": "단가를 100원 낮출 방법을 찾았다!" } },
+      { "id": "play", "kind": "rest", "label": "샘플 굿즈 구경하기", "effects": { "stress": -10 }, "resultText": { "done": "마스코트 키링이 생각보다 훨씬 귀엽다." } },
+      { "id": "challenge", "kind": "adventure", "label": "굿즈 공모전에 낸다", "check": { "by": "club", "diff": 8 }, "onSuccess": { "career": { "biz": 5 }, "records": { "award": 1 } }, "onFail": { "stress": 10, "career": { "biz": 1 } }, "resultText": { "success": "마스코트 굿즈가 공모전 수상! 주문이 밀려든다.", "fail": "샘플 색이 이상하게 나왔다. 다음엔 꼭 확인하자." } }
+    ]
+  }
+]
