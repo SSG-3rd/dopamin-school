@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+/* ───────── 디자인 토큰 (다른 화면도 이 이름을 그대로 쓴다) ───────── */
+@theme {
+  --color-paper: #fff8ec;
+  --color-paper-2: #fdf0d9;
+  --color-ink: #2b2a33;
+  --color-muted: #6b6875;
+  --color-line: #e8dcc6;
+  --color-board: #2f5d50;
+  --color-board-2: #3e7465;
+  --color-accent: #ff7a59;
+  --color-sun: #ffc93c;
+  --color-sky: #5aa9e6;
+  --color-grape: #8e7dff;
+  --color-mint: #2fbf94;
+  --color-danger: #e5484d;
+  --color-academic: #5aa9e6;
+  --color-sports: #ff7a59;
+  --color-arts: #b46cf0;
+  --color-comm: #2fbf94;
+  --color-biz: #e0a400;
+}
+
+/* next/font 변수는 <html>에 붙으므로 inline으로 참조한다 */
+@theme inline {
+  --font-display: var(--font-jua), "Jua", ui-rounded, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-sans: var(--font-noto-sans-kr), "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    background-color: var(--color-paper);
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-paper);
+    /* 공책 느낌의 아주 옅은 모눈 */
+    background-image:
+      linear-gradient(rgb(232 220 198 / 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(232 220 198 / 0.35) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.25;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-sky);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgb(255 201 60 / 0.55);
+  }
+}
+
+/* ───────── 공용 컴포넌트 (src/components/ui.tsx) ─────────
+   components 레이어에 두어서 className으로 넘긴 Tailwind 유틸리티가 항상 이긴다. */
+@layer components {
+  .yd-btn {
+    --yd-btn-shadow: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 2px solid transparent;
+    border-radius: 0.875rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 3px 0 0 var(--yd-btn-shadow);
+    transition:
+      transform 80ms ease,
+      box-shadow 80ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+  .yd-btn:focus-visible {
+    outline: 3px solid var(--color-sky);
+    outline-offset: 3px;
+  }
+  .yd-btn:active:not(:disabled):not([aria-disabled="true"]) {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 0 var(--yd-btn-shadow);
+  }
+  .yd-btn:disabled,
+  .yd-btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+    filter: grayscale(0.35);
+  }
+
+  .yd-btn--primary {
+    --yd-btn-shadow: #c4502f;
+    background-color: var(--color-accent);
+    color: var(--color-ink);
+  }
+  .yd-btn--secondary {
+    --yd-btn-shadow: var(--color-line);
+    background-color: #fff;
+    border-color: var(--color-line);
+    color: var(--color-ink);
+  }
+  .yd-btn--ghost {
+    background-color: transparent;
+    color: var(--color-ink);
+    box-shadow: none;
+  }
+  .yd-btn--danger {
+    --yd-btn-shadow: #a8282c;
+    background-color: var(--color-danger);
+    color: #fff;
+  }
+  @media (hover: hover) {
+    .yd-btn--primary:hover:not(:disabled) {
+      background-color: #ff8b6e;
+    }
+    .yd-btn--secondary:hover:not(:disabled) {
+      background-color: var(--color-paper-2);
+    }
+    .yd-btn--ghost:hover:not(:disabled) {
+      background-color: rgb(43 42 51 / 0.07);
+    }
+    .yd-btn--danger:hover:not(:disabled) {
+      background-color: #d93d42;
+    }
+  }
+
+  .yd-btn--sm {
+    min-height: 2.5rem;
+    padding: 0.375rem 0.875rem;
+    font-size: 1rem;
+  }
+  .yd-btn--md {
+    min-height: 3rem;
+    padding: 0.5rem 1.25rem;
+    font-size: 1.125rem;
+  }
+  .yd-btn--lg {
+    min-height: 3.5rem;
+    padding: 0.75rem 1.75rem;
+    font-size: 1.375rem;
+    border-radius: 1rem;
+  }
+  .yd-btn--block {
+    display: flex;
+    width: 100%;
+  }
+
+  .yd-card {
+    border: 2px solid var(--color-line);
+    border-radius: 1rem;
+    background-color: #fff;
+    box-shadow: 0 3px 0 0 var(--color-line);
+  }
+
+  .yd-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 1.75rem;
+    padding: 0.125rem 0.625rem;
+    border: 1.5px solid var(--color-line);
+    border-radius: 999px;
+    background-color: var(--color-paper-2);
+    color: var(--color-ink);
+    font-size: 1rem;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .yd-chip--good {
+    border-color: rgb(47 191 148 / 0.45);
+    background-color: rgb(47 191 148 / 0.14);
+    color: #146b52;
+  }
+  .yd-chip--bad {
+    border-color: rgb(229 72 77 / 0.4);
+    background-color: rgb(229 72 77 / 0.1);
+    color: #a8282c;
+  }
+  .yd-chip--warn {
+    border-color: rgb(224 164 0 / 0.5);
+    background-color: rgb(255 201 60 / 0.22);
+    color: #6e4f00;
+  }
+  .yd-chip--info {
+    border-color: rgb(90 169 230 / 0.45);
+    background-color: rgb(90 169 230 / 0.14);
+    color: #1d5a8a;
+  }
+
+  .yd-bar-track {
+    position: relative;
+    overflow: hidden;
+    height: 0.75rem;
+    border-radius: 999px;
+    background-color: rgb(43 42 51 / 0.09);
+  }
+  .yd-bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+/* 움직임 줄이기: CSS 애니메이션·전환을 사실상 끈다 (framer-motion은 화면 쪽에서 처리) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
