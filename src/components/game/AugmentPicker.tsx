@@ -17,6 +17,7 @@ import { Button, Chip } from '@/components/ui';
 import { playSound } from '@/lib/sound';
 import { digitKey, isEnter, useAct, useHotkeys, useMediaQuery, useTiming } from './hooks';
 import { KIND_META, pct, previewTone, signed } from './meta';
+import { StatsDrawer, StatsToggle } from './StatsDrawer';
 
 /*
  * 증강 선택처럼 고르는 선택지 창.
@@ -684,6 +685,15 @@ export function AugmentPicker({ game }: { game: GameState }) {
   };
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // 내 능력치·돈 패널
+  const [statsOpen, setStatsOpen] = useState(false);
+  const statsToggleRef = useRef<HTMLButtonElement>(null);
+  const closeStats = () => {
+    setStatsOpen(false);
+    requestAnimationFrame(() => statsToggleRef.current?.focus({ preventScroll: true }));
+  };
+  const toggleStats = () => (statsOpen ? closeStats() : setStatsOpen(true));
+
   useEffect(() => () => clearTimeout(timer.current), []);
 
   // 열릴 때: 키보드로 둘러보던 중이면 첫 카드에, 아니면 창 자체에 포커스 (화면 읽기 프로그램이 창을 읽도록)
@@ -739,6 +749,14 @@ export function AugmentPicker({ game }: { game: GameState }) {
 
   useHotkeys((e) => {
     if (pickedRef.current) return digitKey(e) != null || isEnter(e);
+    if (e.key === 's' || e.key === 'S' || e.key === 'ㄴ') {
+      toggleStats();
+      return true;
+    }
+    if (e.key === 'Escape' && statsOpen) {
+      closeStats();
+      return true;
+    }
     const d = digitKey(e);
     if (d != null) {
       const v = views.find((x) => x.key === d);
@@ -833,15 +851,18 @@ export function AugmentPicker({ game }: { game: GameState }) {
       aria-describedby={p.text ? textId : undefined}
       tabIndex={-1}
       onKeyDown={onKeyDown}
-      className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-outline/45 outline-none backdrop-blur-[2px]"
+      className="fixed inset-0 z-40 overflow-y-auto overscroll-contain outline-none"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { duration: fast ? 0.1 : 0.2 } }}
       exit={{ opacity: 0, transition: { duration: fast ? 0.08 : 0.16 } }}
     >
+      {/* 어둡게 덮는 배경 (창 자체에 blur를 걸면 안쪽 fixed 패널이 스크롤에 끌려가므로 따로 둔다) */}
+      <div aria-hidden="true" className="fixed inset-0 bg-outline/45 backdrop-blur-[2px]" />
       <div
-        className={`mx-auto flex min-h-full w-full max-w-[1240px] flex-col items-center justify-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] ${
+        className={`relative mx-auto flex min-h-full w-full max-w-[1240px] flex-col items-center justify-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] transition-[padding] duration-300 ${
           wide ? 'gap-5' : 'gap-3.5'
         }`}
+        style={wide && statsOpen ? { paddingRight: 404 } : undefined}
       >
         {/* 상황 말풍선 */}
         <motion.div
@@ -880,10 +901,13 @@ export function AugmentPicker({ game }: { game: GameState }) {
           />
         </motion.div>
 
-        <p className="mt-1 rounded-full border-2 border-outline bg-paper/95 px-4 py-1 font-display text-lg leading-tight text-ink shadow-[0_2px_0_0_rgb(107_79_58/0.25)]">
-          <span aria-hidden="true">✨</span> 하나를 골라요
-          {fine && n > 1 && <span className="text-base text-muted"> · 숫자 키 1~{n}</span>}
-        </p>
+        <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+          <p className="rounded-full border-2 border-outline bg-paper/95 px-4 py-1 font-display text-lg leading-tight text-ink shadow-[0_2px_0_0_rgb(107_79_58/0.25)]">
+            <span aria-hidden="true">✨</span> 하나를 골라요
+            {fine && n > 1 && <span className="text-base text-muted"> · 숫자 키 1~{n}</span>}
+          </p>
+          <StatsToggle game={game} open={statsOpen} onToggle={toggleStats} showKey={fine} buttonRef={statsToggleRef} />
+        </div>
 
         {/* 카드 */}
         {variant === 'tall' ? (
@@ -918,6 +942,10 @@ export function AugmentPicker({ game }: { game: GameState }) {
           <DetailPanel view={selectedView} armed={armed} full={!wide} onPick={pick} panelRef={panelRef} />
         )}
       </div>
+
+      <AnimatePresence>
+        {statsOpen && <StatsDrawer key="stats" game={game} wide={wide} fast={fast} onClose={closeStats} />}
+      </AnimatePresence>
     </motion.div>
   );
 }

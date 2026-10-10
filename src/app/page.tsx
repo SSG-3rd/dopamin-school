@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 import { DiceBuddy } from '@/components/DiceBuddy';
 import { Card, buttonClass } from '@/components/ui';
-import { APP_NAME_PARTS, APP_TAGLINE } from '@/lib/brand';
+import { APP_NAME_EN, APP_NAME_PARTS, APP_TAGLINE } from '@/lib/brand';
 import { KEYS, readJSON } from '@/lib/storage';
 import { useSettings } from '@/lib/settings';
 import type { Settings } from '@/lib/settings';
@@ -122,6 +122,7 @@ export default function TitlePage() {
           </h1>
           <DiceBuddy size={56} mood="wink" color="#ffe08a" className="yd-buddy-hop yd-buddy-hop--late hidden shrink-0 rotate-6 sm:block" />
         </div>
+        <p className="mt-2 font-display text-lg tracking-[0.35em] text-outline/80">{APP_NAME_EN}</p>
         <p className="yd-panel mt-4 max-w-sm px-5 py-3 text-base leading-relaxed text-ink">
           {APP_TAGLINE}.
           <br />

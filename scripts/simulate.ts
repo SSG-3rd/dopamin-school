@@ -43,7 +43,7 @@ for (let i = 0; i < games; i++) {
 }
 
 const pct = (n: number) => `${((n / games) * 100).toFixed(1)}%`;
-console.log(`\n데굴데굴 스쿨 시뮬레이션 — ${games}판, 정책 ${policy}${trait ? `, 성향 ${trait}` : ''} (${Date.now() - t0}ms)`);
+console.log(`\n터닝포인트 시뮬레이션 — ${games}판, 정책 ${policy}${trait ? `, 성향 ${trait}` : ''} (${Date.now() - t0}ms)`);
 console.log(`턴: 평균 ${(turns / games).toFixed(1)} (최소 ${minTurns}, 최대 ${maxTurns})`);
 console.log('\n엔딩 종류');
 for (const [k, n] of [...kinds].sort((a, b) => b[1] - a[1])) console.log(`  ${k.padEnd(8)} ${String(n).padStart(5)}  ${pct(n)}`);
