@@ -1,8 +1,16 @@
 // 칸 도착 처리와 코너 칸의 여러 단계(용돈 → 루트 → 방학 → 상점 …)를 순서대로 진행한다.
-import { content } from '../content';
+import { STAT_NAMES, content } from '../content';
 import { applyMoney, consumeBuffs, hasBuff } from '../effects';
 import { endTurn, setChoice, setResult, since, type Ctx } from '../flow';
-import { ALLOWANCE_PROMO, ALLOWANCE_SUMMER, PART_TIMER_MULT } from '../rules';
+import {
+  ALLOWANCE_PROMO,
+  ALLOWANCE_SUMMER,
+  BURNOUT_STAMINA_LOSS,
+  BURNOUT_STRESS_RESET,
+  BURNOUT_TOP_STAT_LOSS,
+  PART_TIMER_MULT,
+  highestStat,
+} from '../rules';
 import type { ChoiceOption, GameState } from '../types';
 import { startClub } from './club';
 import { startCounsel } from './counsel';
@@ -133,12 +141,13 @@ export function runNext(d: GameState, ctx: Ctx): void {
 }
 
 function startBurnout(d: GameState): void {
+  const top = highestStat(d.stats);
   d.pending = {
     source: 'burnout',
     tile: d.position,
     icon: '🫠',
     title: '번아웃!',
-    text: '스트레스가 한계에 달했다. 아무것도 하기 싫다… 한 턴 쉬어 간다. (체력 −10, 스트레스 50으로)',
+    text: `스트레스가 한계에 달했다. 머리가 하얘진다… 가장 자신 있던 ${STAT_NAMES[top]}마저 흔들린다. (${STAT_NAMES[top]} −${BURNOUT_TOP_STAT_LOSS}, 체력 −${BURNOUT_STAMINA_LOSS}, 스트레스 ${BURNOUT_STRESS_RESET}으로)`,
   };
   d.phase = 'burnout';
 }

@@ -1,6 +1,6 @@
 // 규칙 상수와 계산식. 숫자는 여기 모아 두고 테스트 플레이 후 조정한다.
-import type { Career, GameState, OptionKind } from './types';
-import { CAREERS } from './types';
+import type { Career, GameState, OptionKind, Stat } from './types';
+import { CAREERS, STATS } from './types';
 
 export const DIFF = { easy: 6, normal: 8, hard: 10 } as const;
 export const MOVE_DIE = [1, 1, 1, 2, 2, 3] as const;
@@ -38,8 +38,16 @@ export const FUMBLE_EXTRA_STRESS = 5;
 /** 대성공(일반 사건)은 성공 효과에 스트레스 감소를 얹는다 */
 export const CRITICAL_STRESS_RELIEF = 5;
 
+/** 번아웃: 그때 가장 높은 기본 능력치 하나를 깎고(동점이면 학업·체력·인맥·운 순), 체력도 깎고, 스트레스를 내린다. 턴은 쉬지 않는다. */
+export const BURNOUT_TOP_STAT_LOSS = 15;
 export const BURNOUT_STAMINA_LOSS = 10;
 export const BURNOUT_STRESS_RESET = 50;
+
+export function highestStat(stats: Record<Stat, number>): Stat {
+  let best: Stat = STATS[0];
+  for (const s of STATS) if (stats[s] > stats[best]) best = s;
+  return best;
+}
 
 // 엔딩
 export const RESCUE_MIN_SOCIAL = 70;
@@ -106,7 +114,7 @@ export interface StressTier {
 }
 
 export function stressTier(stress: number): StressTier {
-  if (stress >= 100) return { id: 'burnout', label: '번아웃', effect: '다음 턴 휴식, 체력 −10' };
+  if (stress >= 100) return { id: 'burnout', label: '번아웃', effect: '가장 높은 능력치 −15, 체력 −10' };
   if (stress >= 80) return { id: 'danger', label: '위험', effect: '성장형 잠김 · 휴식 효과 2배 · 판정 −1' };
   if (stress >= 60) return { id: 'tired', label: '지침', effect: '모든 판정 −1' };
   if (stress >= 30) return { id: 'normal', label: '보통', effect: '효과 없음' };

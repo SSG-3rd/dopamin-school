@@ -10,7 +10,7 @@
 
 **화면 스타일**: 하늘·구름·보라색 산·동글동글한 덤불·풀포기 난 크림색 땅을 갈색 손그림 테두리로 그린 파스텔 그림책 풍경(`src/components/Scenery.tsx`), 주사위 마스코트 '데굴이'(`src/components/DiceBuddy.tsx`). 색 토큰은 `src/app/globals.css`의 `@theme`에 있습니다. 선택지는 리그 오브 레전드의 증강 선택처럼 카드 여러 장 중 하나를 고르는 오버레이로 나오고, 오른쪽 위 '📊 내 능력치' 버튼(S 키)으로 지금까지의 능력치·돈을 볼 수 있습니다.
 
-**설계 문서와 달라진 규칙** (`src/engine/rules.ts` 상수): 기본 능력치 상승량은 콘텐츠 값의 0.7배(`STAT_GAIN_RATE`), 졸업 판정은 능력치 보정 없이 주사위 2개만으로(`GRADUATION_USES_BONUSES = false`, 9 이상 상위 · 6~8 중위 · 5 이하 하위).
+**설계 문서와 달라진 규칙** (`src/engine/rules.ts` 상수): 기본 능력치 상승량은 콘텐츠 값의 0.7배(`STAT_GAIN_RATE`), 졸업 판정은 능력치 보정 없이 주사위 2개만으로(`GRADUATION_USES_BONUSES = false`, 9 이상 상위 · 6~8 중위 · 5 이하 하위). 스트레스 100(번아웃)이 되면 턴을 쉬지 않고, 그때 가장 높은 기본 능력치 −15 · 체력 −10 · 스트레스 50으로(`BURNOUT_TOP_STAT_LOSS`).
 
 ## 기술 스택
 

@@ -203,6 +203,42 @@ describe('진행', () => {
   });
 });
 
+describe('번아웃', () => {
+  it('가장 높은 능력치 −15, 체력 −10, 스트레스 50, 턴은 쉬지 않는다', () => {
+    let s = started('effort');
+    s = { ...s, phase: 'burnout', burnoutPending: true, pending: { source: 'burnout', title: '번아웃!', text: '' }, queue: [] };
+    s.stats = { study: 70, stamina: 40, social: 80, luck: 30 };
+    s.stress = 100;
+    const turn = s.turn;
+    const r = reduce(s, { type: 'CONTINUE' }).state;
+    expect(r.stats).toEqual({ study: 70, stamina: 30, social: 65, luck: 30 });
+    expect(r.stress).toBe(50);
+    expect(r.turn).toBe(turn);
+    expect(r.burnoutPending).toBe(false);
+    expect(r.phase).toBe('await_roll');
+  });
+
+  it('동점이면 학업·체력·인맥·운 순으로 앞의 능력치', () => {
+    let s = started('effort');
+    s = { ...s, phase: 'burnout', burnoutPending: true, pending: { source: 'burnout', title: '번아웃!', text: '' }, queue: [] };
+    s.stats = { study: 50, stamina: 60, social: 60, luck: 10 };
+    s.stress = 100;
+    const r = reduce(s, { type: 'CONTINUE' }).state;
+    expect(r.stats.stamina).toBe(35);
+    expect(r.stats.social).toBe(60);
+  });
+
+  it('스트레스 100이 되면 다음 단계 전에 번아웃 화면이 뜬다', () => {
+    let s = started('effort', 11);
+    s = { ...s, phase: 'result', pending: { source: 'event', title: 't', text: '', changes: [] }, queue: [], stress: 95 };
+    applyStress(s, 20, []);
+    expect(s.burnoutPending).toBe(true);
+    const r = reduce(s, { type: 'CONTINUE' }).state;
+    expect(r.phase).toBe('burnout');
+    expect(r.pending?.text).toContain('학업 −15');
+  });
+});
+
 describe('엔딩', () => {
   it('진로 Lv2 이상은 Lv² 가중치, 두 분야 Lv3 이상은 조합', () => {
     const s = started();

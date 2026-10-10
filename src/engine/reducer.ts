@@ -21,12 +21,14 @@ import {
   ABILITY_USES_PER_YEAR,
   BOARD_SIZE,
   BURNOUT_STAMINA_LOSS,
+  BURNOUT_TOP_STAT_LOSS,
   BURNOUT_STRESS_RESET,
   CORNERS,
   CRITICAL_STRESS_RELIEF,
   FUMBLE_EXTRA_STRESS,
   MOVE_DIE,
   START_MONEY,
+  highestStat,
   scaleStatGain,
 } from './rules';
 import { handleClubAction } from './tiles/club';
@@ -150,13 +152,15 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
         case 'judge':
           resolveJudge(d, ctx);
           return;
-        case 'burnout':
+        case 'burnout': {
+          const top = highestStat(d.stats);
+          applyStat(d, top, -BURNOUT_TOP_STAT_LOSS, ctx.log);
           applyStat(d, 'stamina', -BURNOUT_STAMINA_LOSS, ctx.log);
           setStress(d, BURNOUT_STRESS_RESET, ctx.log);
-          d.turn += 1;
           d.burnoutPending = false;
           runNext(d, ctx);
           return;
+        }
         case 'graduation':
           startEnding(d, ctx);
           return;

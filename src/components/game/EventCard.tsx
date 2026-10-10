@@ -74,7 +74,7 @@ export function ChangeList({ changes }: { changes: Change[] }) {
 }
 
 const CONTINUE_LABEL: Partial<Record<GameState['phase'], string>> = {
-  burnout: '푹 쉬기',
+  burnout: '정신 차리기',
   graduation: '엔딩 보러 가기 🎓',
 };
 
@@ -115,7 +115,7 @@ function ResultBody({ game }: { game: GameState }) {
       {p.resultText && (
         <p className="rounded-2xl border-2 border-line bg-paper-2 px-3 py-2.5 text-lg leading-relaxed">{p.resultText}</p>
       )}
-      <ChangeList changes={p.changes ?? []} />
+      {(game.phase === 'result' || game.phase === 'tile_event' || (p.changes?.length ?? 0) > 0) && <ChangeList changes={p.changes ?? []} />}
       <div className="flex flex-col gap-1.5">
         <Button size="lg" block onClick={next}>
           {CONTINUE_LABEL[game.phase] ?? '계속하기'} <KeyBadge>Enter</KeyBadge>
