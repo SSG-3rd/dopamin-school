@@ -5,9 +5,12 @@ import { buildCandidates, graduationBonuses } from '@/engine/ending';
 import { reduce } from '@/engine/reducer';
 import { createRng } from '@/engine/rng';
 import {
+  GRADE_MID,
+  GRADE_TOP,
   careerBonus,
   careerLevel,
   statBonus,
+  scaleStatGain,
   stressJudgeMod,
   successProbability,
   tileGridPos,
@@ -76,11 +79,21 @@ describe('보정표', () => {
 });
 
 describe('성장 제한', () => {
+  it('상승량은 0.7배(반올림, 최소 1)', () => {
+    expect([10, 8, 5, 3, 1, 15].map(scaleStatGain)).toEqual([7, 6, 4, 2, 1, 11]);
+    expect(scaleStatGain(-10)).toBe(-10);
+    const s = started('effort');
+    s.stats.stamina = 40;
+    applyStat(s, 'stamina', 10, []);
+    expect(s.stats.stamina).toBe(47);
+    applyStat(s, 'stamina', -10, []);
+    expect(s.stats.stamina).toBe(37);
+  });
   it('80 초과에서는 상승량 절반(최소 1), 0~100으로 자름', () => {
     const s = started('effort');
     s.stats.stamina = 85;
     applyStat(s, 'stamina', 10, []);
-    expect(s.stats.stamina).toBe(90);
+    expect(s.stats.stamina).toBe(89);
     s.stats.stamina = 99;
     applyStat(s, 'stamina', 10, []);
     expect(s.stats.stamina).toBe(100);
@@ -91,9 +104,9 @@ describe('성장 제한', () => {
     const s = started('talent');
     const before = s.stats.study;
     applyStat(s, 'study', 10, []);
-    expect(s.stats.study).toBe(before + 5);
+    expect(s.stats.study).toBe(before + 4);
     applyStat(s, 'study', 3, []);
-    expect(s.stats.study).toBe(before + 6);
+    expect(s.stats.study).toBe(before + 5);
   });
   it('운동형 스트레스 증가 −5, 충전 완료면 오르지 않음', () => {
     const s = started('athlete');
@@ -259,6 +272,23 @@ describe('엔딩', () => {
     expect(st.ending?.rerolled).toBe(true);
     expect(st.ending?.grade).toBeDefined();
     expect(st.ending?.graduationRoll?.dice).toHaveLength(2);
+  });
+
+  it('졸업 판정은 주사위 2개만으로 (보정 없음)', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const s = toGraduation(started('effort', seed));
+      s.stats.social = 30;
+      s.stats.study = 95;
+      s.careerExp.academic = 40;
+      s.finalExamBonus = true;
+      const e = reduce(s, { type: 'CONTINUE' }).state.ending!;
+      const r = e.graduationRoll!;
+      expect(r.bonus).toBe(0);
+      expect(r.bonuses).toEqual([]);
+      const sum = r.dice[0] + r.dice[1];
+      expect(r.total).toBe(sum);
+      expect(e.grade).toBe(sum >= GRADE_TOP ? 'top' : sum >= GRADE_MID ? 'mid' : 'low');
+    }
   });
 });
 

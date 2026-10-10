@@ -12,7 +12,7 @@
       "label": "💪 능력치 키우기",
       "kind": "special",
       "action": "pick_stat5",
-      "desc": "원하는 기본 능력치 +5"
+      "desc": "원하는 기본 능력치 +4"
     },
     {
       "id": "career",

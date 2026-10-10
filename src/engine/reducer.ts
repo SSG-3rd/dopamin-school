@@ -27,6 +27,7 @@ import {
   FUMBLE_EXTRA_STRESS,
   MOVE_DIE,
   START_MONEY,
+  scaleStatGain,
 } from './rules';
 import { handleClubAction } from './tiles/club';
 import { handleCounselAction } from './tiles/counsel';
@@ -37,12 +38,12 @@ import { STATS } from './types';
 import { getRouteViews, optionAvailability } from './view';
 
 const ENROLL_FACES: Record<number, { label: string; effects?: Effects }> = {
-  1: { label: '학업 +10', effects: { stats: { study: 10 } } },
-  2: { label: '체력 +10', effects: { stats: { stamina: 10 } } },
-  3: { label: '인맥 +10', effects: { stats: { social: 10 } } },
-  4: { label: '운 +10', effects: { stats: { luck: 10 } } },
+  1: { label: `학업 +${scaleStatGain(10)}`, effects: { stats: { study: 10 } } },
+  2: { label: `체력 +${scaleStatGain(10)}`, effects: { stats: { stamina: 10 } } },
+  3: { label: `인맥 +${scaleStatGain(10)}`, effects: { stats: { social: 10 } } },
+  4: { label: `운 +${scaleStatGain(10)}`, effects: { stats: { luck: 10 } } },
   5: { label: '스트레스 −10', effects: { stress: -10 } },
-  6: { label: '원하는 능력치 +10' },
+  6: { label: `원하는 능력치 +${scaleStatGain(10)}` },
 };
 
 export function reduce(state: GameState, action: Action): ReduceResult {
@@ -104,7 +105,7 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
         source: 'enroll',
         enrollDie: 6,
         title: '입학 주사위: 6',
-        text: `${STAT_NAMES[a.stat as Stat]} +10`,
+        text: `${STAT_NAMES[a.stat as Stat]} +${scaleStatGain(10)}`,
         resultText: '설레는 고등학교 생활이 시작된다!',
         changes: since(ctx.log, start),
       });

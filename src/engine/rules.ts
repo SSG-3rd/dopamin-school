@@ -18,6 +18,15 @@ export const STAT_MIN = 0;
 export const STAT_MAX = 100;
 /** 이 값을 넘은 능력치는 오르는 양이 절반 */
 export const STAT_SOFT_CAP = 80;
+/**
+ * 기본 능력치 상승량 배율. 콘텐츠의 +10은 실제로 +7이 된다(반올림, 최소 1).
+ * 내리는 양(−)에는 쓰지 않는다. 화면 미리보기도 같은 식을 쓴다.
+ */
+export const STAT_GAIN_RATE = 0.7;
+
+export function scaleStatGain(v: number): number {
+  return v > 0 ? Math.max(1, Math.round(v * STAT_GAIN_RATE)) : v;
+}
 
 export const CAREER_THRESHOLDS = [6, 14, 24, 34, 46] as const;
 export const CAREER_MAX_LEVEL = 5;
@@ -40,8 +49,13 @@ export const ROULETTE_MIN_LEVEL = 2;
 export const COMBO_MIN_LEVEL = 3;
 export const BIZ_MONEY_CANDIDATE = 150000;
 export const REROLL_MIN_LUCK = 60;
-export const GRADE_TOP = 13;
-export const GRADE_MID = 9;
+/**
+ * 졸업 판정에 능력치·진로·운 보정을 더할지. false면 주사위 2개만으로 등급이 정해진다(완전히 운).
+ * 설계 문서 6장의 보정식은 graduationBonuses()에 남아 있다.
+ */
+export const GRADUATION_USES_BONUSES = false;
+export const GRADE_TOP = GRADUATION_USES_BONUSES ? 13 : 9;
+export const GRADE_MID = GRADUATION_USES_BONUSES ? 9 : 6;
 export const EPILOGUE_STRESS = 80;
 export const EPILOGUE_MONEY = 100000;
 

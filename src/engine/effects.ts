@@ -9,6 +9,7 @@ import {
   STAT_MAX,
   STAT_MIN,
   STAT_SOFT_CAP,
+  scaleStatGain,
 } from './rules';
 import type {
   ActiveBuff,
@@ -35,6 +36,7 @@ export function applyStat(d: GameState, stat: Stat, delta: number, log: Change[]
   if (v > 0) {
     if (stat === 'study' && d.traitId === 'talent') v = Math.max(1, v - 5);
     if (d.stats[stat] > STAT_SOFT_CAP) v = Math.max(1, Math.floor(v / 2));
+    v = scaleStatGain(v);
   }
   const before = d.stats[stat];
   const after = clamp(before + v, STAT_MIN, STAT_MAX);

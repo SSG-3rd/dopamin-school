@@ -22,7 +22,7 @@
       "id": "condition",
       "label": "🧘 컨디션 관리",
       "kind": "special",
-      "desc": "판정 −1 · 체력 +5 · 스트레스 −10",
+      "desc": "판정 −1 · 체력 +4 · 스트레스 −10",
       "judgeMod": -1,
       "after": {
         "stats": {

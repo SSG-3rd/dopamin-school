@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { STAT_ICONS, STAT_NAMES } from '@/engine/content';
+import { scaleStatGain } from '@/engine/rules';
 import { STATS } from '@/engine/types';
 import type { GameState } from '@/engine/types';
 import { Button } from '@/components/ui';
@@ -11,12 +12,12 @@ import { ChangeList, KeyBadge } from './EventCard';
 import { digitKey, isEnter, isSpace, useAct, useHotkeys, useTiming } from './hooks';
 
 const FACES: { face: number; text: string }[] = [
-  { face: 1, text: '학업 +10' },
-  { face: 2, text: '체력 +10' },
-  { face: 3, text: '인맥 +10' },
-  { face: 4, text: '운 +10' },
+  { face: 1, text: `학업 +${scaleStatGain(10)}` },
+  { face: 2, text: `체력 +${scaleStatGain(10)}` },
+  { face: 3, text: `인맥 +${scaleStatGain(10)}` },
+  { face: 4, text: `운 +${scaleStatGain(10)}` },
   { face: 5, text: '스트레스 −10' },
-  { face: 6, text: '원하는 능력치 +10' },
+  { face: 6, text: `원하는 능력치 +${scaleStatGain(10)}` },
 ];
 
 /**
@@ -115,7 +116,7 @@ export function EnrollRoll({ game }: { game: GameState }) {
 
       {!rolling && picking && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
-          <p className="font-display text-lg">🎉 6! 올리고 싶은 능력치를 골라요 (+10)</p>
+          <p className="font-display text-lg">🎉 6! 올리고 싶은 능력치를 골라요 (+{scaleStatGain(10)})</p>
           <div className="grid grid-cols-2 gap-2">
             {STATS.map((s, i) => (
               <Button key={s} variant="secondary" size="md" onClick={() => dispatch({ type: 'ENROLL_PICK_STAT', stat: s })}>

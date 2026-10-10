@@ -33,7 +33,7 @@ const HOW_TO = [
   { icon: '🧑‍🎓', title: '성향 고르기', text: '재능형·노력형·운동형·인싸형·운빨형 중 하나. 시작 능력치와 특수 능력이 달라요.' },
   { icon: '🎲', title: '입학 주사위', text: '한 번 굴려서 학업·체력·인맥·운 중 하나를 올리거나 스트레스를 낮춰요.' },
   { icon: '🏫', title: '3년 동안 보드 3바퀴', text: '주사위로 16칸 학교를 돌며 사건마다 선택해요. 시험, 방학, 동아리, 상점도 있어요.' },
-  { icon: '🎓', title: '졸업과 엔딩', text: '쌓인 진로 레벨이 직업 후보를 정하고, 운이 룰렛을 돌리고, 능력치가 등급을 정해요.' },
+  { icon: '🎓', title: '졸업과 엔딩', text: '쌓인 진로 레벨이 직업 후보를 정하고, 운이 룰렛을 돌리고, 마지막 주사위가 등급을 정해요.' },
 ] as const;
 
 const TOGGLES: { key: keyof Settings; icon: string; label: string; desc: string }[] = [

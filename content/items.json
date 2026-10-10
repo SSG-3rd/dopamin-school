@@ -1,8 +1,8 @@
 [
   { "id": "energy_drink", "name": "에너지 드링크", "emoji": "🥤", "price": 5000, "desc": "다음 판정 +1", "effects": { "buff": "energy_drink" } },
   { "id": "healing_goods", "name": "힐링 굿즈", "emoji": "🧸", "price": 10000, "desc": "스트레스 −20", "effects": { "stress": -20 } },
-  { "id": "workbook", "name": "문제집 세트", "emoji": "📚", "price": 15000, "desc": "학업 +10", "effects": { "stats": { "study": 10 } } },
-  { "id": "sneakers", "name": "운동화", "emoji": "👟", "price": 15000, "desc": "체력 +10", "effects": { "stats": { "stamina": 10 } } },
-  { "id": "gift", "name": "친구 선물", "emoji": "🎁", "price": 10000, "desc": "인맥 +10", "effects": { "stats": { "social": 10 } } },
-  { "id": "charm", "name": "행운의 부적", "emoji": "🧧", "price": 20000, "desc": "운 +10", "effects": { "stats": { "luck": 10 } } }
+  { "id": "workbook", "name": "문제집 세트", "emoji": "📚", "price": 15000, "desc": "학업 +7", "effects": { "stats": { "study": 10 } } },
+  { "id": "sneakers", "name": "운동화", "emoji": "👟", "price": 15000, "desc": "체력 +7", "effects": { "stats": { "stamina": 10 } } },
+  { "id": "gift", "name": "친구 선물", "emoji": "🎁", "price": 10000, "desc": "인맥 +7", "effects": { "stats": { "social": 10 } } },
+  { "id": "charm", "name": "행운의 부적", "emoji": "🧧", "price": 20000, "desc": "운 +7", "effects": { "stats": { "luck": 10 } } }
 ]

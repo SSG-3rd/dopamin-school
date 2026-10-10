@@ -2,7 +2,7 @@
 import { CAREER_NAMES, content } from '../content';
 import { addCareerExp, applyEffects, applyStress } from '../effects';
 import { setChoice, setResult, since, type Ctx } from '../flow';
-import { DIFF, FUMBLE_EXTRA_STRESS } from '../rules';
+import { DIFF, FUMBLE_EXTRA_STRESS, GRADUATION_USES_BONUSES } from '../rules';
 import type { Career, ChoiceOption, GameState } from '../types';
 import { CAREERS } from '../types';
 
@@ -53,7 +53,7 @@ export function resolveExam(d: GameState, ctx: Ctx): void {
       addCareerExp(d, career, 5, ctx.log);
       d.finalExamBonus = true;
       applyEffects(d, ex.final.success.effects, ctx.log);
-      ctx.log.push({ kind: 'note', text: '졸업 판정 +1' });
+      if (GRADUATION_USES_BONUSES) ctx.log.push({ kind: 'note', text: '졸업 판정 +1' });
       text = ex.final.success.text;
     } else {
       applyEffects(d, ex.final.fail.effects, ctx.log);

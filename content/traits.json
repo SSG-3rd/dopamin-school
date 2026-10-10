@@ -17,7 +17,7 @@
     "desc": "넘어져도 다시 일어나는 끈기의 아이콘. 늘 조금 지쳐 있다.",
     "stats": { "study": 50, "stamina": 45, "social": 40, "luck": 25 },
     "stress": 30,
-    "ability": "학업 판정에 실패해도 학업 +3",
+    "ability": "학업 판정에 실패해도 학업 +2",
     "weakness": "없음 (대신 시작 스트레스가 높다)",
     "activeAbility": false
   },

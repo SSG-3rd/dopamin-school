@@ -17,7 +17,7 @@ import { Button, Chip } from '@/components/ui';
 import { playSound } from '@/lib/sound';
 import { digitKey, isEnter, useAct, useHotkeys, useMediaQuery, useTiming } from './hooks';
 import { KIND_META, pct, previewTone, signed } from './meta';
-import { StatsDrawer, StatsToggle } from './StatsDrawer';
+import { STATS_DRAWER_WIDTH, StatsDrawer, StatsToggle } from './StatsDrawer';
 
 /*
  * 증강 선택처럼 고르는 선택지 창.
@@ -641,6 +641,21 @@ function narrowGrid(n: number): string {
   return 'grid-cols-3 max-w-[560px]';
 }
 
+/** 창 너비 (능력치 패널을 열었을 때 카드 크기 계산용) */
+function useViewportWidth(): number {
+  const [w, setW] = useState(() => (typeof window === 'undefined' ? 1280 : window.innerWidth));
+  useEffect(() => {
+    const on = () => setW(window.innerWidth);
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  return w;
+}
+
+const CONTENT_MAX = 1240;
+const CONTENT_GUTTER = 16;
+const TALL_GAP = 16;
+
 function tallWidth(n: number): number {
   if (n <= 3) return 230;
   if (n === 4) return 218;
@@ -688,6 +703,19 @@ export function AugmentPicker({ game }: { game: GameState }) {
   // 내 능력치·돈 패널
   const [statsOpen, setStatsOpen] = useState(false);
   const statsToggleRef = useRef<HTMLButtonElement>(null);
+  const [drawerH, setDrawerH] = useState(0);
+  const vw = useViewportWidth();
+  // 넓은 화면: 오른쪽 패널과 겹치는 만큼만 카드 영역을 왼쪽으로 줄이고, 카드는 한 줄을 지킨다
+  const contentW = Math.min(vw, CONTENT_MAX);
+  const drawerLeft = vw - 12 - STATS_DRAWER_WIDTH;
+  const padRight = wide && statsOpen ? Math.max(0, (vw + contentW) / 2 - drawerLeft + 16) : 0;
+  const rowW = contentW - CONTENT_GUTTER * 2 - padRight;
+  const cardW =
+    variant === 'tall'
+      ? statsOpen && wide
+        ? Math.max(132, Math.min(tallWidth(n), Math.floor((rowW - TALL_GAP * (n - 1)) / n)))
+        : tallWidth(n)
+      : undefined;
   const closeStats = () => {
     setStatsOpen(false);
     requestAnimationFrame(() => statsToggleRef.current?.focus({ preventScroll: true }));
@@ -818,7 +846,7 @@ export function AugmentPicker({ game }: { game: GameState }) {
         view={v}
         index={i}
         variant={variant}
-        width={variant === 'tall' ? tallWidth(n) : undefined}
+        width={cardW}
         hot={hot}
         status={status}
         armed={armed && !!v.judge}
@@ -858,11 +886,20 @@ export function AugmentPicker({ game }: { game: GameState }) {
     >
       {/* 어둡게 덮는 배경 (창 자체에 blur를 걸면 안쪽 fixed 패널이 스크롤에 끌려가므로 따로 둔다) */}
       <div aria-hidden="true" className="fixed inset-0 bg-outline/45 backdrop-blur-[2px]" />
+      <StatsToggle game={game} open={statsOpen} onToggle={toggleStats} showKey={fine} buttonRef={statsToggleRef} />
       <div
-        className={`relative mx-auto flex min-h-full w-full max-w-[1240px] flex-col items-center justify-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] transition-[padding] duration-300 ${
+        className={`relative mx-auto flex min-h-full w-full max-w-[1240px] flex-col items-center justify-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(4.25rem,env(safe-area-inset-top))] transition-[padding] duration-300 ${
           wide ? 'gap-5' : 'gap-3.5'
         }`}
-        style={wide && statsOpen ? { paddingRight: 404 } : undefined}
+        style={
+          wide
+            ? statsOpen
+              ? { paddingRight: padRight + CONTENT_GUTTER }
+              : undefined
+            : statsOpen && drawerH > 0
+              ? { paddingTop: drawerH + 84, justifyContent: 'flex-start' }
+              : undefined
+        }
       >
         {/* 상황 말풍선 */}
         <motion.div
@@ -901,17 +938,14 @@ export function AugmentPicker({ game }: { game: GameState }) {
           />
         </motion.div>
 
-        <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-          <p className="rounded-full border-2 border-outline bg-paper/95 px-4 py-1 font-display text-lg leading-tight text-ink shadow-[0_2px_0_0_rgb(107_79_58/0.25)]">
-            <span aria-hidden="true">✨</span> 하나를 골라요
-            {fine && n > 1 && <span className="text-base text-muted"> · 숫자 키 1~{n}</span>}
-          </p>
-          <StatsToggle game={game} open={statsOpen} onToggle={toggleStats} showKey={fine} buttonRef={statsToggleRef} />
-        </div>
+        <p className="mt-1 rounded-full border-2 border-outline bg-paper/95 px-4 py-1 font-display text-lg leading-tight text-ink shadow-[0_2px_0_0_rgb(107_79_58/0.25)]">
+          <span aria-hidden="true">✨</span> 하나를 골라요
+          {fine && n > 1 && <span className="text-base text-muted"> · 숫자 키 1~{n}</span>}
+        </p>
 
         {/* 카드 */}
         {variant === 'tall' ? (
-          <div className="flex w-full flex-wrap items-stretch justify-center gap-4 pt-2">{cards}</div>
+          <div className={`flex w-full items-stretch justify-center gap-4 pt-2 ${statsOpen ? 'flex-nowrap' : 'flex-wrap'}`}>{cards}</div>
         ) : variant === 'row' ? (
           <div className="grid w-full max-w-[1000px] grid-cols-3 gap-3.5 pt-1">{cards}</div>
         ) : (
@@ -944,7 +978,9 @@ export function AugmentPicker({ game }: { game: GameState }) {
       </div>
 
       <AnimatePresence>
-        {statsOpen && <StatsDrawer key="stats" game={game} wide={wide} fast={fast} onClose={closeStats} />}
+        {statsOpen && (
+          <StatsDrawer key="stats" game={game} wide={wide} fast={fast} onClose={closeStats} onHeight={setDrawerH} />
+        )}
       </AnimatePresence>
     </motion.div>
   );

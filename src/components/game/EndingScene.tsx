@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { content, trackName } from '@/engine/content';
-import { GRADE_MID, GRADE_TOP } from '@/engine/rules';
+import { GRADE_MID, GRADE_TOP, GRADUATION_USES_BONUSES } from '@/engine/rules';
 import type { EndingResult, GameState, Grade } from '@/engine/types';
 import { Button } from '@/components/ui';
 import { ENDING_KIND_LABELS, GRADE_ICONS, gradeName } from '@/lib/share';
@@ -196,7 +196,7 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
         <h1 className="text-3xl">
           <span aria-hidden="true">🎓</span> 졸업 판정
         </h1>
-        <p className="mt-1 text-base text-muted">주사위 2개 + 보정으로 직업 등급이 정해져요.</p>
+        <p className="mt-1 text-base text-muted">{GRADUATION_USES_BONUSES ? '주사위 2개 + 보정으로 직업 등급이 정해져요.' : '주사위 2개만으로 직업 등급이 정해져요. 완전히 운!'}</p>
       </div>
       <div className="flex items-center justify-center gap-4 rounded-[22px] border-[2.5px] border-outline bg-[#bfe3ad] py-5">
         <RollingDie value={r.dice[0]} rolling={stage === 0} size={80} />

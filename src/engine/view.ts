@@ -12,7 +12,7 @@ import {
 } from './content';
 import { resolveCareerKey } from './effects';
 import { planJudge } from './judge';
-import { ABILITY_USES_PER_YEAR, careerLevel, formatMoney, isGrowthLocked } from './rules';
+import { ABILITY_USES_PER_YEAR, careerLevel, formatMoney, isGrowthLocked, scaleStatGain } from './rules';
 import type {
   Change,
   CheckBy,
@@ -54,7 +54,7 @@ export function checkByLabel(by: CheckBy, state?: GameState): string {
 export function describeEffects(e: Effects | undefined, state?: GameState): string[] {
   if (!e) return [];
   const out: string[] = [];
-  if (e.stats) for (const s of STATS) if (e.stats[s]) out.push(`${STAT_NAMES[s]} ${signed(e.stats[s]!)}`);
+  if (e.stats) for (const s of STATS) if (e.stats[s]) out.push(`${STAT_NAMES[s]} ${signed(scaleStatGain(e.stats[s]!))}`);
   if (e.stress) out.push(`스트레스 ${signed(e.stress)}`);
   if (e.money) out.push(`돈 ${e.money > 0 ? '+' : '−'}${formatMoney(Math.abs(e.money))}`);
   if (e.career) {

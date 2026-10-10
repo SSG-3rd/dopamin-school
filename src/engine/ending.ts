@@ -8,6 +8,7 @@ import {
   EPILOGUE_STRESS,
   GRADE_MID,
   GRADE_TOP,
+  GRADUATION_USES_BONUSES,
   MIRACLE_FLAGS,
   REROLL_MIN_LUCK,
   RESCUE_MAX_OTHER_LEVEL,
@@ -184,7 +185,7 @@ function finalizeRoulette(d: GameState, ctx: Ctx, e: EndingResult, pick: string)
     track = fieldTrack(d, field);
     table = content.endings.fields[track];
   }
-  const bonuses = graduationBonuses(d, field, lv[field]);
+  const bonuses = GRADUATION_USES_BONUSES ? graduationBonuses(d, field, lv[field]) : [];
   const bonus = bonuses.reduce((s, b) => s + b.value, 0);
   const d1 = ctx.rng.d6();
   const d2 = ctx.rng.d6();
