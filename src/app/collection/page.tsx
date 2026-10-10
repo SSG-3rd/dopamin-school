@@ -44,7 +44,7 @@ function JobTile({ job, seen, hint }: { job: JobInfo; seen?: Collection[string];
     );
   }
   return (
-    <div className="flex h-full flex-col gap-1 rounded-2xl border-2 border-dashed border-line bg-paper-2/70 p-3">
+    <div className="flex h-full flex-col gap-1 rounded-2xl border-2 border-dashed border-outline/40 bg-paper-2/80 p-3">
       <div className="flex items-start justify-between gap-2">
         <span aria-hidden="true" className="font-display text-lg leading-snug text-ink/30 select-none">
           ？？？

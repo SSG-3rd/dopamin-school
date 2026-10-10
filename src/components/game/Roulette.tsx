@@ -155,7 +155,7 @@ export function Roulette({
               animate={on ? { scale: hit ? [1, 1.08, 1.04] : 1.04 } : { scale: 1 }}
               transition={{ duration: hit ? 0.5 : 0.08 }}
               className={`flex flex-col gap-1 rounded-2xl border-[3px] px-4 py-3 ${
-                on ? 'border-ink bg-sun shadow-[0_4px_0_0_var(--color-ink)]' : 'border-line bg-white'
+                on ? 'border-outline bg-sun shadow-[0_4px_0_0_rgb(107_79_58/0.32)]' : 'border-outline/45 bg-paper'
               }`}
               aria-current={hit ? 'true' : undefined}
             >
@@ -190,7 +190,7 @@ export function Roulette({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex w-full max-w-md flex-col gap-2 rounded-3xl border-[3px] border-ink bg-white p-4 shadow-[0_4px_0_0_var(--color-ink)]"
+          className="flex w-full max-w-md flex-col gap-2 rounded-3xl border-[3px] border-outline bg-paper p-4 shadow-[0_4px_0_0_rgb(107_79_58/0.32)]"
           role="group"
           aria-label="룰렛 다시 돌리기"
         >

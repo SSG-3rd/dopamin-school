@@ -1,5 +1,6 @@
 // 부스용 통계 (§8): 오늘 플레이 수, 인기 성향, 직업 분포. Supabase get_stats()를 30초 캐시.
 import type { Metadata } from 'next';
+import { APP_NAME } from '@/lib/brand';
 import Link from 'next/link';
 import { Card, buttonClass } from '@/components/ui';
 import { content, jobName } from '@/engine/content';
@@ -9,7 +10,7 @@ export const revalidate = 30;
 
 export const metadata: Metadata = {
   title: '플레이 통계',
-  description: '청춘다이스 익명 플레이 통계: 오늘 플레이 수, 인기 성향, 직업 분포',
+  description: `${APP_NAME} 익명 플레이 통계: 오늘 플레이 수, 인기 성향, 직업 분포`,
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -137,10 +138,10 @@ export default async function StatsPage({ searchParams }: { searchParams: Search
         />
       ) : (
         <>
-          <Card className="flex flex-col items-center gap-1 bg-board p-6 text-center text-white">
-            <h2 className="text-xl text-white/85">{rangeLabel} 플레이 수</h2>
-            <p className="font-display text-7xl leading-none text-sun">{plays.toLocaleString('ko-KR')}</p>
-            <p className="text-base text-white/80">판 · 30초마다 새로 고쳐져요</p>
+          <Card className="flex flex-col items-center gap-1 bg-[linear-gradient(#9dd5f1,#d6effa)] p-6 text-center text-ink">
+            <h2 className="text-xl text-ink/85">{rangeLabel} 플레이 수</h2>
+            <p className="yd-logo font-display text-7xl leading-none text-sun">{plays.toLocaleString('ko-KR')}</p>
+            <p className="text-base text-ink/80">판 · 30초마다 새로 고쳐져요</p>
           </Card>
 
           {plays === 0 ? (

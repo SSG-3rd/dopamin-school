@@ -55,10 +55,10 @@ export function TraitSelect() {
                 onClick={() => choose(t.id)}
                 aria-pressed={on}
                 whileTap={{ scale: 0.98 }}
-                className={`flex h-full w-full flex-col gap-2 rounded-3xl border-[3px] bg-white p-4 text-left transition-[box-shadow,border-color,background-color] ${
+                className={`flex h-full w-full flex-col gap-2 rounded-3xl border-[3px] bg-paper p-4 text-left transition-[box-shadow,border-color,background-color] ${
                   on
-                    ? 'border-ink bg-[#fff3d6] shadow-[0_5px_0_0_var(--color-ink)]'
-                    : 'border-line shadow-[0_4px_0_0_var(--color-line)] hover:border-ink/50'
+                    ? 'border-outline bg-[#fff3d6] shadow-[0_5px_0_0_rgb(107_79_58/0.32)]'
+                    : 'border-outline/45 shadow-[0_4px_0_0_rgb(107_79_58/0.2)] hover:border-outline/50'
                 }`}
               >
                 <span className="flex items-center gap-2">
@@ -101,7 +101,7 @@ export function TraitSelect() {
           );
         })}
       </ul>
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-line bg-paper/95 px-4 py-3 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-outline/45 bg-paper/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-xl flex-col items-center gap-1">
           <Button size="lg" block disabled={!selected} onClick={() => selected && confirm(selected.id)}>
             {selected ? `${selected.emoji} ${selected.name}(으)로 입학하기` : '성향을 골라 주세요'}

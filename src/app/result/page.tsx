@@ -1,6 +1,8 @@
 // 공유용 결과 카드 (§8·§9). 결과는 주소의 d 쿼리에 담겨 있고, 잘못된 값이면 타이틀로 보낸다.
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { DiceBuddy } from '@/components/DiceBuddy';
+import { APP_NAME, APP_NAME_PARTS } from '@/lib/brand';
 import { redirect } from 'next/navigation';
 import { Bar, Card, Chip, Stars, buttonClass } from '@/components/ui';
 import { CAREERS, STATS } from '@/engine/types';
@@ -31,7 +33,7 @@ function describe(p: SharePayload) {
     trait,
     job,
     title: `${traitName} 학생의 졸업 후 직업: ${job}`,
-    description: `청춘다이스에서 고등학교 3년을 보내고 ${job}${josa(job, '이', '가')} 되었어요${
+    description: `${APP_NAME}에서 고등학교 3년을 보내고 ${job}${josa(job, '이', '가')} 되었어요${
       p.g ? ` (${gradeName(p.g)} 등급)` : ''
     }. 나는 무엇이 될까? 지금 주사위를 굴려 보세요!`,
   };
@@ -41,12 +43,12 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   const p = readPayload(await searchParams);
   if (!p) return { title: '결과', robots: { index: false } };
   const { title, description, job } = describe(p);
-  const image = { url: `/api/og?d=${encodeShare(p)}`, width: 1200, height: 630, alt: `청춘다이스 결과: ${job}` };
+  const image = { url: `/api/og?d=${encodeShare(p)}`, width: 1200, height: 630, alt: `${APP_NAME} 결과: ${job}` };
   return {
     title,
     description,
     robots: { index: false },
-    openGraph: { type: 'website', siteName: '청춘다이스', locale: 'ko_KR', title, description, images: [image] },
+    openGraph: { type: 'website', siteName: APP_NAME, locale: 'ko_KR', title, description, images: [image] },
     twitter: { card: 'summary_large_image', title, description, images: [image.url] },
   };
 }
@@ -61,17 +63,18 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-5 px-4 pt-6 pb-12 sm:pt-10">
-      <p className="text-center font-display text-lg text-muted">
+      <p className="yd-panel self-center px-4 py-1 text-center font-display text-lg text-muted">
         <Link href="/" className="underline-offset-4 hover:underline">
-          청춘<span className="text-accent">다이스</span>
+          <span className="text-accent-deep">{APP_NAME_PARTS[0]}</span> <span className="text-ink">{APP_NAME_PARTS[1]}</span>
         </Link>{' '}
         · 졸업 결과
       </p>
 
       <Card className="overflow-hidden">
-        {/* 칠판 머리 */}
-        <div className="border-b-8 border-[#6b4f2a] bg-board px-5 py-7 text-center text-white sm:px-8">
-          <p className="text-base text-white/85">
+        {/* 하늘 머리 */}
+        <div className="relative border-b-[2.5px] border-outline bg-[linear-gradient(#9dd5f1,#d6effa)] px-5 py-7 text-center text-ink sm:px-8">
+          <DiceBuddy size={44} mood="wow" color="#ffe08a" className="absolute top-3 right-4 rotate-12" />
+          <p className="text-base text-ink/85">
             {trait ? (
               <>
                 <span aria-hidden="true">{trait.emoji}</span> {trait.name} 학생의 졸업 후 직업은
@@ -80,7 +83,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
               '졸업 후 나의 직업은'
             )}
           </p>
-          <h1 className="mt-2 font-display text-5xl leading-tight text-sun sm:text-6xl">{job}</h1>
+          <h1 className="yd-logo mt-2 font-display text-5xl leading-tight text-sun sm:text-6xl">{job}</h1>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <Chip tone="warn" className="bg-sun! text-ink!">{ENDING_KIND_LABELS[p.k]}</Chip>
             {p.g && (

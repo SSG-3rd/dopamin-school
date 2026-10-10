@@ -2,24 +2,37 @@
 
 /* ───────── 디자인 토큰 (다른 화면도 이 이름을 그대로 쓴다) ───────── */
 @theme {
-  --color-paper: #fff8ec;
-  --color-paper-2: #fdf0d9;
-  --color-ink: #2b2a33;
-  --color-muted: #6b6875;
-  --color-line: #e8dcc6;
-  --color-board: #2f5d50;
-  --color-board-2: #3e7465;
-  --color-accent: #ff7a59;
-  --color-sun: #ffc93c;
-  --color-sky: #5aa9e6;
-  --color-grape: #8e7dff;
-  --color-mint: #2fbf94;
-  --color-danger: #e5484d;
-  --color-academic: #5aa9e6;
-  --color-sports: #ff7a59;
-  --color-arts: #b46cf0;
-  --color-comm: #2fbf94;
-  --color-biz: #e0a400;
+  /* 소풍 그림책 팔레트: 하늘·구름·보라 산·초록 덤불·크림색 땅, 갈색 손그림 테두리 */
+  --color-paper: #fffaf0;
+  --color-paper-2: #f6eedb;
+  --color-ink: #4a3a2f;
+  --color-muted: #7d6b5d;
+  --color-line: #e6d8bd;
+  --color-outline: #6b4f3a;
+  --color-board: #8cc77a;
+  --color-board-2: #b5dea3;
+  --color-accent: #ff8fab;
+  --color-accent-deep: #e9668a;
+  --color-sun: #ffe08a;
+  --color-sky: #8fd0f0;
+  --color-sky-deep: #5aaee0;
+  --color-grape: #b39cf5;
+  --color-mint: #6fd3a8;
+  --color-danger: #e5677a;
+  --color-cloud: #ffffff;
+  --color-mountain: #b3abd4;
+  --color-bush: #9fd18c;
+  --color-bush-deep: #7dbb6c;
+  --color-ground: #f4ecd6;
+  --color-grass: #8fcf7c;
+  --color-good: #2f7a55;
+  --color-bad: #b2405a;
+  --color-info: #3b6f99;
+  --color-academic: #7cc3ec;
+  --color-sports: #ff9f7a;
+  --color-arts: #c4a0f5;
+  --color-comm: #74d3ad;
+  --color-biz: #f2c94c;
 }
 
 /* next/font 변수는 <html>에 붙으므로 inline으로 참조한다 */
@@ -29,21 +42,24 @@
 }
 
 @layer base {
+  :root {
+    /* 하늘과 땅이 만나는 높이 */
+    --yd-horizon: clamp(210px, 34vh, 340px);
+    --yd-tufts: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='190'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cellipse cx='42' cy='54' rx='17' ry='6' fill='%23d3ebbf'/%3E%3Cpath d='M33 52l-4-9M42 52V40M51 52l4-9' stroke='%235f9e55' stroke-width='2.6'/%3E%3Cellipse cx='192' cy='142' rx='15' ry='5.5' fill='%23d3ebbf'/%3E%3Cpath d='M184 140l-3-8M192 140v-11M200 140l3-8' stroke='%235f9e55' stroke-width='2.6'/%3E%3Cpath d='M108 98h28M118 106h16M212 38h20M28 162h24M36 169h12' stroke='%23c2ae8c' stroke-width='2.2'/%3E%3C/g%3E%3C/svg%3E");
+    --yd-shadow: 0 4px 0 0 rgb(107 79 58 / 0.22);
+  }
+
   html {
     color-scheme: light;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    background-color: var(--color-paper);
+    background-color: var(--color-ground);
   }
 
   body {
     min-height: 100dvh;
-    background-color: var(--color-paper);
-    /* 공책 느낌의 아주 옅은 모눈 */
-    background-image:
-      linear-gradient(rgb(232 220 198 / 0.35) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(232 220 198 / 0.35) 1px, transparent 1px);
-    background-size: 28px 28px;
+    /* 실제 풍경은 <Scenery>가 fixed로 깐다. 여기서는 땅 색만. */
+    background-color: transparent;
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 16px;
@@ -69,21 +85,79 @@
   }
 
   ::selection {
-    background: rgb(255 201 60 / 0.55);
+    background: rgb(255 224 138 / 0.7);
   }
+}
+
+@keyframes yd-drift {
+  0%,
+  100% {
+    transform: translateX(-24px);
+  }
+  50% {
+    transform: translateX(24px);
+  }
+}
+@keyframes yd-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(6deg);
+  }
+}
+.yd-cloud {
+  animation: yd-drift 80s ease-in-out infinite;
+}
+.yd-note {
+  animation: yd-bob 3.2s ease-in-out infinite;
+}
+@keyframes yd-hop {
+  0%,
+  70%,
+  100% {
+    translate: 0 0;
+  }
+  80% {
+    translate: 0 -12px;
+  }
+  90% {
+    translate: 0 0;
+  }
+}
+.yd-buddy-hop {
+  animation: yd-hop 2.6s ease-in-out infinite;
+}
+.yd-buddy-hop--late {
+  animation-delay: 0.4s;
+}
+/* 보드 가운데 같은 크림색 땅 (작은 풀포기) */
+.yd-ground {
+  background-color: var(--color-ground);
+  background-image: var(--yd-tufts);
+  background-size: 200px 146px;
+}
+/* 만화 로고: 굵은 갈색 테두리 + 흰 외곽 */
+.yd-logo {
+  text-shadow:
+    3px 0 0 #6b4f3a, -3px 0 0 #6b4f3a, 0 3px 0 #6b4f3a, 0 -3px 0 #6b4f3a,
+    2.2px 2.2px 0 #6b4f3a, -2.2px 2.2px 0 #6b4f3a, 2.2px -2.2px 0 #6b4f3a, -2.2px -2.2px 0 #6b4f3a,
+    0 7px 0 #6b4f3a, 0 9px 12px rgb(107 79 58 / 0.25);
 }
 
 /* ───────── 공용 컴포넌트 (src/components/ui.tsx) ─────────
    components 레이어에 두어서 className으로 넘긴 Tailwind 유틸리티가 항상 이긴다. */
 @layer components {
+  /* 손그림 느낌: 갈색 테두리 + 아래로 살짝 눌린 그림자 */
   .yd-btn {
-    --yd-btn-shadow: transparent;
+    --yd-btn-shadow: rgb(107 79 58 / 0.35);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border: 2px solid transparent;
-    border-radius: 0.875rem;
+    border: 2.5px solid var(--color-outline);
+    border-radius: 999px;
     font-family: var(--font-display);
     font-weight: 400;
     line-height: 1.2;
@@ -92,80 +166,76 @@
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 3px 0 0 var(--yd-btn-shadow);
+    box-shadow: 0 4px 0 0 var(--yd-btn-shadow);
     transition:
-      transform 80ms ease,
-      box-shadow 80ms ease,
+      transform 90ms ease,
+      box-shadow 90ms ease,
       background-color 150ms ease,
       border-color 150ms ease;
   }
   .yd-btn:focus-visible {
-    outline: 3px solid var(--color-sky);
+    outline: 3px solid var(--color-sky-deep);
     outline-offset: 3px;
   }
   .yd-btn:active:not(:disabled):not([aria-disabled="true"]) {
-    transform: translateY(2px);
+    transform: translateY(3px);
     box-shadow: 0 1px 0 0 var(--yd-btn-shadow);
   }
   .yd-btn:disabled,
   .yd-btn[aria-disabled="true"] {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.55;
     box-shadow: none;
-    filter: grayscale(0.35);
+    filter: grayscale(0.4);
   }
 
   .yd-btn--primary {
-    --yd-btn-shadow: #c4502f;
     background-color: var(--color-accent);
     color: var(--color-ink);
   }
   .yd-btn--secondary {
-    --yd-btn-shadow: var(--color-line);
-    background-color: #fff;
-    border-color: var(--color-line);
+    background-color: var(--color-paper);
     color: var(--color-ink);
   }
   .yd-btn--ghost {
+    border-color: transparent;
     background-color: transparent;
     color: var(--color-ink);
     box-shadow: none;
   }
   .yd-btn--danger {
-    --yd-btn-shadow: #a8282c;
     background-color: var(--color-danger);
     color: #fff;
   }
   @media (hover: hover) {
     .yd-btn--primary:hover:not(:disabled) {
-      background-color: #ff8b6e;
+      background-color: #ffa3bb;
     }
     .yd-btn--secondary:hover:not(:disabled) {
-      background-color: var(--color-paper-2);
+      background-color: #fff3d6;
     }
     .yd-btn--ghost:hover:not(:disabled) {
-      background-color: rgb(43 42 51 / 0.07);
+      background-color: rgb(255 250 240 / 0.7);
     }
     .yd-btn--danger:hover:not(:disabled) {
-      background-color: #d93d42;
+      background-color: #d9566a;
     }
   }
 
   .yd-btn--sm {
     min-height: 2.5rem;
-    padding: 0.375rem 0.875rem;
+    padding: 0.375rem 1rem;
     font-size: 1rem;
   }
   .yd-btn--md {
     min-height: 3rem;
-    padding: 0.5rem 1.25rem;
+    padding: 0.5rem 1.4rem;
     font-size: 1.125rem;
   }
   .yd-btn--lg {
     min-height: 3.5rem;
-    padding: 0.75rem 1.75rem;
+    padding: 0.75rem 1.9rem;
     font-size: 1.375rem;
-    border-radius: 1rem;
   }
   .yd-btn--block {
     display: flex;
@@ -173,10 +243,19 @@
   }
 
   .yd-card {
-    border: 2px solid var(--color-line);
-    border-radius: 1rem;
-    background-color: #fff;
-    box-shadow: 0 3px 0 0 var(--color-line);
+    border: 2.5px solid var(--color-outline);
+    border-radius: 1.375rem;
+    background-color: var(--color-paper);
+    box-shadow: var(--yd-shadow);
+  }
+
+  /* 하늘 위에 떠 있는 말풍선/표지판 같은 판 */
+  .yd-panel {
+    border: 2.5px solid var(--color-outline);
+    border-radius: 1.75rem;
+    background-color: rgb(255 250 240 / 0.94);
+    box-shadow: var(--yd-shadow);
+    backdrop-filter: blur(2px);
   }
 
   .yd-chip {
@@ -185,7 +264,7 @@
     gap: 0.25rem;
     min-height: 1.75rem;
     padding: 0.125rem 0.625rem;
-    border: 1.5px solid var(--color-line);
+    border: 1.5px solid rgb(107 79 58 / 0.35);
     border-radius: 999px;
     background-color: var(--color-paper-2);
     color: var(--color-ink);
@@ -194,32 +273,33 @@
     white-space: nowrap;
   }
   .yd-chip--good {
-    border-color: rgb(47 191 148 / 0.45);
-    background-color: rgb(47 191 148 / 0.14);
-    color: #146b52;
+    border-color: rgb(47 122 85 / 0.35);
+    background-color: #e3f6ea;
+    color: var(--color-good);
   }
   .yd-chip--bad {
-    border-color: rgb(229 72 77 / 0.4);
-    background-color: rgb(229 72 77 / 0.1);
-    color: #a8282c;
+    border-color: rgb(178 64 90 / 0.3);
+    background-color: #fde8ee;
+    color: var(--color-bad);
   }
   .yd-chip--warn {
-    border-color: rgb(224 164 0 / 0.5);
-    background-color: rgb(255 201 60 / 0.22);
-    color: #6e4f00;
+    border-color: rgb(196 150 30 / 0.45);
+    background-color: #fff3c4;
+    color: #6e5300;
   }
   .yd-chip--info {
-    border-color: rgb(90 169 230 / 0.45);
-    background-color: rgb(90 169 230 / 0.14);
-    color: #1d5a8a;
+    border-color: rgb(59 111 153 / 0.3);
+    background-color: #e3f2fb;
+    color: var(--color-info);
   }
 
   .yd-bar-track {
     position: relative;
     overflow: hidden;
-    height: 0.75rem;
+    height: 0.875rem;
+    border: 2px solid rgb(107 79 58 / 0.55);
     border-radius: 999px;
-    background-color: rgb(43 42 51 / 0.09);
+    background-color: #fff;
   }
   .yd-bar-fill {
     height: 100%;

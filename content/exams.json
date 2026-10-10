@@ -1,27 +1,108 @@
 {
   "strategies": [
-    { "id": "cram", "label": "밤샘 벼락치기", "kind": "special", "desc": "판정 +2 · 스트레스 +15 · 밤샘 후유증", "judgeMod": 2, "after": { "stress": 15, "debuff": "allnighter" } },
-    { "id": "normal", "label": "평소 실력대로", "kind": "special", "desc": "판정 보정 없음", "judgeMod": 0 },
-    { "id": "condition", "label": "컨디션 관리", "kind": "special", "desc": "판정 −1 · 체력 +5 · 스트레스 −10", "judgeMod": -1, "after": { "stats": { "stamina": 5 }, "stress": -10 } }
+    {
+      "id": "cram",
+      "label": "🌙 밤샘 벼락치기",
+      "kind": "special",
+      "desc": "판정 +2 · 스트레스 +15 · 밤샘 후유증",
+      "judgeMod": 2,
+      "after": {
+        "stress": 15,
+        "debuff": "allnighter"
+      }
+    },
+    {
+      "id": "normal",
+      "label": "✏️ 평소 실력대로",
+      "kind": "special",
+      "desc": "판정 보정 없음",
+      "judgeMod": 0
+    },
+    {
+      "id": "condition",
+      "label": "🧘 컨디션 관리",
+      "kind": "special",
+      "desc": "판정 −1 · 체력 +5 · 스트레스 −10",
+      "judgeMod": -1,
+      "after": {
+        "stats": {
+          "stamina": 5
+        },
+        "stress": -10
+      }
+    }
   ],
   "regular": {
-    "title": { "first": "1학기 시험", "second": "2학기 시험", "mock": "모의고사" },
+    "title": {
+      "first": "1학기 시험",
+      "second": "2학기 시험",
+      "mock": "모의고사"
+    },
     "text": "시험 기간이 다가왔다. 어떤 전략으로 시험을 볼까?",
-    "success": { "text": "생각보다 술술 풀렸다. 성적이 올랐다!", "effects": { "stats": { "study": 10 }, "records": { "examPass": 1 } } },
-    "critical": { "text": "전 과목 만점에 가까운 성적! 선생님이 눈여겨보신다.", "effects": { "stats": { "study": 15 }, "records": { "examPass": 1 }, "buff": "teacher_trust" } },
-    "fail": { "text": "아는 문제도 헷갈렸다. 성적표를 보니 한숨이 나온다.", "effects": { "stress": 10 } }
+    "success": {
+      "text": "생각보다 술술 풀렸다. 성적이 올랐다!",
+      "effects": {
+        "stats": {
+          "study": 10
+        },
+        "records": {
+          "examPass": 1
+        }
+      }
+    },
+    "critical": {
+      "text": "전 과목 만점에 가까운 성적! 선생님이 눈여겨보신다.",
+      "effects": {
+        "stats": {
+          "study": 15
+        },
+        "records": {
+          "examPass": 1
+        },
+        "buff": "teacher_trust"
+      }
+    },
+    "fail": {
+      "text": "아는 문제도 헷갈렸다. 성적표를 보니 한숨이 나온다.",
+      "effects": {
+        "stress": 10
+      }
+    }
   },
   "final": {
     "title": "진로 시험",
     "text": "3학년 2학기, 진짜 내 길을 결정할 시험이다.",
     "types": {
-      "academic": { "name": "수능", "text": "12년 공부의 결실, 수능 날 아침이 밝았다." },
-      "sports": { "name": "실기 시험", "text": "체육관 공기가 팽팽하다. 실기 시험 차례다." },
-      "arts": { "name": "오디션", "text": "심사위원 세 명 앞, 조명이 켜졌다." },
-      "comm": { "name": "면접", "text": "면접실 문 앞, 이름이 불렸다." },
-      "biz": { "name": "창업 발표", "text": "투자자들 앞에서 내 사업 계획을 발표한다." }
+      "academic": {
+        "name": "수능",
+        "text": "12년 공부의 결실, 수능 날 아침이 밝았다."
+      },
+      "sports": {
+        "name": "실기 시험",
+        "text": "체육관 공기가 팽팽하다. 실기 시험 차례다."
+      },
+      "arts": {
+        "name": "오디션",
+        "text": "심사위원 세 명 앞, 조명이 켜졌다."
+      },
+      "comm": {
+        "name": "면접",
+        "text": "면접실 문 앞, 이름이 불렸다."
+      },
+      "biz": {
+        "name": "창업 발표",
+        "text": "투자자들 앞에서 내 사업 계획을 발표한다."
+      }
     },
-    "success": { "text": "해냈다! 준비한 모든 걸 보여 줬다.", "effects": {} },
-    "fail": { "text": "긴장해서 실수를 했다. 아쉬움이 남는다.", "effects": { "stress": 10 } }
+    "success": {
+      "text": "해냈다! 준비한 모든 걸 보여 줬다.",
+      "effects": {}
+    },
+    "fail": {
+      "text": "긴장해서 실수를 했다. 아쉬움이 남는다.",
+      "effects": {
+        "stress": 10
+      }
+    }
   }
 }

@@ -45,7 +45,7 @@ function FailScene({ timing, onDone }: { timing: Timing; onDone: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-5 bg-[#141318] px-6 text-center text-paper"
+      className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-5 bg-[#2b2640] px-6 text-center text-paper"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: timing.fast ? 0.2 : 0.8 }}
@@ -92,7 +92,7 @@ function PhoneCall({ ending, timing, onDone }: { ending: EndingResult; timing: T
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-5 bg-[#141318] px-6 text-center text-paper"
+      className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-5 bg-[#2b2640] px-6 text-center text-paper"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -198,11 +198,11 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
         </h1>
         <p className="mt-1 text-base text-muted">주사위 2개 + 보정으로 직업 등급이 정해져요.</p>
       </div>
-      <div className="flex items-center justify-center gap-4 rounded-2xl bg-board py-5">
+      <div className="flex items-center justify-center gap-4 rounded-[22px] border-[2.5px] border-outline bg-[#bfe3ad] py-5">
         <RollingDie value={r.dice[0]} rolling={stage === 0} size={80} />
         <RollingDie value={r.dice[1]} rolling={stage === 0} size={80} />
       </div>
-      <div className="flex flex-col gap-1.5 rounded-2xl border-2 border-line bg-white p-3" aria-live="polite">
+      <div className="flex flex-col gap-1.5 rounded-2xl border-2 border-outline/45 bg-paper p-3" aria-live="polite">
         {stage >= 1 && (
           <p className="flex items-center justify-between font-display text-lg">
             <span>주사위</span>
@@ -220,14 +220,14 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
           >
             <span>{b.label}</span>
             <span
-              className={`font-display tabular-nums ${b.value > 0 ? 'text-[#146b52]' : b.value < 0 ? 'text-[#a8282c]' : 'text-muted'}`}
+              className={`font-display tabular-nums ${b.value > 0 ? 'text-good' : b.value < 0 ? 'text-bad' : 'text-muted'}`}
             >
               {signed(b.value)}
             </span>
           </motion.p>
         ))}
         {stage >= 3 && (
-          <p className="mt-1 flex items-center justify-between border-t-2 border-dashed border-line pt-2 font-display text-2xl">
+          <p className="mt-1 flex items-center justify-between border-t-2 border-dashed border-outline/45 pt-2 font-display text-2xl">
             <span>합계</span>
             <span className="tabular-nums">{r.total}</span>
           </p>
@@ -241,7 +241,7 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
               key={row.g}
               animate={hit ? { scale: [1, 1.12, 1.05] } : { scale: 1 }}
               className={`flex flex-col items-center rounded-2xl border-[3px] px-2 py-2 text-center ${
-                hit ? 'border-ink bg-sun shadow-[0_4px_0_0_var(--color-ink)]' : 'border-line bg-white'
+                hit ? 'border-outline bg-sun shadow-[0_4px_0_0_rgb(107_79_58/0.32)]' : 'border-outline/45 bg-paper'
               }`}
               aria-current={hit ? 'true' : undefined}
             >
@@ -275,7 +275,7 @@ function RevealCard({ ending, animate }: { ending: EndingResult; animate: boolea
         ? `${trackName(ending.track)} · ${ENDING_KIND_LABELS.combo}`
         : ENDING_KIND_LABELS[ending.kind];
   return (
-    <div className="relative overflow-hidden rounded-[28px] border-4 border-ink bg-white px-5 py-7 text-center shadow-[0_6px_0_0_var(--color-ink)]">
+    <div className="relative overflow-hidden rounded-[28px] border-4 border-outline bg-paper px-5 py-7 text-center shadow-[0_6px_0_0_rgb(107_79_58/0.32)]">
       {animate && (
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           {Array.from({ length: 14 }, (_, i) => (
@@ -304,9 +304,9 @@ function RevealCard({ ending, animate }: { ending: EndingResult; animate: boolea
         <p className="text-base text-muted">졸업 후 나는…</p>
         <h1 className="text-4xl leading-tight sm:text-5xl">{ending.jobName}</h1>
         <div className="mt-1 flex flex-wrap justify-center gap-2">
-          <span className="rounded-full border-2 border-ink bg-grape/15 px-3 py-0.5 font-display text-lg">{kindLabel}</span>
+          <span className="rounded-full border-2 border-outline bg-grape/15 px-3 py-0.5 font-display text-lg">{kindLabel}</span>
           {ending.grade && (
-            <span className="rounded-full border-2 border-ink bg-sun px-3 py-0.5 font-display text-lg">
+            <span className="rounded-full border-2 border-outline bg-sun px-3 py-0.5 font-display text-lg">
               {GRADE_ICONS[ending.grade]} {gradeName(ending.grade)} 등급
             </span>
           )}
@@ -369,7 +369,7 @@ export function EndingScene({ game }: { game: GameState }) {
         <button
           type="button"
           onClick={skip}
-          className="fixed bottom-4 right-4 z-50 rounded-full border-2 border-ink bg-white px-4 py-2 font-display text-base shadow-[0_3px_0_0_var(--color-ink)]"
+          className="fixed bottom-4 right-4 z-50 rounded-full border-2 border-outline bg-paper px-4 py-2 font-display text-base shadow-[0_3px_0_0_rgb(107_79_58/0.32)]"
         >
           건너뛰기 ⏭
         </button>

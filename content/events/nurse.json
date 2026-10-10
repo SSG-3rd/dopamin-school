@@ -3,23 +3,39 @@
   "stressRelief": {
     "text": "보건 선생님이 따뜻한 차를 건네며 잠깐 누워 쉬라고 하신다. 마음이 스르르 풀린다.",
     "minStress": 70,
-    "effects": { "stress": -25 }
+    "effects": {
+      "stress": -25
+    }
   },
   "heal": {
     "text": "얼굴이 창백하다며 선생님이 침대를 내주셨다. 한숨 자고 나니 힘이 난다.",
     "maxStamina": 30,
-    "effects": { "stats": { "stamina": 15 } }
+    "effects": {
+      "stats": {
+        "stamina": 15
+      }
+    }
   },
   "quiz": {
     "text": "보건 선생님이 심심하셨는지 건강 퀴즈를 내신다. \"하루 권장 수면 시간은?\"",
     "option": {
       "id": "quiz",
-      "label": "건강 퀴즈 풀기",
+      "label": "🩺 건강 퀴즈 풀기",
       "kind": "special",
-      "check": { "by": "luck", "diff": 6 },
-      "onSuccess": { "stats": { "luck": 5 } },
+      "check": {
+        "by": "luck",
+        "diff": 6
+      },
+      "onSuccess": {
+        "stats": {
+          "luck": 5
+        }
+      },
       "onFail": {},
-      "resultText": { "success": "정답! 선생님이 비타민 사탕을 상품으로 주셨다.", "fail": "땡! 정답은 8시간 이상. 오늘은 일찍 자자." }
+      "resultText": {
+        "success": "정답! 선생님이 비타민 사탕을 상품으로 주셨다.",
+        "fail": "땡! 정답은 8시간 이상. 오늘은 일찍 자자."
+      }
     }
   }
 }

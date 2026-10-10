@@ -4,6 +4,7 @@ import { ImageResponse } from 'next/og';
 import type { ReactElement } from 'react';
 import { CAREERS } from '@/engine/types';
 import { CAREER_NAMES, findTrait, jobName, trackName } from '@/engine/content';
+import { APP_NAME, APP_NAME_PARTS, APP_TAGLINE } from '@/lib/brand';
 import { ENDING_KIND_LABELS, decodeShare, gradeName } from '@/lib/share';
 import type { SharePayload } from '@/lib/share';
 
@@ -11,24 +12,25 @@ const WIDTH = 1200;
 const HEIGHT = 630;
 
 const C = {
-  paper: '#fff8ec',
-  paper2: '#fdf0d9',
-  ink: '#2b2a33',
-  muted: '#6b6875',
-  line: '#e8dcc6',
-  board: '#2f5d50',
-  board2: '#3e7465',
-  accent: '#ff7a59',
-  sun: '#ffc93c',
-  frame: '#6b4f2a',
+  paper: '#fffaf0',
+  paper2: '#f6eedb',
+  ink: '#4a3a2f',
+  muted: '#7d6b5d',
+  line: '#e6d8bd',
+  outline: '#6b4f3a',
+  meadow: '#bfe3ad',
+  ground: '#f4ecd6',
+  sky: 'linear-gradient(#9dd5f1, #d6effa)',
+  accent: '#ff8fab',
+  sun: '#ffe08a',
 } as const;
 
 const CAREER_COLORS: Record<(typeof CAREERS)[number], string> = {
-  academic: '#5aa9e6',
-  sports: '#ff7a59',
-  arts: '#b46cf0',
-  comm: '#2fbf94',
-  biz: '#e0a400',
+  academic: '#7cc3ec',
+  sports: '#ff9f7a',
+  arts: '#c4a0f5',
+  comm: '#74d3ad',
+  biz: '#f2c94c',
 };
 
 const STAT_LABELS = ['학업', '체력', '인맥', '운', '스트레스'] as const;
@@ -57,8 +59,8 @@ function Pips({ level, color }: { level: number; color: string }) {
             width: 26,
             height: 26,
             borderRadius: 13,
-            backgroundColor: i < level ? color : 'rgba(255,255,255,0.18)',
-            border: `3px solid ${i < level ? color : 'rgba(255,255,255,0.35)'}`,
+            backgroundColor: i < level ? color : '#fffaf0',
+            border: '3px solid #6b4f3a',
           }}
         />
       ))}
@@ -76,7 +78,7 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
   const jobSize = Math.max(56, Math.min(112, Math.floor(700 / Math.max(job.length, 1))));
   const stats = p.s.slice(0, 5).map((v, i) => `${STAT_LABELS[i]} ${v}`);
   const money = `돈 ${p.s[5].toLocaleString('ko-KR')}원`;
-  const footer = '청춘다이스 · 주사위로 굴리는 고등학교 3년';
+  const footer = `${APP_NAME} · ${APP_TAGLINE}`;
 
   const el = (
     <div
@@ -84,7 +86,7 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
         width: '100%',
         height: '100%',
         display: 'flex',
-        backgroundColor: C.paper,
+        backgroundImage: C.sky,
         padding: 28,
         fontFamily: 'Jua',
       }}
@@ -94,8 +96,8 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
           display: 'flex',
           flex: 1,
           borderRadius: 36,
-          border: `6px solid ${C.line}`,
-          backgroundColor: '#ffffff',
+          border: `6px solid ${C.outline}`,
+          backgroundColor: C.paper,
           overflow: 'hidden',
         }}
       >
@@ -139,7 +141,7 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
                     padding: '8px 20px',
                     borderRadius: 999,
                     backgroundColor: C.paper2,
-                    border: `3px solid ${C.line}`,
+                    border: `3px solid ${C.outline}`,
                     color: C.ink,
                   }}
                 >
@@ -167,20 +169,20 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
             display: 'flex',
             flexDirection: 'column',
             width: 380,
-            backgroundColor: C.board,
-            borderLeft: `10px solid ${C.frame}`,
+            backgroundColor: C.meadow,
+            borderLeft: `6px solid ${C.outline}`,
             padding: '40px 36px',
             justifyContent: 'center',
             gap: 22,
           }}
         >
-          <div style={{ display: 'flex', fontSize: 30, color: C.sun }}>진로 레벨</div>
+          <div style={{ display: 'flex', fontSize: 30, color: C.ink }}>진로 레벨</div>
           {CAREERS.map((c, i) => (
             <div key={c} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', fontSize: 30, color: '#ffffff' }}>{CAREER_NAMES[c]}</div>
+              <div style={{ display: 'flex', fontSize: 30, color: C.ink }}>{CAREER_NAMES[c]}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Pips level={p.c[i]} color={CAREER_COLORS[c]} />
-                <div style={{ display: 'flex', fontSize: 24, color: 'rgba(255,255,255,0.85)', width: 48 }}>
+                <div style={{ display: 'flex', fontSize: 24, color: C.muted, width: 48 }}>
                   {`Lv${p.c[i]}`}
                 </div>
               </div>
@@ -198,8 +200,8 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
 }
 
 function titleCard(): { el: ReactElement; text: string[] } {
-  const title = '청춘다이스';
-  const sub = '주사위로 굴리는 고등학교 3년';
+  const title = APP_NAME;
+  const sub = APP_TAGLINE;
   const sub2 = '졸업하는 날, 나는 무엇이 되어 있을까?';
   const el = (
     <div
@@ -207,7 +209,7 @@ function titleCard(): { el: ReactElement; text: string[] } {
         width: '100%',
         height: '100%',
         display: 'flex',
-        backgroundColor: C.paper,
+        backgroundImage: C.sky,
         padding: 28,
         fontFamily: 'Jua',
       }}
@@ -220,19 +222,19 @@ function titleCard(): { el: ReactElement; text: string[] } {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 36,
-          border: `14px solid ${C.frame}`,
-          backgroundColor: C.board,
+          border: `6px solid ${C.outline}`,
+          backgroundColor: C.ground,
         }}
       >
-        <div style={{ display: 'flex', fontSize: 150, color: '#ffffff', lineHeight: 1.1 }}>
-          <span>청춘</span>
-          <span style={{ color: C.sun }}>다이스</span>
+        <div style={{ display: 'flex', fontSize: 140, color: C.ink, lineHeight: 1.1, gap: 28 }}>
+          <span style={{ color: '#e9668a' }}>{APP_NAME_PARTS[0]}</span>
+          <span>{APP_NAME_PARTS[1]}</span>
         </div>
-        <div style={{ display: 'flex', fontSize: 44, color: 'rgba(255,255,255,0.92)', marginTop: 24 }}>{sub}</div>
-        <div style={{ display: 'flex', fontSize: 34, color: 'rgba(255,255,255,0.75)', marginTop: 12 }}>{sub2}</div>
+        <div style={{ display: 'flex', fontSize: 44, color: C.ink, marginTop: 24 }}>{sub}</div>
+        <div style={{ display: 'flex', fontSize: 34, color: C.muted, marginTop: 12 }}>{sub2}</div>
         <div style={{ display: 'flex', gap: 18, marginTop: 40 }}>
-          {[C.accent, C.sun, '#5aa9e6', '#2fbf94', '#b46cf0'].map((col) => (
-            <div key={col} style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: col }} />
+          {[C.accent, C.sun, '#7cc3ec', '#74d3ad', '#c4a0f5'].map((col) => (
+            <div key={col} style={{ width: 34, height: 34, borderRadius: 999, backgroundColor: col, border: `3px solid ${C.outline}` }} />
           ))}
         </div>
       </div>

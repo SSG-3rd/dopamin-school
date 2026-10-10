@@ -1,18 +1,73 @@
 {
   "title": "급식실",
   "outcomes": [
-    { "id": "special", "title": "오늘은 특식!", "text": "급식에 치킨이 나왔다! 줄은 길었지만 기다린 보람이 있다.", "effects": { "stats": { "stamina": 5 }, "stress": -5 } },
-    { "id": "disliked", "title": "싫은 반찬", "text": "식판 한가운데 내가 제일 싫어하는 가지무침이 산더미다.", "effects": { "stress": 5 } },
-    { "id": "chat", "title": "친구와 수다", "text": "밥은 10분 만에, 수다는 30분째. 점심시간이 너무 짧다.", "effects": { "stats": { "social": 5 } } },
-    { "id": "walk", "title": "밥 먹고 산책", "text": "배부르게 먹고 운동장을 한 바퀴 걸었다. 소화가 잘된다.", "effects": { "stats": { "stamina": 5 } } }
+    {
+      "id": "special",
+      "title": "오늘은 특식!",
+      "text": "급식에 치킨이 나왔다! 줄은 길었지만 기다린 보람이 있다.",
+      "effects": {
+        "stats": {
+          "stamina": 5
+        },
+        "stress": -5
+      }
+    },
+    {
+      "id": "disliked",
+      "title": "싫은 반찬",
+      "text": "식판 한가운데 내가 제일 싫어하는 가지무침이 산더미다.",
+      "effects": {
+        "stress": 5
+      }
+    },
+    {
+      "id": "chat",
+      "title": "친구와 수다",
+      "text": "밥은 10분 만에, 수다는 30분째. 점심시간이 너무 짧다.",
+      "effects": {
+        "stats": {
+          "social": 5
+        }
+      }
+    },
+    {
+      "id": "walk",
+      "title": "밥 먹고 산책",
+      "text": "배부르게 먹고 운동장을 한 바퀴 걸었다. 소화가 잘된다.",
+      "effects": {
+        "stats": {
+          "stamina": 5
+        }
+      }
+    }
   ],
   "treat": {
     "minMoney": 50000,
     "title": "간식 쏘기",
     "text": "지갑이 두둑하다. 친구들이 반짝이는 눈으로 나를 쳐다본다.",
     "options": [
-      { "id": "treat", "label": "친구들에게 간식 쏘기", "kind": "special", "effects": { "money": -10000, "stats": { "social": 10 } }, "resultText": { "done": "매점 아이스크림 플렉스! 오늘의 인기인은 나다." } },
-      { "id": "skip", "label": "다음에 쏠게", "kind": "special", "resultText": { "done": "\"다음엔 진짜 쏜다!\" 약속만 남겼다." } }
+      {
+        "id": "treat",
+        "label": "🍩 친구들에게 간식 쏘기",
+        "kind": "special",
+        "effects": {
+          "money": -10000,
+          "stats": {
+            "social": 10
+          }
+        },
+        "resultText": {
+          "done": "매점 아이스크림 플렉스! 오늘의 인기인은 나다."
+        }
+      },
+      {
+        "id": "skip",
+        "label": "🙅 다음에 쏠게",
+        "kind": "special",
+        "resultText": {
+          "done": "\"다음엔 진짜 쏜다!\" 약속만 남겼다."
+        }
+      }
     ]
   }
 }

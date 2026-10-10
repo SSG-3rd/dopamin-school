@@ -7,9 +7,41 @@
     "오늘은 무슨 이야기를 해 볼까?"
   ],
   "options": [
-    { "id": "stat", "label": "능력치 키우기", "kind": "special", "action": "pick_stat5", "desc": "원하는 기본 능력치 +5" },
-    { "id": "career", "label": "진로 상담 받기", "kind": "special", "action": "pick_career3", "desc": "원하는 진로 경험치 +3" },
-    { "id": "rest", "label": "고민 털어놓기", "kind": "rest", "effects": { "stress": -20 }, "desc": "스트레스 −20", "resultText": { "done": "털어놓고 나니 마음이 한결 가벼워졌다." } },
-    { "id": "roadmap", "label": "진로 로드맵 짜기", "kind": "special", "unlock": { "buff": "teacher_trust" }, "action": "pick_career3_trust", "desc": "원하는 진로 +3, 스트레스 −10" }
+    {
+      "id": "stat",
+      "label": "💪 능력치 키우기",
+      "kind": "special",
+      "action": "pick_stat5",
+      "desc": "원하는 기본 능력치 +5"
+    },
+    {
+      "id": "career",
+      "label": "🧭 진로 상담 받기",
+      "kind": "special",
+      "action": "pick_career3",
+      "desc": "원하는 진로 경험치 +3"
+    },
+    {
+      "id": "rest",
+      "label": "🫖 고민 털어놓기",
+      "kind": "rest",
+      "effects": {
+        "stress": -20
+      },
+      "desc": "스트레스 −20",
+      "resultText": {
+        "done": "털어놓고 나니 마음이 한결 가벼워졌다."
+      }
+    },
+    {
+      "id": "roadmap",
+      "label": "🗺️ 진로 로드맵 짜기",
+      "kind": "special",
+      "unlock": {
+        "buff": "teacher_trust"
+      },
+      "action": "pick_career3_trust",
+      "desc": "원하는 진로 +3, 스트레스 −10"
+    }
   ]
 }

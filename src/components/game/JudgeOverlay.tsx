@@ -88,7 +88,7 @@ export function JudgeOverlay({ game }: { game: GameState }) {
       <motion.div
         initial={{ y: 40, scale: 0.96 }}
         animate={{ y: 0, scale: 1 }}
-        className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl border-4 border-ink bg-paper p-5 shadow-[0_6px_0_0_var(--color-ink)]"
+        className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl border-4 border-outline bg-paper p-5 shadow-[0_6px_0_0_rgb(107_79_58/0.32)]"
       >
         <p className="text-base text-muted">{p.title}</p>
         <h2 className="text-2xl">
@@ -96,7 +96,7 @@ export function JudgeOverlay({ game }: { game: GameState }) {
         </h2>
         {p.chosen && <p className="mt-0.5 font-display text-lg text-ink/80">“{p.chosen.label}”</p>}
 
-        <div className="my-4 flex items-center justify-center gap-4 rounded-2xl bg-board py-5">
+        <div className="my-4 flex items-center justify-center gap-4 rounded-[22px] border-[2.5px] border-outline bg-[#bfe3ad] py-5">
           <RollingDie value={j.dice[0]} rolling={stage === 0} size={76} />
           <RollingDie value={j.dice[1]} rolling={stage === 0} size={76} />
         </div>
@@ -119,14 +119,14 @@ export function JudgeOverlay({ game }: { game: GameState }) {
                 className="flex items-center justify-between text-base"
               >
                 <span>{b.label}</span>
-                <span className={`font-display tabular-nums ${b.value > 0 ? 'text-[#146b52]' : b.value < 0 ? 'text-[#a8282c]' : 'text-muted'}`}>
+                <span className={`font-display tabular-nums ${b.value > 0 ? 'text-good' : b.value < 0 ? 'text-bad' : 'text-muted'}`}>
                   {signed(b.value)}
                 </span>
               </motion.p>
             ))}
           </AnimatePresence>
           {stage >= 3 && (
-            <p className="mt-1 flex items-center justify-between border-t-2 border-dashed border-line pt-2 font-display text-xl">
+            <p className="mt-1 flex items-center justify-between border-t-2 border-dashed border-outline/45 pt-2 font-display text-xl">
               <span>합계</span>
               <span className="tabular-nums">
                 {j.total} {natural ? '' : j.total >= j.diff ? '≥' : '<'} 난이도 {j.diff}
@@ -147,7 +147,7 @@ export function JudgeOverlay({ game }: { game: GameState }) {
               initial={{ scale: 0.6, opacity: 0, rotate: -4 }}
               animate={{ scale: 1, opacity: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 380, damping: 16 }}
-              className="mt-4 flex items-center justify-center gap-2 rounded-2xl border-[3px] border-ink py-3 font-display text-3xl"
+              className="mt-4 flex items-center justify-center gap-2 rounded-2xl border-[3px] border-outline py-3 font-display text-3xl"
               style={{ backgroundColor: meta.color, color: j.outcome === 'fumble' ? '#fff' : 'var(--color-ink)' }}
             >
               <span aria-hidden="true">{meta.icon}</span> {meta.word}

@@ -89,9 +89,9 @@ export function EnrollRoll({ game }: { game: GameState }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-board p-4">
+      <div className="yd-ground flex flex-wrap items-center gap-4 rounded-[22px] border-[2.5px] border-outline p-4">
         <RollingDie value={die} rolling={rolling} size={84} />
-        <ol className="grid flex-1 grid-cols-2 gap-1 text-base text-white" aria-label="입학 주사위 표">
+        <ol className="grid flex-1 grid-cols-2 gap-1 text-base text-ink" aria-label="입학 주사위 표">
           {FACES.map((f) => {
             const hit = !rolling && die === f.face;
             return (
@@ -130,7 +130,7 @@ export function EnrollRoll({ game }: { game: GameState }) {
       {!rolling && done && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
           {p?.resultText && (
-            <p className="rounded-2xl border-2 border-line bg-paper-2 px-3 py-2.5 text-lg">{p.resultText}</p>
+            <p className="rounded-2xl border-2 border-outline/45 bg-paper-2 px-3 py-2.5 text-lg">{p.resultText}</p>
           )}
           <ChangeList changes={p?.changes ?? []} />
           <Button size="lg" block onClick={next}>

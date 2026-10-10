@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Jua, Noto_Sans_KR } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { FlushPending } from '@/components/FlushPending';
+import { Scenery } from '@/components/Scenery';
+import { APP_DESCRIPTION, APP_NAME } from '@/lib/brand';
 import './globals.css';
 
 // 한글 폰트는 조각이 많아서 미리 불러오지 않는다(preload: false).
@@ -24,24 +26,24 @@ function metadataBase(): URL {
   }
 }
 
-const description = '주사위로 굴리는 고등학교 3년! 선택과 운이 쌓여 졸업 후 직업이 정해지는 1인용 보드게임.';
+const description = APP_DESCRIPTION;
 
 export const metadata: Metadata = {
   metadataBase: metadataBase(),
-  title: { default: '청춘다이스', template: '%s · 청춘다이스' },
+  title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
   description,
-  applicationName: '청춘다이스',
+  applicationName: APP_NAME,
   openGraph: {
     type: 'website',
-    siteName: '청춘다이스',
+    siteName: APP_NAME,
     locale: 'ko_KR',
-    title: '청춘다이스',
+    title: APP_NAME,
     description,
-    images: [{ url: '/api/og', width: 1200, height: 630, alt: '청춘다이스' }],
+    images: [{ url: '/api/og', width: 1200, height: 630, alt: APP_NAME }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: '청춘다이스',
+    title: APP_NAME,
     description,
     images: ['/api/og'],
   },
@@ -51,7 +53,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#2f5d50',
+  themeColor: '#9dd5f1',
   colorScheme: 'light',
 };
 
@@ -59,6 +61,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko" className={`${jua.variable} ${notoSansKr.variable}`}>
       <body className="font-sans text-ink">
+        <Scenery />
         <FlushPending />
         {children}
       </body>

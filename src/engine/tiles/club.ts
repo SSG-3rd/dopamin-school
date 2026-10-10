@@ -15,8 +15,8 @@ export function startClub(d: GameState, ctx: Ctx): void {
       title: '동아리 가입',
       text: '동아리방 앞 게시판이 신입 부원 모집 포스터로 가득하다. 어떻게 정할까?',
       options: [
-        { id: 'follow', label: '친구 따라간다', kind: 'special', action: 'club_follow', desc: '동아리 무작위 · 인맥 +10 · 스트레스 −5' },
-        { id: 'choose', label: '내가 고른다', kind: 'special', action: 'club_choose', desc: '원하는 동아리 · 스트레스 +5' },
+        { id: 'follow', label: '👫 친구 따라간다', kind: 'special', action: 'club_follow', desc: '동아리 무작위 · 인맥 +10 · 스트레스 −5' },
+        { id: 'choose', label: '🧭 내가 고른다', kind: 'special', action: 'club_choose', desc: '원하는 동아리 · 스트레스 +5' },
       ],
     });
     return;
@@ -26,7 +26,7 @@ export function startClub(d: GameState, ctx: Ctx): void {
     d.clubSwitchOffered = true;
     extra.push({
       id: 'switch_club',
-      label: '동아리 옮기기',
+      label: '🔁 동아리 옮기기',
       kind: 'special',
       action: 'club_switch',
       desc: '경험치는 유지, 배율만 새 분야로',

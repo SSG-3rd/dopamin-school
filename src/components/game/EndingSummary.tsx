@@ -1,4 +1,5 @@
 'use client';
+import { APP_NAME } from '@/lib/brand';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { content, findTrait, getClub, getRoute } from '@/engine/content';
@@ -58,7 +59,7 @@ function SharePanel({ game }: { game: GameState }) {
           margin: 1,
           width: booth ? 520 : 240,
           errorCorrectionLevel: 'M',
-          color: { dark: '#2b2a33', light: '#ffffff' },
+          color: { dark: '#4a3a2f', light: '#ffffff' },
         });
       })
       .then((data) => {
@@ -82,7 +83,7 @@ function SharePanel({ game }: { game: GameState }) {
   };
   const share = async () => {
     try {
-      await navigator.share({ title: '청춘다이스 결과', text: '내 고등학교 3년의 결말은?', url });
+      await navigator.share({ title: `${APP_NAME} 결과`, text: '내 고등학교 3년의 결말은?', url });
     } catch {
       // 사용자가 취소한 경우 등
     }
@@ -101,14 +102,14 @@ function SharePanel({ game }: { game: GameState }) {
               alt="결과 페이지 QR 코드"
               width={booth ? 320 : 160}
               height={booth ? 320 : 160}
-              className={`rounded-xl border-2 border-line bg-white ${booth ? 'h-auto w-[min(320px,80vw)]' : 'h-40 w-40'}`}
+              className={`rounded-xl border-2 border-outline/45 bg-paper ${booth ? 'h-auto w-[min(320px,80vw)]' : 'h-40 w-40'}`}
             />
             <figcaption className="text-center text-base text-muted">
               {booth ? '📱 휴대폰 카메라로 찍어 결과를 가져가세요!' : '휴대폰으로 찍어 가져가기'}
             </figcaption>
           </figure>
         ) : (
-          <div className="flex h-40 w-40 items-center justify-center rounded-xl border-2 border-dashed border-line text-base text-muted">
+          <div className="flex h-40 w-40 items-center justify-center rounded-xl border-2 border-dashed border-outline/45 text-base text-muted">
             QR 준비 중…
           </div>
         )}
@@ -121,7 +122,7 @@ function SharePanel({ game }: { game: GameState }) {
             readOnly
             value={url}
             onFocus={(e) => e.currentTarget.select()}
-            className="w-full min-w-0 rounded-xl border-2 border-line bg-paper-2 px-3 py-2 text-base"
+            className="w-full min-w-0 rounded-xl border-2 border-outline/45 bg-paper-2 px-3 py-2 text-base"
           />
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" size="sm" onClick={copy} disabled={!url}>
@@ -182,7 +183,7 @@ export function EndingSummary({ game, onReplay }: { game: GameState; onReplay?: 
               return (
                 <li
                   key={c.id}
-                  className={`rounded-xl border-2 px-3 py-2 ${picked ? 'border-ink bg-sun/30' : 'border-line bg-white'}`}
+                  className={`rounded-xl border-2 px-3 py-2 ${picked ? 'border-outline bg-sun/30' : 'border-outline/45 bg-paper'}`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-display text-lg">

@@ -59,10 +59,10 @@ export function Shop({ game }: { game: GameState }) {
               type="button"
               disabled={!v.affordable}
               onClick={() => buy(v.item.id)}
-              className={`flex h-full w-full flex-col gap-1 rounded-2xl border-2 bg-white p-3 text-left transition-[transform,box-shadow] ${
+              className={`flex h-full w-full flex-col gap-1 rounded-2xl border-2 bg-paper p-3 text-left transition-[transform,box-shadow] ${
                 v.affordable
-                  ? 'border-ink/70 shadow-[0_3px_0_0_rgb(43_42_51/0.6)] hover:bg-paper active:translate-y-[2px] active:shadow-none'
-                  : 'cursor-not-allowed border-line bg-paper-2 opacity-70'
+                  ? 'border-outline/70 shadow-[0_3px_0_0_rgb(107_79_58/0.6)] hover:bg-paper active:translate-y-[2px] active:shadow-none'
+                  : 'cursor-not-allowed border-outline/45 bg-paper-2 opacity-70'
               }`}
             >
               <span className="flex items-center gap-2">

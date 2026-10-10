@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import type { GameState } from '@/engine/types';
 import { buttonClass } from '@/components/ui';
+import { APP_NAME } from '@/lib/brand';
 import { useSettings } from '@/lib/settings';
 import { playSound } from '@/lib/sound';
 import { useGame } from '@/store/game';
+import { AugmentPicker, pickerKey } from './AugmentPicker';
 import { Board } from './Board';
 import { EndingScene } from './EndingScene';
 import { EnrollRoll } from './EnrollRoll';
@@ -46,7 +48,7 @@ function GameHeader() {
           ← 처음으로
         </Link>
         <span className="hidden font-display text-xl sm:inline">
-          <span aria-hidden="true">🎲</span> 청춘다이스
+          <span aria-hidden="true">🎲</span> {APP_NAME}
         </span>
         <span className="ml-auto" />
         <button
@@ -77,6 +79,20 @@ function GameHeader() {
   );
 }
 
+/** 선택지 창(AugmentPicker)이 떠 있는 동안 보드 가운데에 두는 자리 표시 */
+function ChoosingPlaceholder({ game }: { game: GameState }) {
+  const p = game.pending;
+  return (
+    <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 text-center">
+      <span aria-hidden="true" className="text-5xl leading-none">
+        {p?.icon ?? '🃏'}
+      </span>
+      {p?.title && <h2 className="text-2xl text-ink">{p.title}</h2>}
+      <p className="font-display text-lg text-muted">고르는 중…</p>
+    </div>
+  );
+}
+
 /** 사건 카드·상점·반 고르기 등 지금 단계의 본문 (넓은 화면: 보드 가운데 / 세로 화면: 아래 시트) */
 function StageContent({ game }: { game: GameState }) {
   if (game.pending?.source === 'enroll') return <EnrollRoll game={game} />;
@@ -86,6 +102,7 @@ function StageContent({ game }: { game: GameState }) {
     case 'route_select':
       return <RouteSelect game={game} />;
     case 'choice':
+      return <ChoosingPlaceholder game={game} />;
     case 'judge':
     case 'result':
     case 'tile_event':
@@ -221,7 +238,7 @@ function NarrowLayout({ game, timing }: { game: GameState; timing: Timing }) {
             <RollButton game={game} />
           </motion.div>
         )}
-        {!rolling && (
+        {!rolling && game.phase !== 'choice' && (
           <BottomSheet key="sheet" label={game.pending?.title ?? '사건'}>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -258,6 +275,7 @@ export function GameScreen({ game }: { game: GameState }) {
       <div className="min-h-dvh">
         <GameHeader />
         {body}
+        <AnimatePresence>{game.phase === 'choice' && game.pending && <AugmentPicker key={pickerKey(game)} game={game} />}</AnimatePresence>
         <AnimatePresence>{game.phase === 'judge' && <JudgeOverlay key="judge" game={game} />}</AnimatePresence>
         <Toasts />
       </div>

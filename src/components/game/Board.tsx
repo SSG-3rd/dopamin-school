@@ -1,10 +1,19 @@
 'use client';
 import { LayoutGroup } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { content, findTrait } from '@/engine/content';
+import { content } from '@/engine/content';
 import type { GameState } from '@/engine/types';
 import { Pawn } from './Pawn';
 import { Tile } from './Tile';
+
+/** 성향마다 말(데굴이) 색 */
+const PAWN_COLORS: Record<string, string> = {
+  talent: '#ffe08a',
+  effort: '#ffc2d1',
+  athlete: '#ffd0b5',
+  insider: '#bdeedb',
+  lucky: '#d9ccff',
+};
 
 /**
  * 5×5 보드: 테두리 16칸 + 가운데 3×3(사건 카드·주사위 자리).
@@ -22,9 +31,9 @@ export function Board({
   stepMs: number;
 }) {
   const tracks = large ? '17fr 22fr 22fr 22fr 17fr' : 'repeat(5, minmax(0, 1fr))';
-  const pawn = findTrait(game.traitId)?.emoji ?? '🙂';
+  const pawn = PAWN_COLORS[game.traitId] ?? '#fffaf0';
   return (
-    <div className="relative aspect-square w-full rounded-[28px] border-4 border-ink/80 bg-board p-1.5 shadow-[0_6px_0_0_rgb(43_42_51/0.35)] sm:p-2">
+    <div className="relative aspect-square w-full rounded-[30px] border-[3px] border-outline bg-[#bfe3ad] p-1.5 shadow-[0_6px_0_0_rgb(107_79_58/0.28)] sm:p-2">
       <LayoutGroup id="board">
         <div
           role="list"
@@ -36,7 +45,7 @@ export function Board({
             const here = game.position === t.index;
             return (
               <Tile key={t.index} tile={t} here={here}>
-                {here && <Pawn emoji={pawn} position={game.position} stepMs={stepMs} />}
+                {here && <Pawn color={pawn} position={game.position} stepMs={stepMs} />}
               </Tile>
             );
           })}

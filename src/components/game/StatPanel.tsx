@@ -213,7 +213,7 @@ export function StatSummary({ game, open, onToggle }: { game: GameState; open: b
       type="button"
       onClick={onToggle}
       aria-expanded={open}
-      className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border-2 border-line bg-white px-3 py-2 text-left shadow-[0_3px_0_0_var(--color-line)]"
+      className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border-2 border-outline/45 bg-paper px-3 py-2 text-left shadow-[0_3px_0_0_rgb(107_79_58/0.2)]"
     >
       <span className="font-display">
         {game.year}학년 {game.turn}턴

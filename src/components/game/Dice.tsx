@@ -20,7 +20,7 @@ export function DieFace({ value, size = 64, className = '' }: { value?: number; 
     <div
       role="img"
       aria-label={value ? `주사위 ${value}` : '주사위'}
-      className={`grid shrink-0 grid-cols-3 grid-rows-3 place-items-center rounded-[22%] border-[3px] border-ink bg-white shadow-[0_4px_0_0_var(--color-ink)] ${className}`}
+      className={`grid shrink-0 grid-cols-3 grid-rows-3 place-items-center rounded-[22%] border-[3px] border-outline bg-paper shadow-[0_4px_0_0_rgb(107_79_58/0.32)] ${className}`}
       style={{ width: size, height: size, padding: size * 0.12 }}
     >
       {value ? (
@@ -31,7 +31,7 @@ export function DieFace({ value, size = 64, className = '' }: { value?: number; 
             style={{
               width: pip,
               height: pip,
-              backgroundColor: cells.includes(i) ? (value === 1 ? 'var(--color-danger)' : 'var(--color-ink)') : 'transparent',
+              backgroundColor: cells.includes(i) ? (value === 1 ? 'var(--color-accent-deep)' : 'var(--color-ink)') : 'transparent',
             }}
           />
         ))
@@ -50,12 +50,12 @@ export function MoveDieFace({ value, size = 72, className = '' }: { value?: numb
     <div
       role="img"
       aria-label={value ? `이동 주사위 ${value}칸` : '이동 주사위'}
-      className={`relative flex shrink-0 flex-col items-center justify-center rounded-[26%] border-[3px] border-ink bg-sun shadow-[0_4px_0_0_var(--color-ink)] ${className}`}
+      className={`relative flex shrink-0 flex-col items-center justify-center rounded-[26%] border-[3px] border-outline bg-sun shadow-[0_4px_0_0_rgb(107_79_58/0.32)] ${className}`}
       style={{ width: size, height: size }}
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-[9%] rounded-[22%] border-2 border-dashed border-ink/35"
+        className="pointer-events-none absolute inset-[9%] rounded-[22%] border-2 border-dashed border-outline/35"
       />
       <span className="font-display leading-none text-ink" style={{ fontSize: size * 0.46 }}>
         {value ?? '?'}
@@ -127,10 +127,10 @@ export function MoveDieStrip({ value, dark = false }: { value?: number; dark?: b
               aria-hidden="true"
               className={`flex h-7 w-7 items-center justify-center rounded-md border-2 font-display text-base leading-none ${
                 hit
-                  ? 'border-ink bg-sun text-ink'
+                  ? 'border-outline bg-sun text-ink'
                   : dark
                     ? 'border-white/40 text-white/80'
-                    : 'border-line bg-white text-muted'
+                    : 'border-outline/40 bg-paper text-muted'
               }`}
             >
               {f}

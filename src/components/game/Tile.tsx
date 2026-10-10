@@ -5,13 +5,13 @@ import { tileGridPos } from '@/engine/rules';
 
 const CORNER_BG: Record<string, string> = {
   promotion: 'bg-sun',
-  exam: 'bg-sky',
-  summer: 'bg-accent',
+  exam: 'bg-[#bfe4f6]',
+  summer: 'bg-[#ffd0dc]',
 };
 
 const KIND_BG: Record<BoardTile['kind'], string> = {
   corner: 'bg-sun',
-  place: 'bg-white',
+  place: 'bg-paper',
   general: 'bg-paper-2',
 };
 
@@ -28,8 +28,8 @@ export function Tile({ tile, here, children }: { tile: BoardTile; here: boolean;
       role="listitem"
     >
       <div
-        className={`flex h-full w-full flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[14px] border-2 px-px text-center ${bg} ${
-          here ? 'border-ink ring-4 ring-sun' : corner ? 'border-ink/60' : 'border-line'
+        className={`flex h-full w-full flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[16px] border-[2.5px] border-outline px-px text-center shadow-[0_3px_0_0_rgb(107_79_58/0.22)] transition-transform ${bg} ${
+          here ? '-translate-y-0.5 ring-4 ring-accent' : ''
         }`}
       >
         <span

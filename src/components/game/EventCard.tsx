@@ -1,14 +1,11 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useEffect, useState, type ReactNode } from 'react';
-import { checkByLabel, describeChange, getAbilityView, getOptionViews } from '@/engine/view';
+import { checkByLabel, describeChange } from '@/engine/view';
 import type { Change, GameState, JudgeResult, PendingEvent } from '@/engine/types';
 import { Button, Chip } from '@/components/ui';
-import { playSound } from '@/lib/sound';
-import { digitKey, isEnter, useAct, useHotkeys, useTiming } from './hooks';
-import { KIND_META, OUTCOME_META, TONE_ICON, pct, previewTone, signed } from './meta';
-
-type OptionView = ReturnType<typeof getOptionViews>[number];
+import { isEnter, useAct, useHotkeys, useTiming } from './hooks';
+import { OUTCOME_META, TONE_ICON, signed } from './meta';
 
 export function KeyBadge({ children }: { children: ReactNode }) {
   return (
@@ -30,123 +27,6 @@ function EventHeader({ pending, showText = true }: { pending: PendingEvent; show
         <h2 className="text-2xl text-ink">{pending.title}</h2>
         {showText && pending.text && <p className="mt-1 text-base leading-relaxed text-ink/90">{pending.text}</p>}
       </div>
-    </div>
-  );
-}
-
-function PreviewChips({ items, prefix }: { items: string[]; prefix?: string }) {
-  if (items.length === 0) return null;
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {prefix && <span className="text-base text-muted">{prefix}</span>}
-      {items.map((t, i) => (
-        <Chip key={`${t}-${i}`} tone={previewTone(t)}>
-          {t}
-        </Chip>
-      ))}
-    </div>
-  );
-}
-
-function OptionButton({ view, onChoose }: { view: OptionView; onChoose: (id: string) => void }) {
-  const o = view.option;
-  const kind = KIND_META[o.kind];
-  return (
-    <button
-      type="button"
-      onClick={() => onChoose(o.id)}
-      disabled={view.disabled}
-      aria-disabled={view.disabled}
-      className={`group flex w-full flex-col gap-1.5 rounded-2xl border-2 bg-white p-3 text-left transition-[transform,box-shadow,background-color] ${
-        view.disabled
-          ? 'cursor-not-allowed border-line bg-paper-2 opacity-70'
-          : 'border-ink/70 shadow-[0_3px_0_0_rgb(43_42_51/0.6)] hover:bg-paper active:translate-y-[2px] active:shadow-[0_1px_0_0_rgb(43_42_51/0.6)]'
-      }`}
-      style={{ borderLeftWidth: 8, borderLeftColor: view.disabled ? undefined : kind.color }}
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <KeyBadge>{view.key}</KeyBadge>
-        <span className="font-display text-base text-muted">
-          <span aria-hidden="true">{kind.icon}</span> {kind.word}
-        </span>
-        {view.unlocked && <Chip tone="warn">🔓 해금</Chip>}
-      </div>
-      <span className="font-display text-xl leading-snug text-ink">{o.label}</span>
-      {o.desc && view.preview[0] !== o.desc && <span className="text-base text-muted">{o.desc}</span>}
-      <PreviewChips items={view.preview} prefix={view.judge && view.failPreview ? '성공 시' : undefined} />
-      {view.judge && (
-        <p className="text-base">
-          <span aria-hidden="true">🎲</span> <strong className="font-display font-normal">{view.judge.byLabel} 판정</strong> · 성공{' '}
-          <strong className="font-display text-lg font-normal">{pct(view.judge.probability)}</strong>
-          <span className="text-muted">
-            {' '}
-            (보정 {signed(view.judge.bonus)} / 난이도 {view.judge.diff})
-          </span>
-        </p>
-      )}
-      {view.failPreview && view.failPreview.length > 0 && <PreviewChips items={view.failPreview} prefix="실패 시" />}
-      {view.disabled && view.reason && (
-        <p className="font-display text-base text-danger">
-          <span aria-hidden="true">🔒</span> {view.reason}
-        </p>
-      )}
-    </button>
-  );
-}
-
-function ChoiceList({ game }: { game: GameState }) {
-  const dispatch = useAct(game);
-  const views = getOptionViews(game);
-  const ability = getAbilityView(game);
-  const canToggle = !!ability && ability.available && game.traitId === 'insider';
-
-  const choose = (id: string) => {
-    playSound('click');
-    dispatch({ type: 'CHOOSE', optionId: id });
-  };
-
-  useHotkeys((e) => {
-    const n = digitKey(e);
-    if (n != null) {
-      const v = views.find((x) => x.key === n);
-      if (v && !v.disabled) {
-        choose(v.option.id);
-        return true;
-      }
-      return false;
-    }
-    if (canToggle && (e.key === 'a' || e.key === 'A' || e.key === 'ㅁ')) {
-      dispatch({ type: 'USE_ABILITY' });
-      return true;
-    }
-  });
-
-  return (
-    <div className="flex flex-col gap-2.5">
-      {canToggle && ability && (
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border-2 border-grape/40 bg-grape/10 p-2.5">
-          <Button
-            variant={ability.armed ? 'primary' : 'secondary'}
-            size="sm"
-            aria-pressed={!!ability.armed}
-            onClick={() => dispatch({ type: 'USE_ABILITY' })}
-          >
-            🎉 {ability.label} {ability.armed ? '발동 중 (취소)' : '쓰기'}
-          </Button>
-          <span className="text-base">
-            {ability.armed ? (
-              <strong className="font-display font-normal">판정 기준: 인맥</strong>
-            ) : (
-              ability.desc
-            )}{' '}
-            <span className="text-muted">· 남은 {ability.usesLeft}회 · A 키</span>
-          </span>
-        </div>
-      )}
-      {views.map((v) => (
-        <OptionButton key={v.option.id} view={v} onChoose={choose} />
-      ))}
-      <p className="text-base text-muted">숫자 키 1~{Math.max(1, views.length)}로도 고를 수 있어요.</p>
     </div>
   );
 }
@@ -181,7 +61,7 @@ export function ChangeList({ changes }: { changes: Change[] }) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: Math.min(i * 0.05, 0.4) }}
             className={`flex items-center gap-2 rounded-lg px-2 py-1 font-display text-base ${
-              d.tone === 'good' ? 'bg-mint/12 text-[#146b52]' : d.tone === 'bad' ? 'bg-danger/10 text-[#a8282c]' : 'bg-sky/12 text-[#1d5a8a]'
+              d.tone === 'good' ? 'bg-mint/15 text-good' : d.tone === 'bad' ? 'bg-danger/12 text-bad' : 'bg-sky/20 text-info'
             }`}
           >
             <span aria-hidden="true">{TONE_ICON[d.tone]}</span>
@@ -261,7 +141,7 @@ function ResultBody({ game }: { game: GameState }) {
   );
 }
 
-/** 사건 카드: 상황 문장 + 선택지 / 판정 대기 / 결과 */
+/** 사건 카드: 상황 문장 + 판정 대기 / 결과. 선택지는 AugmentPicker(증강 선택 창)가 맡는다. */
 export function EventCard({ game }: { game: GameState }) {
   const p = game.pending;
   if (!p) return null;
@@ -270,7 +150,6 @@ export function EventCard({ game }: { game: GameState }) {
   return (
     <div className="flex flex-col gap-3">
       <EventHeader pending={p} showText={phase === 'choice' || phase === 'judge'} />
-      {phase === 'choice' && <ChoiceList game={game} />}
       {phase === 'judge' && p.chosen && (
         <div className="rounded-2xl border-2 border-ink/60 bg-white p-3">
           <p className="text-base text-muted">고른 선택지</p>

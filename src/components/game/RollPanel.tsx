@@ -29,8 +29,8 @@ export function MoveDieDisplay({ game, size = 88, showStrip = true }: { game: Ga
   return (
     <div className="flex flex-col items-center gap-2">
       <RollingDie value={value} rolling={rolling} variant="move" size={size} />
-      {showStrip && <MoveDieStrip value={rolling ? undefined : value} dark />}
-      <p className="min-h-6 text-center font-display text-lg leading-tight text-white" aria-live="polite">
+      {showStrip && <MoveDieStrip value={rolling ? undefined : value} />}
+      <p className="min-h-6 text-center font-display text-lg leading-tight text-ink" aria-live="polite">
         {move
           ? rolling
             ? '데굴데굴…'
@@ -70,12 +70,12 @@ export function RollButton({ game }: { game: GameState }) {
 export function ChalkStatus({ game }: { game: GameState }) {
   const tile = content.board[game.position];
   return (
-    <div className="flex flex-col items-center gap-0.5 text-center text-white">
+    <div className="flex flex-col items-center gap-0.5 text-center text-ink">
       <p className="font-display text-xl leading-tight">
         {game.year}학년 · {game.turn}턴
       </p>
       {tile && (
-        <p className="font-display text-lg leading-tight text-white/85">
+        <p className="font-display text-lg leading-tight text-muted">
           <span aria-hidden="true">{tile.icon}</span> {tile.name}
         </p>
       )}
@@ -86,14 +86,14 @@ export function ChalkStatus({ game }: { game: GameState }) {
 /** 넓은 화면의 보드 가운데: 칠판 위에 주사위와 버튼 */
 export function RollPanel({ game }: { game: GameState }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-white/15 bg-board-2/60 p-4">
+    <div className="yd-ground flex h-full flex-col items-center justify-center gap-3 rounded-[22px] border-[2.5px] border-outline p-4">
       <ChalkStatus game={game} />
       <MoveDieDisplay game={game} />
       <div className="w-full max-w-xs">
         {game.phase === 'await_roll' ? (
           <RollButton game={game} />
         ) : (
-          <p className="text-center text-base text-white/80">코너 칸(진급·시험·방학)에 닿으면 남은 눈과 상관없이 멈춰요.</p>
+          <p className="text-center text-base text-muted">코너 칸(진급·시험·방학)에 닿으면 남은 눈과 상관없이 멈춰요.</p>
         )}
       </div>
     </div>

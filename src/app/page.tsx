@@ -2,7 +2,9 @@
 // 타이틀 화면 (§8): 새 게임 · 이어하기 · 엔딩 도감 · 통계 · 설정 · 게임 방법
 import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
+import { DiceBuddy } from '@/components/DiceBuddy';
 import { Card, buttonClass } from '@/components/ui';
+import { APP_NAME_PARTS, APP_TAGLINE } from '@/lib/brand';
 import { KEYS, readJSON } from '@/lib/storage';
 import { useSettings } from '@/lib/settings';
 import type { Settings } from '@/lib/settings';
@@ -72,7 +74,7 @@ function Toggle({
         aria-describedby={`${id}-d`}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-9 w-16 shrink-0 items-center rounded-full border-2 transition-colors ${
-          checked ? 'border-board bg-board' : 'border-line bg-paper-2'
+          checked ? 'border-outline bg-bush-deep' : 'border-outline bg-paper-2'
         }`}
       >
         <span
@@ -105,27 +107,26 @@ export default function TitlePage() {
   const resumable = save?.resumable === true;
 
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 pt-8 pb-12 sm:pt-12">
-      {/* 칠판 타이틀 */}
-      <header className="relative overflow-hidden rounded-3xl border-4 border-[#6b4f2a] bg-board px-5 py-8 text-center text-white shadow-[0_4px_0_0_#4a3519] sm:px-8 sm:py-10">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:14px_14px]"
-        />
-        <p className="relative font-display text-base tracking-wide text-white/80">1인용 고교생활 보드게임</p>
-        <h1 className="relative mt-1 font-display text-5xl sm:text-6xl">
-          청춘<span className="text-sun">다이스</span>
-        </h1>
-        <p className="relative mx-auto mt-3 max-w-sm text-base text-white/90">
-          주사위 굴려 보내는 고등학교 3년.
+    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 pt-6 pb-12 sm:pt-10">
+      {/* 하늘 위 타이틀 */}
+      <header className="flex flex-col items-center pt-2 text-center">
+        <p className="rounded-full border-2 border-outline bg-paper px-3 py-0.5 font-display text-base text-ink shadow-[0_3px_0_0_rgb(107_79_58/0.22)]">
+          1인용 고교생활 보드게임
+        </p>
+        <div className="mt-3 flex items-center gap-2 sm:gap-4">
+          <DiceBuddy size={72} className="yd-buddy-hop shrink-0 -rotate-6" />
+          <h1 className="yd-logo font-display text-[3.4rem] leading-[1.05] sm:text-7xl">
+            <span className="text-accent">{APP_NAME_PARTS[0]}</span>
+            <br className="sm:hidden" />
+            <span className="text-sun sm:ml-3">{APP_NAME_PARTS[1]}</span>
+          </h1>
+          <DiceBuddy size={56} mood="wink" color="#ffe08a" className="yd-buddy-hop yd-buddy-hop--late hidden shrink-0 rotate-6 sm:block" />
+        </div>
+        <p className="yd-panel mt-4 max-w-sm px-5 py-3 text-base leading-relaxed text-ink">
+          {APP_TAGLINE}.
           <br />
           졸업하는 날, 나는 무엇이 되어 있을까?
         </p>
-        <div aria-hidden="true" className="relative mt-4 flex justify-center gap-3 text-4xl">
-          <span className="inline-block -rotate-12">🎲</span>
-          <span className="inline-block rotate-6">🎒</span>
-          <span className="inline-block -rotate-6">🎓</span>
-        </div>
       </header>
 
       {/* 메뉴 */}
@@ -215,7 +216,7 @@ export default function TitlePage() {
 
       {/* 게임 방법 */}
       <section aria-labelledby="howto-title" className="flex flex-col gap-3">
-        <h2 id="howto-title" className="text-2xl">
+        <h2 id="howto-title" className="yd-panel self-start px-4 py-1 text-2xl">
           <span aria-hidden="true">📝</span> 게임 방법
         </h2>
         <ol className="flex flex-col gap-3">
@@ -224,13 +225,13 @@ export default function TitlePage() {
               <Card className="flex gap-3 p-4">
                 <div
                   aria-hidden="true"
-                  className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-paper-2 text-2xl"
+                  className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-outline bg-sky/40 text-2xl"
                 >
                   {s.icon}
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-lg">
-                    <span className="text-board-2">{i + 1}.</span> {s.title}
+                    <span className="text-accent-deep">{i + 1}.</span> {s.title}
                   </h3>
                   <p className="text-base leading-relaxed text-muted">{s.text}</p>
                 </div>
@@ -238,7 +239,7 @@ export default function TitlePage() {
             </li>
           ))}
         </ol>
-        <p className="text-base text-muted">
+        <p className="yd-panel px-4 py-2 text-base text-muted">
           키보드: <kbd className="rounded border border-line bg-white px-1.5">Space</kbd> 주사위 ·{' '}
           <kbd className="rounded border border-line bg-white px-1.5">1</kbd>
           <kbd className="ml-0.5 rounded border border-line bg-white px-1.5">2</kbd>
@@ -247,7 +248,7 @@ export default function TitlePage() {
         </p>
       </section>
 
-      <footer className="text-center text-base text-muted">
+      <footer className="yd-panel px-4 py-2 text-center text-base text-muted">
         로그인 없이 플레이해요. 끝난 판의 익명 요약만 통계로 모아요.
       </footer>
     </main>
