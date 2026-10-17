@@ -11,7 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { getAbilityView, getOptionViews, type OptionView } from '@/engine/view';
+import { getAbilityView, getOptionViews, type BuffNote, type OptionView } from '@/engine/view';
 import type { GameState } from '@/engine/types';
 import { Button, Chip } from '@/components/ui';
 import { playSound } from '@/lib/sound';
@@ -23,7 +23,7 @@ import { STATS_DRAWER_WIDTH, StatsDrawer, StatsToggle } from './StatsDrawer';
  * 증강 선택처럼 고르는 선택지 창.
  * 어둡게 깐 배경 위에 상황 말풍선 → 키 큰 카드들이 한 장씩 뒤집히며 깔린다 → 하나를 고른다.
  * 넓은 화면(마우스): 올리면 들리고, 누르면 바로 고른다.
- * 좁은 화면·터치: 한 번 누르면 들어 올려 아래에 자세히, 한 번 더(또는 "이걸로 고르기") 누르면 고른다.
+ * 좁은 화면·터치: 카드 하단에 효과를 작게 보여 주고, 한 번 누르면 들어 올려 한 번 더(또는 "이걸로 고르기") 누르면 고른다.
  * 숫자 키 1~9는 어디서든 바로 고른다.
  */
 
@@ -253,6 +253,73 @@ function JudgeBox({ judge, armed, dense }: { judge: NonNullable<OptionView['judg
   );
 }
 
+/** 이 선택으로 얻는 버프·디버프가 무엇을 하는지 (카드 아래쪽) */
+function BuffNotes({
+  notes,
+  align,
+  compact = false,
+  className = '',
+}: {
+  notes: BuffNote[];
+  align: 'center' | 'start';
+  compact?: boolean;
+  className?: string;
+}) {
+  if (notes.length === 0) return null;
+  return (
+    <span
+      className={`flex w-full flex-col leading-tight ${compact ? 'text-[11px]' : 'text-[13px]'} ${
+        align === 'center' ? 'items-center text-center' : 'items-start text-left'
+      } ${className}`}
+    >
+      {notes.map((b) => (
+        <span key={`${b.id}-${b.when ?? ''}`} className={b.debuff ? 'text-bad' : 'text-muted'}>
+          {b.when && `${b.when} `}
+          <span aria-hidden="true">{b.emoji}</span> {compact ? '' : `${b.name}: `}
+          {b.desc}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+const TONE_TEXT = { good: 'text-good', bad: 'text-bad', info: 'text-muted' } as const;
+
+/** 작은 카드 하단: 효과를 칩 대신 작은 글씨 한두 줄로 */
+function CompactSummary({ view }: { view: OptionView }) {
+  const { chips, text } = splitDetails(view);
+  // 버프 이름 칩은 아래 설명 줄과 겹치므로 뺀다
+  const strip = (xs: string[]) =>
+    view.buffNotes.length > 0 ? xs.filter((c) => !c.startsWith('버프') && !c.startsWith('디버프')) : xs;
+  const ok = strip(chips);
+  const fail = strip(view.failPreview ?? []);
+  const line = (items: string[]) =>
+    items.map((t, i) => (
+      <span key={`${t}-${i}`} className={TONE_TEXT[previewTone(t)]}>
+        {i > 0 && <span className="text-muted"> · </span>}
+        {t}
+      </span>
+    ));
+  return (
+    <span className="flex w-full flex-col items-center gap-0.5 text-center text-[11px] leading-tight">
+      {text && <span className="text-muted">{text}</span>}
+      {ok.length > 0 && (
+        <span>
+          {fail.length > 0 && <span className="text-muted">성공 </span>}
+          {line(ok)}
+        </span>
+      )}
+      {fail.length > 0 && (
+        <span>
+          <span className="text-muted">실패 </span>
+          {line(fail)}
+        </span>
+      )}
+      <BuffNotes notes={view.buffNotes} align="center" compact />
+    </span>
+  );
+}
+
 /** 카드 본문·자세히 창이 함께 쓰는 효과 설명 */
 function OptionDetails({
   view,
@@ -463,7 +530,10 @@ function AugmentCard({
           <span id={descId} className="relative z-10 flex w-full flex-col items-center gap-2">
             <OptionDetails view={view} align="center" armed={armed} />
           </span>
-          {showKey && <HotkeyBadge n={view.key} className="relative z-10 mt-auto" />}
+          <BuffNotes notes={view.buffNotes} align="center" className="relative z-10 mt-auto" />
+          {showKey && (
+            <HotkeyBadge n={view.key} className={`relative z-10 ${view.buffNotes.length > 0 ? '' : 'mt-auto'}`} />
+          )}
         </span>
       </motion.button>
     );
@@ -491,6 +561,7 @@ function AugmentCard({
             <span id={descId} className="flex w-full flex-col items-start gap-1.5">
               <OptionDetails view={view} align="start" armed={armed} dense />
             </span>
+            <BuffNotes notes={view.buffNotes} align="start" />
           </span>
           {showKey && <HotkeyBadge n={view.key} className="relative z-10 self-start" />}
         </span>
@@ -535,6 +606,11 @@ function AugmentCard({
                 {pct(view.judge.probability)}
               </span>
             ) : null}
+            {!disabled && (
+              <span className="mt-1 w-full">
+                <CompactSummary view={view} />
+              </span>
+            )}
           </span>
         </span>
       </motion.button>
@@ -553,83 +629,28 @@ function AugmentCard({
   );
 }
 
-// ───────── 좁은 화면 자세히 창 ─────────
-function DetailPanel({
+// ───────── 터치·좁은 화면: 고르기 버튼 ─────────
+/** 카드에 내용이 다 있으니, 들어 올린 카드를 확정하는 버튼만 둔다. */
+function PickBar({
   view,
-  armed,
-  full,
   onPick,
   panelRef,
 }: {
   view: OptionView | null;
-  armed: boolean;
-  full: boolean;
   onPick: (id: string) => void;
   panelRef: Ref<HTMLElement>;
 }) {
-  if (!full) {
-    // 넓은 화면 + 터치: 카드에 내용이 다 있으니 고르기 버튼만
-    return (
-      <section ref={panelRef} aria-live="polite" className="flex min-h-14 w-full justify-center">
-        {view ? (
-          <Button size="lg" disabled={view.disabled} onClick={() => onPick(view.option.id)}>
-            ‘{splitLabel(view).name}’ 이걸로 고르기
-          </Button>
-        ) : (
-          <p className="rounded-full border-2 border-outline bg-paper px-4 py-1.5 text-base text-muted">
-            카드를 누르면 들어 올려요. 한 번 더 누르면 골라요.
-          </p>
-        )}
-      </section>
-    );
-  }
-  const look = view ? TIERS[tierOf(view)] : null;
   return (
-    <section
-      ref={panelRef}
-      aria-live="polite"
-      aria-label="고른 카드 자세히"
-      className="w-full max-w-[520px] scroll-mb-4 rounded-[22px] border-[3px] border-outline bg-paper p-4 shadow-[0_4px_0_0_rgb(107_79_58/0.25)]"
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        {view && look ? (
-          <motion.div
-            key={view.option.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="flex flex-col gap-3"
-          >
-            <div className="flex items-center gap-3">
-              <Medallion icon={splitLabel(view).icon} look={look} size={52} disabled={view.disabled} />
-              <div className="min-w-0">
-                <h3 className="text-[22px] leading-tight text-ink">{splitLabel(view).name}</h3>
-                <p className="text-base leading-tight text-muted">
-                  {kindLine(view)}
-                  {view.unlocked && ' · 🔓 해금'}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col items-start gap-2">
-              <OptionDetails view={view} align="start" armed={armed && !!view.judge} />
-            </div>
-            <Button size="lg" block disabled={view.disabled} onClick={() => onPick(view.option.id)}>
-              {view.disabled ? '🔒 고를 수 없어요' : '이걸로 고르기'}
-            </Button>
-          </motion.div>
-        ) : (
-          <motion.p
-            key="hint"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-center text-base text-muted"
-          >
-            카드를 누르면 자세히 보여요. 한 번 더 누르면 골라요.
-          </motion.p>
-        )}
-      </AnimatePresence>
+    <section ref={panelRef} aria-live="polite" className="flex min-h-14 w-full scroll-mb-4 justify-center">
+      {view ? (
+        <Button size="lg" disabled={view.disabled} onClick={() => onPick(view.option.id)}>
+          {view.disabled ? `🔒 ${view.reason ?? '고를 수 없어요'}` : `‘${splitLabel(view).name}’ 이걸로 고르기`}
+        </Button>
+      ) : (
+        <p className="rounded-full border-2 border-outline bg-paper px-4 py-1.5 text-base text-muted">
+          카드를 누르면 들어 올려요. 한 번 더 누르면 골라요.
+        </p>
+      )}
     </section>
   );
 }
@@ -971,9 +992,9 @@ export function AugmentPicker({ game }: { game: GameState }) {
           </button>
         )}
 
-        {/* 터치·좁은 화면: 자세히 + 고르기 */}
+        {/* 터치·좁은 화면: 고르기 버튼 */}
         {twoStep && (
-          <DetailPanel view={selectedView} armed={armed} full={!wide} onPick={pick} panelRef={panelRef} />
+          <PickBar view={selectedView} onPick={pick} panelRef={panelRef} />
         )}
       </div>
 

@@ -17,7 +17,7 @@ import {
 } from '@/engine/rules';
 import { newGame } from '@/engine/state';
 import type { Action, GameState } from '@/engine/types';
-import { getOptionViews } from '@/engine/view';
+import { getOptionViews, getShopView } from '@/engine/view';
 import { content } from '@/engine/content';
 
 function started(traitId = 'effort', seed = 42): GameState {
@@ -345,5 +345,36 @@ describe('시뮬레이션', () => {
         expect(state.money).toBeGreaterThanOrEqual(0);
       }
     }
+  });
+});
+
+describe('매점', () => {
+  function shop(money: number): GameState {
+    const s = started();
+    return {
+      ...s,
+      phase: 'shop',
+      money,
+      pending: { source: 'shop', title: '매점', text: '', shopItems: content.items.map((i) => i.id), bought: [] },
+    };
+  }
+  it('행운의 부적은 한 판에 2개까지', () => {
+    let s = run(shop(1_000_000), [
+      { type: 'BUY', itemId: 'charm' },
+      { type: 'BUY', itemId: 'charm' },
+    ]);
+    expect(s.itemsBought?.charm).toBe(2);
+    expect(reduce(s, { type: 'BUY', itemId: 'charm' }).error).toBe('최대 2개까지');
+    // 다음 매점에서도 제한이 이어진다
+    s = { ...s, pending: { ...s.pending!, bought: [] } };
+    expect(reduce(s, { type: 'BUY', itemId: 'charm' }).error).toBe('최대 2개까지');
+    expect(getShopView(s).find((v) => v.item.id === 'charm')?.soldOut).toBe(true);
+    // 다른 상품은 제한 없음
+    s = run(s, [
+      { type: 'BUY', itemId: 'gift' },
+      { type: 'BUY', itemId: 'gift' },
+      { type: 'BUY', itemId: 'gift' },
+    ]);
+    expect(s.itemsBought?.gift).toBe(3);
   });
 });
