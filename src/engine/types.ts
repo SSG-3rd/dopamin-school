@@ -251,6 +251,8 @@ export interface GameState {
   visitedClub: boolean;
   /** 같은 버프가 언제 얻어졌는지 비교하기 위한 증가값 */
   tick: number;
+  /** 이번 판에 매점에서 산 개수 (아이템 id → 개수). 예전 저장에는 없다. */
+  itemsBought?: Record<string, number>;
 }
 
 export type Action =

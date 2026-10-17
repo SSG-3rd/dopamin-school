@@ -34,7 +34,7 @@ export function autoAction(state: GameState, rng: Rng, policy: Policy = 'random'
     case 'judge':
       return getAbilityView(state)?.available ? { type: 'USE_ABILITY' } : { type: 'CONTINUE' };
     case 'shop': {
-      const affordable = getShopView(state).filter((s) => s.affordable);
+      const affordable = getShopView(state).filter((s) => s.affordable && !s.soldOut);
       if (affordable.length > 0 && (p?.bought?.length ?? 0) < 2 && rng.next() < 0.6) {
         return { type: 'BUY', itemId: rng.pick(affordable).item.id };
       }

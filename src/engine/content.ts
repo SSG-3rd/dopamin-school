@@ -211,9 +211,11 @@ export const itemSchema = z.strictObject({
   emoji: z.string(),
   price: int.positive(),
   desc: z.string(),
+  /** 한 판에 살 수 있는 최대 개수 (없으면 제한 없음) */
+  maxPerGame: int.positive().optional(),
   effects: effectsSchema,
 });
-export type Item = z.infer<typeof itemSchema>;
+export type Item =z.infer<typeof itemSchema>;
 
 const jobSchema = z.strictObject({ id: z.string(), name: z.string() });
 const gradeTableSchema = z.strictObject({

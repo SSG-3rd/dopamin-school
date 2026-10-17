@@ -4,5 +4,5 @@
   { "id": "workbook", "name": "문제집 세트", "emoji": "📚", "price": 15000, "desc": "학업 +7", "effects": { "stats": { "study": 10 } } },
   { "id": "sneakers", "name": "운동화", "emoji": "👟", "price": 15000, "desc": "체력 +7", "effects": { "stats": { "stamina": 10 } } },
   { "id": "gift", "name": "친구 선물", "emoji": "🎁", "price": 10000, "desc": "인맥 +7", "effects": { "stats": { "social": 10 } } },
-  { "id": "charm", "name": "행운의 부적", "emoji": "🧧", "price": 20000, "desc": "운 +7", "effects": { "stats": { "luck": 10 } } }
+  { "id": "charm", "name": "행운의 부적", "emoji": "🧧", "price": 20000, "desc": "운 +7", "maxPerGame": 2, "effects": { "stats": { "luck": 10 } } }
 ]

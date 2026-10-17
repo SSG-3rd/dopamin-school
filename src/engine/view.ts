@@ -14,6 +14,7 @@ import { resolveCareerKey } from './effects';
 import { planJudge } from './judge';
 import { ABILITY_USES_PER_YEAR, careerLevel, formatMoney, isGrowthLocked, scaleStatGain } from './rules';
 import type {
+  BuffRef,
   Change,
   CheckBy,
   ChoiceOption,
@@ -33,6 +34,50 @@ export interface OptionView {
   failPreview?: string[];
   judge?: { byLabel: string; diff: number; bonus: number; probability: number; bonuses: JudgeBonus[] };
   unlocked: boolean;
+  /** 이 선택으로 얻는 버프·디버프 설명 (카드 아래에 보여 준다) */
+  buffNotes: BuffNote[];
+}
+
+export interface BuffNote {
+  id: string;
+  emoji: string;
+  name: string;
+  desc: string;
+  debuff: boolean;
+  /** 판정 선택지: '성공 시' · '실패 시' */
+  when?: string;
+}
+
+function buffNote(ref: BuffRef, debuff: boolean, when?: string): BuffNote {
+  const id = typeof ref === 'string' ? ref : ref.id;
+  const field = typeof ref === 'string' ? undefined : ref.field;
+  const def = getBuffDef(id);
+  let desc = def?.desc ?? '';
+  if (id === 'practice' && field) desc = `${CAREER_NAMES[field]} 경험치 2배`;
+  if (def?.moves) desc += ` (${def.moves}칸 동안)`;
+  return { id, emoji: def?.emoji ?? '✨', name: def?.name ?? id, desc, debuff: debuff || !!def?.debuff, when };
+}
+
+function buffNotesOf(e: Effects | undefined, when?: string): BuffNote[] {
+  const out: BuffNote[] = [];
+  if (e?.buff) out.push(buffNote(e.buff, false, when));
+  if (e?.debuff) out.push(buffNote(e.debuff, true, when));
+  return out;
+}
+
+/** 선택지 하나가 줄 수 있는 버프·디버프 (같은 것이 겹치면 한 번만) */
+function optionBuffNotes(o: ChoiceOption): BuffNote[] {
+  const notes = o.check
+    ? [...buffNotesOf(o.onSuccess, '성공 시'), ...buffNotesOf(o.onFail, '실패 시')]
+    : buffNotesOf(o.effects);
+  notes.push(...buffNotesOf(o.after));
+  const seen = new Set<string>();
+  return notes.filter((n) => {
+    const k = `${n.id}-${n.when ?? ''}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
 }
 
 const RECORD_NAMES = { examPass: '시험 기록', award: '수상 기록', praise: '칭찬 기록', late: '지각 기록' } as const;
@@ -137,7 +182,7 @@ export function getOptionViews(state: GameState): OptionView[] {
         bonuses: plan.bonuses,
       };
     }
-    return { option: o, key: i + 1, ...av, preview, failPreview, judge, unlocked: !!o.unlock };
+    return { option: o, key: i + 1, ...av, preview, failPreview, judge, unlocked: !!o.unlock, buffNotes: optionBuffNotes(o) };
   });
 }
 
@@ -174,16 +219,32 @@ export function getAbilityView(state: GameState): AbilityView | null {
   return null;
 }
 
-export function getShopView(state: GameState): { item: Item; affordable: boolean; bought: number }[] {
+export interface ShopItemView {
+  item: Item;
+  affordable: boolean;
+  /** 이번 매점에서 산 개수 */
+  bought: number;
+  /** 이번 판에 산 개수 */
+  owned: number;
+  /** 한 판 최대 개수를 다 채움 */
+  soldOut: boolean;
+}
+
+export function getShopView(state: GameState): ShopItemView[] {
   const p = state.pending;
   const ids = p?.shopItems ?? [];
   return content.items
     .filter((i) => ids.includes(i.id))
-    .map((item) => ({
-      item,
-      affordable: state.money >= item.price,
-      bought: (p?.bought ?? []).filter((b) => b === item.id).length,
-    }));
+    .map((item) => {
+      const owned = state.itemsBought?.[item.id] ?? 0;
+      return {
+        item,
+        affordable: state.money >= item.price,
+        bought: (p?.bought ?? []).filter((b) => b === item.id).length,
+        owned,
+        soldOut: item.maxPerGame != null && owned >= item.maxPerGame,
+      };
+    });
 }
 
 export function getRouteViews(state: GameState): { route: Route; disabled: boolean; reason?: string; preview: string[] }[] {

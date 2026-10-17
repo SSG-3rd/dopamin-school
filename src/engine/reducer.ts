@@ -173,8 +173,11 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       const item = getItem(a.itemId);
       if (!item || !p.shopItems?.includes(item.id)) return 'unknown item';
       if (d.money < item.price) return '용돈 부족';
+      const owned = d.itemsBought?.[item.id] ?? 0;
+      if (item.maxPerGame != null && owned >= item.maxPerGame) return `최대 ${item.maxPerGame}개까지`;
       applyMoney(d, -item.price, ctx.log);
       applyEffects(d, item.effects, ctx.log);
+      d.itemsBought = { ...d.itemsBought, [item.id]: owned + 1 };
       d.pending = { ...d.pending!, bought: [...(p.bought ?? []), item.id] };
       return;
     }
