@@ -319,3 +319,9 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* 음악 안내 버튼의 음표 */
+.yd-note-hint {
+  display: inline-block;
+  animation: yd-bob 1.6s ease-in-out infinite;
+}
