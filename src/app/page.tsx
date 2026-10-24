@@ -38,7 +38,7 @@ const HOW_TO = [
 
 const TOGGLES: { key: keyof Settings; icon: string; label: string; desc: string }[] = [
   { key: 'fast', icon: '⏩', label: '빠른 진행', desc: '주사위·이동 연출을 짧게, 결과 창은 자동으로 닫혀요.' },
-  { key: 'music', icon: '🎵', label: '배경음악', desc: '잔잔하고 밝은 배경음악을 틀어요.' },
+  { key: 'music', icon: '🎵', label: '배경음악', desc: '게임 내내 배경음악을 틀어요.' },
   { key: 'sound', icon: '🔊', label: '효과음', desc: '주사위·판정 효과음을 켜요.' },
   { key: 'booth', icon: '🎪', label: '부스 모드', desc: '행사 부스용: 결과 화면에 QR 코드를 크게 띄워요.' },
 ];

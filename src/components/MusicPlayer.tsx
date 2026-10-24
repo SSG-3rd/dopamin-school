@@ -3,7 +3,9 @@
 // - 페이지가 열리자마자 바로 틀어 본다 (브라우저가 허락하면 그대로 재생).
 // - 브라우저가 첫 입력 전 소리를 막으면, 첫 클릭·터치·키 입력 순간에 바로 시작하고 그동안 작은 안내를 띄운다.
 // - 설정을 끄면 즉시 멈추고, 다시 켜면 다시 나온다. 탭이 가려지면 멈췄다가 돌아오면 다시 튼다.
+// - 휴대폰 알림창·잠금화면의 재생/일시정지 버튼도 같은 설정을 켜고 끈다.
 import { useEffect, useState } from 'react';
+import { APP_NAME } from '@/lib/brand';
 import { musicBlocked, startMusic, stopMusic, unlockAudio } from '@/lib/music';
 import { useSettings } from '@/lib/settings';
 
@@ -16,6 +18,18 @@ export function MusicPlayer() {
 
   useEffect(() => {
     useSettings.getState().load();
+  }, []);
+
+  useEffect(() => {
+    try {
+      const ms = navigator.mediaSession;
+      if (!ms || typeof MediaMetadata === 'undefined') return;
+      ms.metadata = new MediaMetadata({ title: '배경음악', artist: APP_NAME });
+      ms.setActionHandler('play', () => useSettings.getState().set({ music: true }));
+      ms.setActionHandler('pause', () => useSettings.getState().set({ music: false }));
+    } catch {
+      // 지원하지 않는 브라우저
+    }
   }, []);
 
   useEffect(() => {
