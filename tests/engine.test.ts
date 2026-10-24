@@ -51,11 +51,11 @@ describe('rng', () => {
 
 describe('보정표', () => {
   it('기본 능력치 보정', () => {
-    expect([0, 19, 20, 39, 40, 59, 60, 79, 80, 100].map(statBonus)).toEqual([-1, -1, 0, 0, 1, 1, 2, 2, 3, 3]);
+    expect([0, 29, 30, 49, 50, 69, 70, 89, 90, 100].map(statBonus)).toEqual([-1, -1, 0, 0, 1, 1, 2, 2, 3, 3]);
   });
   it('진로 레벨', () => {
     expect([0, 5.9, 6, 13, 14, 24, 34, 46, 99].map(careerLevel)).toEqual([0, 0, 1, 1, 2, 3, 4, 5, 5]);
-    expect([0, 1, 2, 3, 4, 5].map(careerBonus)).toEqual([0, 1, 1, 2, 2, 3]);
+    expect([0, 1, 2, 3, 4, 5].map(careerBonus)).toEqual([0, 0, 1, 1, 2, 3]);
   });
   it('판정 확률: 보정 0, 난이도 8 → 15/36', () => {
     expect(successProbability(0, 8)).toBeCloseTo(15 / 36);
@@ -260,18 +260,14 @@ describe('엔딩', () => {
     expect(c.map((x) => x.id)).toEqual(['field:biz']);
   });
 
-  it('설계 예시: 운동 Lv4·체력 60·운 30·진로 시험 성공 → 보정 +5', () => {
+  it('보정식(보정 모드일 때): 운동 Lv4·체력 60·운 30·진로 시험 성공 → 보정 +4', () => {
     const s = started('effort');
     s.stats.stamina = 60;
     s.stats.luck = 30;
     s.stress = 40;
     s.finalExamBonus = true;
     const b = graduationBonuses(s, 'sports', 4).reduce((a, x) => a + x.value, 0);
-    expect(b).toBe(5);
-    // 상위(합 13 이상) 확률 ≈ 42%
-    let top = 0;
-    for (let a = 1; a <= 6; a++) for (let c = 1; c <= 6; c++) if (a + c + b >= 13) top++;
-    expect(top / 36).toBeCloseTo(15 / 36);
+    expect(b).toBe(4);
   });
 
   function toGraduation(s: GameState): GameState {

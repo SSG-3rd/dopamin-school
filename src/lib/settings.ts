@@ -6,6 +6,7 @@ import { KEYS, readJSON, writeJSON } from './storage';
 export interface Settings {
   fast: boolean;
   sound: boolean;
+  music: boolean;
   booth: boolean;
 }
 
@@ -16,7 +17,7 @@ function defaults(): Settings {
   } catch {
     reduced = false;
   }
-  return { fast: reduced, sound: true, booth: false };
+  return { fast: reduced, sound: true, music: true, booth: false };
 }
 
 export function loadSettings(): Settings {
@@ -25,6 +26,7 @@ export function loadSettings(): Settings {
   return {
     fast: typeof saved.fast === 'boolean' ? saved.fast : d.fast,
     sound: typeof saved.sound === 'boolean' ? saved.sound : d.sound,
+    music: typeof saved.music === 'boolean' ? saved.music : d.music,
     booth: typeof saved.booth === 'boolean' ? saved.booth : d.booth,
   };
 }
@@ -38,6 +40,7 @@ interface SettingsStore extends Settings {
 export const useSettings = create<SettingsStore>((set, get) => ({
   fast: false,
   sound: true,
+  music: true,
   booth: false,
   loaded: false,
   load() {
@@ -45,7 +48,7 @@ export const useSettings = create<SettingsStore>((set, get) => ({
     set({ ...loadSettings(), loaded: true });
   },
   set(patch) {
-    const next = { fast: get().fast, sound: get().sound, booth: get().booth, ...patch };
+    const next = { fast: get().fast, sound: get().sound, music: get().music, booth: get().booth, ...patch };
     writeJSON(KEYS.settings, next);
     set(next);
   },

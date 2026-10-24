@@ -10,7 +10,8 @@ type AudioCtor = typeof AudioContext;
 let ctx: AudioContext | null = null;
 let unavailable = false;
 
-function audio(): AudioContext | null {
+/** 효과음과 배경음악이 함께 쓰는 AudioContext (없으면 null) */
+export function audio(): AudioContext | null {
   if (unavailable) return null;
   if (ctx) return ctx;
   try {

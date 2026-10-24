@@ -67,13 +67,16 @@ export const GRADE_MID = GRADUATION_USES_BONUSES ? 9 : 6;
 export const EPILOGUE_STRESS = 80;
 export const EPILOGUE_MONEY = 100000;
 
-/** 기본 능력치 → 판정 보정 */
+/**
+ * 기본 능력치 → 판정 보정. 경계값보다 낮으면 −1, 경계를 하나 넘을 때마다 +1 (최대 +3).
+ * 설계 문서는 20/40/60/80이었지만 성공 확률이 높게 느껴져 한 칸씩 올렸다.
+ */
+export const STAT_BONUS_STEPS = [30, 50, 70, 90] as const;
+
 export function statBonus(v: number): number {
-  if (v < 20) return -1;
-  if (v < 40) return 0;
-  if (v < 60) return 1;
-  if (v < 80) return 2;
-  return 3;
+  let b = -1;
+  for (const t of STAT_BONUS_STEPS) if (v >= t) b++;
+  return b;
 }
 
 /** 누적 경험치 → 진로 레벨 (소수점은 내림) */
@@ -98,12 +101,12 @@ export function levelProgress(exp: number): { level: number; from: number; to: n
   return { level, from, to, exp: Math.floor(exp) };
 }
 
-/** 진로 레벨 → 판정 보정 */
+/** 진로 레벨(Lv0~5) → 판정 보정. 설계 문서는 0·1·1·2·2·3이었지만 한 단계씩 늦췄다. */
+export const CAREER_BONUS_BY_LEVEL = [0, 0, 1, 1, 2, 3] as const;
+
 export function careerBonus(level: number): number {
-  if (level <= 0) return 0;
-  if (level <= 2) return 1;
-  if (level <= 4) return 2;
-  return 3;
+  const lv = Math.max(0, Math.min(CAREER_BONUS_BY_LEVEL.length - 1, Math.floor(level)));
+  return CAREER_BONUS_BY_LEVEL[lv];
 }
 
 export type StressTierId = 'relaxed' | 'normal' | 'tired' | 'danger' | 'burnout';

@@ -40,6 +40,7 @@ function useMoveDriver(game: GameState, timing: Timing) {
 function GameHeader() {
   const fast = useSettings((s) => s.fast);
   const sound = useSettings((s) => s.sound);
+  const music = useSettings((s) => s.music);
   const setSettings = useSettings((s) => s.set);
   return (
     <header className="sticky top-0 z-30 border-b-2 border-line bg-paper/90 backdrop-blur">
@@ -60,7 +61,20 @@ function GameHeader() {
           }}
           className={`${buttonClass(fast ? 'primary' : 'secondary', 'sm')} whitespace-nowrap`}
         >
-          ⚡ 빠른 진행 <span className="text-base">{fast ? '켬' : '끔'}</span>
+          ⚡<span className="hidden min-[420px]:inline"> 빠른 진행</span> <span className="text-base">{fast ? '켬' : '끔'}</span>
+        </button>
+        <button
+          type="button"
+          aria-pressed={music}
+          onClick={(e) => {
+            setSettings({ music: !music });
+            if (e.detail > 0) e.currentTarget.blur();
+          }}
+          className={`${buttonClass('secondary', 'sm')} whitespace-nowrap ${music ? '' : 'opacity-70'}`}
+          aria-label={music ? '배경음악 끄기' : '배경음악 켜기'}
+        >
+          <span aria-hidden="true">{music ? '🎵' : '🔈'}</span>
+          <span className="hidden sm:inline">음악 {music ? '켬' : '끔'}</span>
         </button>
         <button
           type="button"
@@ -69,10 +83,11 @@ function GameHeader() {
             setSettings({ sound: !sound });
             if (e.detail > 0) e.currentTarget.blur();
           }}
-          className={`${buttonClass('secondary', 'sm')} whitespace-nowrap`}
-          aria-label={sound ? '소리 끄기' : '소리 켜기'}
+          className={`${buttonClass('secondary', 'sm')} whitespace-nowrap ${sound ? '' : 'opacity-70'}`}
+          aria-label={sound ? '효과음 끄기' : '효과음 켜기'}
         >
-          {sound ? '🔊 켬' : '🔇 끔'}
+          <span aria-hidden="true">{sound ? '🔊' : '🔇'}</span>
+          <span className="hidden sm:inline">효과음 {sound ? '켬' : '끔'}</span>
         </button>
       </div>
     </header>

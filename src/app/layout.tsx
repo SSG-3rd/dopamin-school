@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Jua, Noto_Sans_KR } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { FlushPending } from '@/components/FlushPending';
+import { MusicPlayer } from '@/components/MusicPlayer';
 import { Scenery } from '@/components/Scenery';
 import { APP_DESCRIPTION, APP_NAME } from '@/lib/brand';
 import './globals.css';
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="font-sans text-ink">
         <Scenery />
         <FlushPending />
+        <MusicPlayer />
         {children}
       </body>
     </html>
