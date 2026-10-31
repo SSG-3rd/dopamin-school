@@ -1,8 +1,9 @@
 'use client';
 import { getShopView } from '@/engine/view';
-import { formatMoney } from '@/engine/rules';
+import { money } from '@/engine/text';
 import type { GameState } from '@/engine/types';
 import { Button, Chip } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { playSound } from '@/lib/sound';
 import { KeyBadge } from './EventCard';
 import { digitKey, isEnter, useAct, useHotkeys } from './hooks';
@@ -12,6 +13,7 @@ export function Shop({ game }: { game: GameState }) {
   const dispatch = useAct(game);
   const views = getShopView(game);
   const p = game.pending;
+  const { t, text } = useI18n();
 
   const buy = (id: string) => {
     const err = dispatch({ type: 'BUY', itemId: id });
@@ -42,15 +44,15 @@ export function Shop({ game }: { game: GameState }) {
           🏪
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl">{p?.title ?? '매점'}</h2>
-          {p?.text && <p className="mt-1 text-base text-ink/90">{p.text}</p>}
+          <h2 className="text-2xl">{p?.title ? text(p.title) : t('ui.shop.fallbackTitle')}</h2>
+          {p?.text && <p className="mt-1 text-base text-ink/90">{text(p.text)}</p>}
         </div>
       </div>
       <p className="flex items-center justify-between rounded-xl bg-paper-2 px-3 py-2">
         <span>
-          <span aria-hidden="true">💰</span> 가진 돈
+          <span aria-hidden="true">💰</span> {t('ui.shop.wallet')}
         </span>
-        <strong className="font-display text-xl font-normal tabular-nums">{formatMoney(game.money)}</strong>
+        <strong className="font-display text-xl font-normal tabular-nums">{text(money(game.money))}</strong>
       </p>
       <ul className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-2">
         {views.map((v, i) => (
@@ -70,20 +72,20 @@ export function Shop({ game }: { game: GameState }) {
                 <span aria-hidden="true" className="text-2xl leading-none">
                   {v.item.emoji}
                 </span>
-                <span className="font-display text-lg leading-tight">{v.item.name}</span>
+                <span className="font-display text-lg leading-tight">{text(v.item.name)}</span>
               </span>
-              <span className="text-base text-muted">{v.item.desc}</span>
+              <span className="text-base text-muted">{text(v.item.desc)}</span>
               <span className="mt-auto flex flex-wrap items-center gap-1.5">
-                <Chip tone={v.affordable ? 'info' : 'bad'}>{formatMoney(v.item.price)}</Chip>
-                {!v.affordable && <span className="font-display text-base text-danger">🔒 돈 부족</span>}
-                {v.bought > 0 && <Chip tone="good">✔ {v.bought}개 샀음</Chip>}
+                <Chip tone={v.affordable ? 'info' : 'bad'}>{text(money(v.item.price))}</Chip>
+                {!v.affordable && <span className="font-display text-base text-danger">{t('ui.shop.noMoney')}</span>}
+                {v.bought > 0 && <Chip tone="good">{t('ui.shop.bought', { n: v.bought })}</Chip>}
               </span>
             </button>
           </li>
         ))}
       </ul>
       <Button size="lg" variant="secondary" block onClick={leave}>
-        매점 나가기 <KeyBadge>Enter</KeyBadge>
+        {t('ui.shop.leave')} <KeyBadge>Enter</KeyBadge>
       </Button>
     </div>
   );

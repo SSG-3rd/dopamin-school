@@ -2,6 +2,7 @@
 import { content, getClub } from '../content';
 import { addCareerExp, applyEffects } from '../effects';
 import { setChoice, setResult, since, type Ctx } from '../flow';
+import type { Text } from '../text';
 import type { ChoiceOption, GameState } from '../types';
 
 export function startCafeteria(d: GameState, ctx: Ctx): void {
@@ -39,7 +40,7 @@ export function startStaffroom(d: GameState, ctx: Ctx): void {
   const s = content.staffroom;
   const r = s.rules;
   const start = ctx.log.length;
-  const lines: string[] = [];
+  const lines: Text[] = [];
   const rec = d.records;
   if (rec.examPass >= 1 && d.stats.study >= r.scholarship.minStudy) {
     applyEffects(d, r.scholarship.effects, ctx.log);
@@ -68,7 +69,7 @@ export function startStaffroom(d: GameState, ctx: Ctx): void {
     source: 'staffroom',
     title: s.title,
     text: s.text,
-    resultText: lines.join('\n'),
+    resultText: lines,
     changes: since(ctx.log, start),
   });
 }

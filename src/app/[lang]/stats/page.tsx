@@ -1,19 +1,27 @@
 // 부스용 통계 (§8): 오늘 플레이 수, 인기 성향, 직업 분포. Supabase get_stats()를 30초 캐시.
 import type { Metadata } from 'next';
-import { APP_NAME } from '@/lib/brand';
 import Link from 'next/link';
 import { Card, buttonClass } from '@/components/ui';
 import { content, jobName } from '@/engine/content';
+import { lit } from '@/engine/text';
+import { LOCALE_INFO, localePath } from '@/i18n/config';
+import { languageAlternates, localeOf } from '@/i18n/route';
+import { getTranslator } from '@/i18n/server';
+import type { Translator } from '@/i18n/translator';
 import { fetchStats, statsEnabled } from '@/lib/supabase';
 
 export const revalidate = 30;
 
-export const metadata: Metadata = {
-  title: '플레이 통계',
-  description: `${APP_NAME} 익명 플레이 통계: 오늘 플레이 수, 인기 성향, 직업 분포`,
-};
+export async function generateMetadata({ params }: PageProps<'/[lang]/stats'>): Promise<Metadata> {
+  const locale = await localeOf(params);
+  const { t } = await getTranslator(locale);
+  return {
+    title: t('ui.stats.title'),
+    description: t('ui.stats.description', { name: t('brand.name') }),
+    alternates: { canonical: localePath(locale, '/stats'), languages: languageAlternates('/stats') },
+  };
+}
 
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 type Range = 'day' | 'week';
 
 interface Row {
@@ -23,16 +31,20 @@ interface Row {
   count: number;
 }
 
-function toRows(map: Record<string, number> | null, label: (id: string) => { label: string; icon?: string }): Row[] {
+function toRows(
+  map: Record<string, number> | null,
+  label: (id: string) => { label: string; icon?: string },
+  collator: Intl.Collator,
+): Row[] {
   if (!map) return [];
   return Object.entries(map)
     .filter(([, n]) => Number.isFinite(n) && n > 0)
     .map(([key, count]) => ({ key, count, ...label(key) }))
-    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'ko'));
+    .sort((a, b) => b.count - a.count || collator.compare(a.label, b.label));
 }
 
 /** 한 계열 가로 막대 목록. 값은 막대 옆 글자로도 보여서 그대로 표 역할을 한다. */
-function BarList({ rows, total, color, caption }: { rows: Row[]; total: number; color: string; caption: string }) {
+function BarList({ rows, total, color, caption, tr }: { rows: Row[]; total: number; color: string; caption: string; tr: Translator }) {
   const max = Math.max(1, ...rows.map((r) => r.count));
   return (
     <ol className="flex flex-col gap-3" aria-label={caption}>
@@ -47,7 +59,7 @@ function BarList({ rows, total, color, caption }: { rows: Row[]; total: number; 
                 {r.label}
               </span>
               <span className="shrink-0 text-base text-ink">
-                <span className="font-display text-lg">{r.count.toLocaleString('ko-KR')}</span>판
+                <span className="font-display text-lg">{tr.t('ui.stats.plays', { n: r.count })}</span>
                 <span className="ml-1 text-muted">({pct}%)</span>
               </span>
             </div>
@@ -64,20 +76,24 @@ function BarList({ rows, total, color, caption }: { rows: Row[]; total: number; 
   );
 }
 
-function Unavailable({ reason }: { reason: string }) {
+function Unavailable({ reason, tr }: { reason: string; tr: Translator }) {
   return (
     <Card className="flex flex-col items-center gap-2 p-8 text-center">
       <span aria-hidden="true" className="text-5xl">
         📡
       </span>
-      <h2 className="text-2xl">통계를 불러올 수 없어요</h2>
+      <h2 className="text-2xl">{tr.t('ui.stats.unavailable')}</h2>
       <p className="text-base text-muted">{reason}</p>
-      <p className="text-base text-muted">게임은 그대로 즐길 수 있어요!</p>
+      <p className="text-base text-muted">{tr.t('ui.stats.stillPlayable')}</p>
     </Card>
   );
 }
 
-export default async function StatsPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function StatsPage({ params, searchParams }: PageProps<'/[lang]/stats'>) {
+  const locale = await localeOf(params);
+  const tr = await getTranslator(locale);
+  const { t, text } = tr;
+  const collator = new Intl.Collator(LOCALE_INFO[locale].htmlLang);
   const sp = await searchParams;
   const rangeParam = Array.isArray(sp.range) ? sp.range[0] : sp.range;
   const range: Range = rangeParam === 'week' ? 'week' : 'day';
@@ -94,73 +110,73 @@ export default async function StatsPage({ searchParams }: { searchParams: Search
   const stats = enabled ? await fetchStats(since) : null;
 
   const traitRows = stats
-    ? toRows(stats.traits, (id) => {
-        const t = content.traits.find((x) => x.id === id);
-        return t ? { label: t.name, icon: t.emoji } : { label: id };
-      })
+    ? toRows(
+        stats.traits,
+        (id) => {
+          const trait = content.traits.find((x) => x.id === id);
+          return trait ? { label: text(trait.name), icon: trait.emoji } : { label: id };
+        },
+        collator,
+      )
     : [];
-  const jobRows = stats ? toRows(stats.jobs, (id) => ({ label: jobName(id) })).slice(0, 10) : [];
+  const jobRows = stats ? toRows(stats.jobs, (id) => ({ label: text(jobName(id)) }), collator).slice(0, 10) : [];
   const plays = stats?.plays ?? 0;
-  const rangeLabel = range === 'week' ? '최근 7일' : '오늘';
+  const rangeLabel = t(range === 'week' ? 'ui.stats.rangeWeek' : 'ui.stats.rangeToday');
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pt-6 pb-12 sm:pt-10">
       <header className="flex flex-col gap-3">
-        <Link href="/" className={`${buttonClass('ghost', 'sm')} self-start`}>
-          <span aria-hidden="true">←</span> 타이틀로
+        <Link href={localePath(locale)} className={`${buttonClass('ghost', 'sm')} self-start`}>
+          <span aria-hidden="true">←</span> {t('ui.stats.back')}
         </Link>
         <h1 className="text-4xl">
-          <span aria-hidden="true">📊</span> 플레이 통계
+          <span aria-hidden="true">📊</span> {t('ui.stats.title')}
         </h1>
-        <nav aria-label="기간" className="flex gap-2">
+        <nav aria-label={t('ui.stats.rangeAria')} className="flex gap-2">
           <Link
-            href="/stats"
+            href={localePath(locale, '/stats')}
             aria-current={range === 'day' ? 'page' : undefined}
             className={buttonClass(range === 'day' ? 'primary' : 'secondary', 'sm')}
           >
-            오늘 (24시간)
+            {t('ui.stats.today')}
           </Link>
           <Link
-            href="/stats?range=week"
+            href={localePath(locale, '/stats?range=week')}
             aria-current={range === 'week' ? 'page' : undefined}
             className={buttonClass(range === 'week' ? 'primary' : 'secondary', 'sm')}
           >
-            최근 7일
+            {t('ui.stats.week')}
           </Link>
         </nav>
       </header>
 
       {!stats ? (
-        <Unavailable
-          reason={
-            enabled ? '통계 서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.' : '이 사이트에는 통계 서버가 설정되어 있지 않아요.'
-          }
-        />
+        <Unavailable tr={tr} reason={t(enabled ? 'ui.stats.serverDown' : 'ui.stats.noServer')} />
       ) : (
         <>
           <Card className="flex flex-col items-center gap-1 bg-[linear-gradient(#9dd5f1,#d6effa)] p-6 text-center text-ink">
-            <h2 className="text-xl text-ink/85">{rangeLabel} 플레이 수</h2>
-            <p className="yd-logo font-display text-7xl leading-none text-sun">{plays.toLocaleString('ko-KR')}</p>
-            <p className="text-base text-ink/80">판 · 30초마다 새로 고쳐져요</p>
+            <h2 className="text-xl text-ink/85">{t('ui.stats.playCount', { range: lit(rangeLabel) })}</h2>
+            <p className="yd-logo font-display text-7xl leading-none text-sun">{tr.num(plays)}</p>
+            <p className="text-base text-ink/80">{t('ui.stats.refresh')}</p>
           </Card>
 
           {plays === 0 ? (
             <Card className="p-6 text-center">
-              <p className="text-lg">아직 {rangeLabel} 끝난 판이 없어요. 첫 번째 졸업생이 되어 보세요!</p>
+              <p className="text-lg">{t('ui.stats.empty', { range: lit(rangeLabel) })}</p>
             </Card>
           ) : (
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="flex flex-col gap-4 p-5">
                 <h2 className="text-2xl">
-                  <span aria-hidden="true">🧑‍🎓</span> 인기 성향
+                  <span aria-hidden="true">🧑‍🎓</span> {t('ui.stats.traits')}
                 </h2>
-                <BarList rows={traitRows} total={plays} color="var(--color-accent)" caption="성향별 플레이 수" />
+                <BarList tr={tr} rows={traitRows} total={plays} color="var(--color-accent)" caption={t('ui.stats.traitsAria')} />
               </Card>
               <Card className="flex flex-col gap-4 p-5">
                 <h2 className="text-2xl">
-                  <span aria-hidden="true">💼</span> 직업 분포 TOP 10
+                  <span aria-hidden="true">💼</span> {t('ui.stats.jobs')}
                 </h2>
-                <BarList rows={jobRows} total={plays} color="var(--color-board-2)" caption="직업별 엔딩 수" />
+                <BarList tr={tr} rows={jobRows} total={plays} color="var(--color-board-2)" caption={t('ui.stats.jobsAria')} />
               </Card>
             </div>
           )}
@@ -168,7 +184,7 @@ export default async function StatsPage({ searchParams }: { searchParams: Search
       )}
 
       <p className="text-center text-base text-muted">
-        끝난 판의 익명 요약(성향·직업·능력치)만 모아요. 이름 같은 개인정보는 없어요.
+        {t('ui.stats.privacy')}
       </p>
     </main>
   );

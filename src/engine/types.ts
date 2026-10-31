@@ -1,4 +1,6 @@
 // 게임 엔진 타입. 이 폴더는 React·브라우저 API를 import하지 않는다.
+// 화면에 보일 문장은 모두 Text(문장 키)다. 글은 화면이 지금 언어로 바꿔 그린다 (text.ts).
+import type { Text } from './text';
 
 export const STATS = ['study', 'stamina', 'social', 'luck'] as const;
 export const CAREERS = ['academic', 'sports', 'arts', 'comm', 'biz'] as const;
@@ -64,7 +66,7 @@ export interface Requirement {
 /** 화면에 보여 줄 선택지 하나. 사건 JSON의 선택지와 코너 칸의 선택지가 같은 틀을 쓴다. */
 export interface ChoiceOption {
   id: string;
-  label: string;
+  label: Text;
   kind: OptionKind;
   tags?: string[];
   unlock?: Unlock;
@@ -73,14 +75,14 @@ export interface ChoiceOption {
   check?: Check;
   onSuccess?: Effects;
   onFail?: Effects;
-  resultText?: { success?: string; fail?: string; done?: string };
+  resultText?: { success?: Text; fail?: Text; done?: Text };
   /** 엔진 전용 처리(시험 전략, 동아리 가입 등). 콘텐츠 사건에는 없다. */
   action?: string;
   /** 판정 보정(시험 전략 등) */
   judgeMod?: number;
   /** 판정 뒤에 붙는 부가 효과(시험 전략 등) */
   after?: Effects;
-  desc?: string;
+  desc?: Text;
 }
 
 export interface ActiveBuff {
@@ -93,7 +95,7 @@ export interface ActiveBuff {
 }
 
 export interface JudgeBonus {
-  label: string;
+  label: Text;
   value: number;
 }
 
@@ -120,7 +122,7 @@ export type Change =
   | { kind: 'flag'; id: string }
   | { kind: 'club'; id: string }
   | { kind: 'route'; id: string }
-  | { kind: 'note'; text: string };
+  | { kind: 'note'; text: Text };
 
 export type PendingSource =
   | 'event'
@@ -148,14 +150,14 @@ export interface PendingEvent {
   eventId?: string;
   tile?: number;
   icon?: string;
-  title: string;
-  text: string;
+  title: Text;
+  text: Text;
   options?: ChoiceOption[];
   /** 고른 선택지 (판정 중·결과 표시 중) */
   chosen?: ChoiceOption;
   judge?: JudgeResult;
   /** 결과 화면 */
-  resultText?: string;
+  resultText?: Text;
   changes?: Change[];
   /** 인싸형 능력: 이번 판정 기준을 인맥으로 */
   abilityArmed?: boolean;
@@ -189,7 +191,7 @@ export type Step =
 
 export interface Candidate {
   id: string; // 'field:arts' | 'combo:academic+arts'
-  label: string;
+  label: Text;
   weight: number;
   probability: number;
 }
@@ -199,7 +201,7 @@ export type SequenceStep = 'roulette' | 'fail_scene' | 'phone_call' | 'grade_rol
 export interface EndingResult {
   kind: 'normal' | 'combo' | 'miracle' | 'rescue' | 'explore';
   jobId: string;
-  jobName: string;
+  jobName: Text;
   /** 직업이 속한 분야 묶음 (예: 'academic', 'arts_music', 'combo:sports+arts') */
   track?: string;
   grade?: Grade;
@@ -211,10 +213,10 @@ export interface EndingResult {
   /** 운 60 이상: 다시 돌릴지 고르는 중 */
   awaitingReroll?: boolean;
   graduationRoll?: { dice: [number, number]; bonus: number; total: number; bonuses: JudgeBonus[] };
-  epilogue: string[];
+  epilogue: Text[];
   sequence: SequenceStep[];
-  rescueFriend?: string;
-  flavor?: string;
+  rescueFriend?: Text;
+  flavor?: Text;
 }
 
 export interface GameState {

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import type { GameState } from '@/engine/types';
 import { buttonClass } from '@/components/ui';
-import { APP_NAME } from '@/lib/brand';
+import { useI18n, useLocalePath } from '@/i18n/client';
 import { useSettings } from '@/lib/settings';
 import { playSound } from '@/lib/sound';
 import { useGame } from '@/store/game';
@@ -21,6 +21,7 @@ import { StatPanel, StatSummary } from './StatPanel';
 import { Toasts } from './Toasts';
 import { TraitSelect } from './TraitSelect';
 import { type Timing, useMediaQuery, useTiming } from './hooks';
+import { textKey } from './meta';
 
 /** 'moving' 동안 한 칸씩 STEP_DONE을 보낸다. 첫 칸은 주사위가 멈춘 뒤에 출발. */
 function useMoveDriver(game: GameState, timing: Timing) {
@@ -42,14 +43,16 @@ function GameHeader() {
   const sound = useSettings((s) => s.sound);
   const music = useSettings((s) => s.music);
   const setSettings = useSettings((s) => s.set);
+  const { t } = useI18n();
+  const href = useLocalePath();
   return (
     <header className="sticky top-0 z-30 border-b-2 border-line bg-paper/90 backdrop-blur">
       <div className="mx-auto flex max-w-[1400px] items-center gap-2 px-4 py-2">
-        <Link href="/" className={buttonClass('ghost', 'sm')} aria-label="처음 화면으로">
-          ← 처음으로
+        <Link href={href('/')} className={buttonClass('ghost', 'sm')} aria-label={t('ui.header.homeAria')}>
+          {t('ui.header.home')}
         </Link>
         <span className="hidden font-display text-xl sm:inline">
-          <span aria-hidden="true">🎲</span> {APP_NAME}
+          <span aria-hidden="true">🎲</span> {t('brand.name')}
         </span>
         <span className="ml-auto" />
         <button
@@ -61,7 +64,8 @@ function GameHeader() {
           }}
           className={`${buttonClass(fast ? 'primary' : 'secondary', 'sm')} whitespace-nowrap`}
         >
-          ⚡<span className="hidden min-[420px]:inline"> 빠른 진행</span> <span className="text-base">{fast ? '켬' : '끔'}</span>
+          ⚡<span className="hidden min-[420px]:inline"> {t('ui.header.fast')}</span>{' '}
+          <span className="text-base">{t(fast ? 'ui.header.on' : 'ui.header.off')}</span>
         </button>
         <button
           type="button"
@@ -71,10 +75,12 @@ function GameHeader() {
             if (e.detail > 0) e.currentTarget.blur();
           }}
           className={`${buttonClass('secondary', 'sm')} whitespace-nowrap ${music ? '' : 'opacity-70'}`}
-          aria-label={music ? '배경음악 끄기' : '배경음악 켜기'}
+          aria-label={t(music ? 'ui.header.musicOff' : 'ui.header.musicOn')}
         >
           <span aria-hidden="true">{music ? '🎵' : '🔈'}</span>
-          <span className="hidden sm:inline">음악 {music ? '켬' : '끔'}</span>
+          <span className="hidden sm:inline">
+            {t('ui.header.music')} {t(music ? 'ui.header.on' : 'ui.header.off')}
+          </span>
         </button>
         <button
           type="button"
@@ -84,10 +90,12 @@ function GameHeader() {
             if (e.detail > 0) e.currentTarget.blur();
           }}
           className={`${buttonClass('secondary', 'sm')} whitespace-nowrap ${sound ? '' : 'opacity-70'}`}
-          aria-label={sound ? '효과음 끄기' : '효과음 켜기'}
+          aria-label={t(sound ? 'ui.header.soundOff' : 'ui.header.soundOn')}
         >
           <span aria-hidden="true">{sound ? '🔊' : '🔇'}</span>
-          <span className="hidden sm:inline">효과음 {sound ? '켬' : '끔'}</span>
+          <span className="hidden sm:inline">
+            {t('ui.header.sound')} {t(sound ? 'ui.header.on' : 'ui.header.off')}
+          </span>
         </button>
       </div>
     </header>
@@ -97,13 +105,14 @@ function GameHeader() {
 /** 선택지 창(AugmentPicker)이 떠 있는 동안 보드 가운데에 두는 자리 표시 */
 function ChoosingPlaceholder({ game }: { game: GameState }) {
   const p = game.pending;
+  const { t, text } = useI18n();
   return (
     <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 text-center">
       <span aria-hidden="true" className="text-5xl leading-none">
         {p?.icon ?? '🃏'}
       </span>
-      {p?.title && <h2 className="text-2xl text-ink">{p.title}</h2>}
-      <p className="font-display text-lg text-muted">고르는 중…</p>
+      {p?.title && <h2 className="text-2xl text-ink">{text(p.title)}</h2>}
+      <p className="font-display text-lg text-muted">{t('ui.stage.choosing')}</p>
     </div>
   );
 }
@@ -132,8 +141,8 @@ function StageContent({ game }: { game: GameState }) {
 function stageKey(game: GameState): string {
   const p = game.pending;
   if (p?.source === 'enroll') return 'enroll';
-  if (game.phase === 'judge' || game.phase === 'choice') return `ev-${p?.eventId ?? p?.title ?? ''}-${game.turn}`;
-  return `${game.phase}-${p?.title ?? ''}-${game.turn}`;
+  if (game.phase === 'judge' || game.phase === 'choice') return `ev-${p?.eventId ?? textKey(p?.title)}-${game.turn}`;
+  return `${game.phase}-${textKey(p?.title)}-${game.turn}`;
 }
 
 function WideLayout({ game, timing }: { game: GameState; timing: Timing }) {
@@ -179,6 +188,7 @@ function WideLayout({ game, timing }: { game: GameState; timing: Timing }) {
 
 function BottomSheet({ children, label }: { children: ReactNode; label: string }) {
   const [collapsed, setCollapsed] = useState(false);
+  const { t } = useI18n();
   return (
     <motion.section
       aria-label={label}
@@ -195,7 +205,7 @@ function BottomSheet({ children, label }: { children: ReactNode; label: string }
         className="flex w-full flex-col items-center gap-0.5 pb-1 pt-2 text-base text-muted"
       >
         <span aria-hidden="true" className="h-1.5 w-12 rounded-full bg-ink/25" />
-        <span>{collapsed ? '▲ 펼치기' : '▼ 보드 보기'}</span>
+        <span>{t(collapsed ? 'ui.stage.expand' : 'ui.stage.showBoard')}</span>
       </button>
       {!collapsed && (
         <div className="overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
@@ -206,6 +216,7 @@ function BottomSheet({ children, label }: { children: ReactNode; label: string }
 
 function NarrowLayout({ game, timing }: { game: GameState; timing: Timing }) {
   const [statsOpen, setStatsOpen] = useState(false);
+  const { t, text } = useI18n();
   const rolling = game.phase === 'await_roll' || game.phase === 'moving';
   const center = (
     <div className="flex h-full flex-col items-center justify-center gap-1.5 rounded-2xl bg-board-2/60 p-1">
@@ -254,7 +265,7 @@ function NarrowLayout({ game, timing }: { game: GameState; timing: Timing }) {
           </motion.div>
         )}
         {!rolling && game.phase !== 'choice' && (
-          <BottomSheet key="sheet" label={game.pending?.title ?? '사건'}>
+          <BottomSheet key="sheet" label={game.pending?.title ? text(game.pending.title) : t('ui.stage.event')}>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={stageKey(game)}

@@ -1,6 +1,7 @@
 // 화면 단계 전환 도우미
 import { content } from './content';
 import type { Rng } from './rng';
+import type { Text } from './text';
 import type { Change, ChoiceOption, GameState, PendingEvent, PendingSource } from './types';
 
 export interface Ctx {
@@ -14,7 +15,7 @@ export function tileIcon(d: GameState): string {
 
 export function setChoice(
   d: GameState,
-  p: { source: PendingSource; title: string; text: string; options: ChoiceOption[] } & Partial<PendingEvent>,
+  p: { source: PendingSource; title: Text; text: Text; options: ChoiceOption[] } & Partial<PendingEvent>,
 ): void {
   d.pending = { tile: d.position, icon: tileIcon(d), ...p };
   d.phase = 'choice';
@@ -23,7 +24,7 @@ export function setChoice(
 /** 결과 화면. changes는 이번 처리에서 생긴 로그 조각 */
 export function setResult(
   d: GameState,
-  p: { source: PendingSource; title: string; text?: string; resultText?: string; changes: Change[] } & Partial<PendingEvent>,
+  p: { source: PendingSource; title: Text; text?: Text; resultText?: Text; changes: Change[] } & Partial<PendingEvent>,
 ): void {
   d.pending = { tile: d.position, icon: tileIcon(d), text: '', ...p };
   d.phase = 'result';

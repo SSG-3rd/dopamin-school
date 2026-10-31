@@ -1,5 +1,8 @@
 // 콘텐츠 JSON 로드 + Zod 검증. 규칙(코드)과 내용(데이터)을 나눈다.
 import { z } from 'zod';
+import type { MessageKey } from '@/i18n/keys';
+import { keyTexts, text, textRequired } from './content-text';
+import { lit, tx, type Text } from './text';
 import { CAREERS, STATS } from './types';
 import type { Career, ChoiceOption, Effects, Stat } from './types';
 
@@ -59,7 +62,7 @@ export const requirementSchema = z.strictObject({
 
 export const optionSchema = z.strictObject({
   id: z.string().min(1),
-  label: z.string().min(1),
+  label: textRequired(),
   kind: optionKindSchema,
   tags: z.array(z.string()).optional(),
   unlock: unlockSchema.optional(),
@@ -69,12 +72,12 @@ export const optionSchema = z.strictObject({
   onSuccess: effectsSchema.optional(),
   onFail: effectsSchema.optional(),
   resultText: z
-    .strictObject({ success: z.string().optional(), fail: z.string().optional(), done: z.string().optional() })
+    .strictObject({ success: text().optional(), fail: text().optional(), done: text().optional() })
     .optional(),
   action: z.string().optional(),
   judgeMod: int.optional(),
   after: effectsSchema.optional(),
-  desc: z.string().optional(),
+  desc: text().optional(),
 });
 
 export const placeTiles = ['commute', 'classroom', 'library', 'field', 'club'] as const;
@@ -91,21 +94,21 @@ export const eventSchema = z.strictObject({
       minStats: z.partialRecord(statSchema, int).optional(),
     })
     .optional(),
-  title: z.string().min(1),
-  text: z.string().min(1),
+  title: textRequired(),
+  text: textRequired(),
   options: z.array(optionSchema).min(3).max(4),
 });
 export type GameEvent = z.infer<typeof eventSchema>;
 
 export const traitSchema = z.strictObject({
   id: z.string(),
-  name: z.string(),
+  name: text(),
   emoji: z.string(),
-  desc: z.string(),
+  desc: text(),
   stats: z.record(statSchema, int),
   stress: int,
-  ability: z.string(),
-  weakness: z.string(),
+  ability: text(),
+  weakness: text(),
   activeAbility: z.boolean(),
 });
 export type Trait = z.infer<typeof traitSchema>;
@@ -131,7 +134,7 @@ export const boardSchema = z
   .array(
     z.strictObject({
       index: int.min(0).max(15),
-      name: z.string(),
+      name: text(),
       kind: z.enum(['corner', 'place', 'general']),
       type: z.enum(tileTypes),
       icon: z.string(),
@@ -141,8 +144,8 @@ export const boardSchema = z
 export type BoardTile = z.infer<typeof boardSchema>[number];
 
 const choiceScreenSchema = z.strictObject({
-  title: z.string(),
-  text: z.string(),
+  title: text(),
+  text: text(),
   options: z.array(optionSchema).min(1),
 });
 
@@ -151,21 +154,21 @@ export const vacationsSchema = z.strictObject({
   winter: choiceScreenSchema,
 });
 
-const examOutcomeSchema = z.strictObject({ text: z.string(), effects: effectsSchema });
+const examOutcomeSchema = z.strictObject({ text: text(), effects: effectsSchema });
 
 export const examsSchema = z.strictObject({
   strategies: z.array(optionSchema).length(3),
   regular: z.strictObject({
-    title: z.record(z.enum(['first', 'second', 'mock']), z.string()),
-    text: z.string(),
+    title: z.record(z.enum(['first', 'second', 'mock']), text()),
+    text: text(),
     success: examOutcomeSchema,
     critical: examOutcomeSchema,
     fail: examOutcomeSchema,
   }),
   final: z.strictObject({
-    title: z.string(),
-    text: z.string(),
-    types: z.record(careerSchema, z.strictObject({ name: z.string(), text: z.string() })),
+    title: text(),
+    text: text(),
+    types: z.record(careerSchema, z.strictObject({ name: text(), text: text() })),
     success: examOutcomeSchema,
     fail: examOutcomeSchema,
   }),
@@ -173,20 +176,20 @@ export const examsSchema = z.strictObject({
 
 export const clubSchema = z.strictObject({
   id: z.string(),
-  name: z.string(),
+  name: text(),
   career: careerSchema,
   artsKind: z.enum(['music', 'art', 'acting', 'dance']).optional(),
   bonusCareer: z.partialRecord(careerSchema, z.number()).optional(),
   emoji: z.string(),
-  desc: z.string(),
+  desc: text(),
 });
 export type Club = z.infer<typeof clubSchema>;
 
 export const routeSchema = z.strictObject({
   id: z.string(),
-  name: z.string(),
+  name: text(),
   emoji: z.string(),
-  desc: z.string(),
+  desc: text(),
   require: requirementSchema.optional(),
   effects: effectsSchema,
 });
@@ -194,9 +197,9 @@ export type Route = z.infer<typeof routeSchema>;
 
 export const buffSchema = z.strictObject({
   id: z.string(),
-  name: z.string(),
+  name: text(),
   emoji: z.string(),
-  desc: z.string(),
+  desc: text(),
   debuff: z.boolean().optional(),
   moves: int.optional(),
   endsOn: z
@@ -207,15 +210,15 @@ export type BuffDef = z.infer<typeof buffSchema>;
 
 export const itemSchema = z.strictObject({
   id: z.string(),
-  name: z.string(),
+  name: text(),
   emoji: z.string(),
   price: int.positive(),
-  desc: z.string(),
+  desc: text(),
   effects: effectsSchema,
 });
 export type Item = z.infer<typeof itemSchema>;
 
-const jobSchema = z.strictObject({ id: z.string(), name: z.string() });
+const jobSchema = z.strictObject({ id: z.string(), name: text() });
 const gradeTableSchema = z.strictObject({
   top: z.array(jobSchema).min(1),
   mid: z.array(jobSchema).min(1),
@@ -223,76 +226,76 @@ const gradeTableSchema = z.strictObject({
 });
 
 export const endingsSchema = z.strictObject({
-  fieldNames: z.record(z.string(), z.string()),
+  fieldNames: z.record(z.string(), text()),
   fields: z.record(z.string(), gradeTableSchema),
   combos: z.record(z.string(), gradeTableSchema),
   miracles: z.record(
     z.enum(['casting', 'viral', 'contest']),
-    z.strictObject({ id: z.string(), name: z.string(), text: z.string() }),
+    z.strictObject({ id: z.string(), name: text(), text: text() }),
   ),
   rescue: z
     .array(
       z.strictObject({
-        friend: z.string(),
+        friend: text(),
         id: z.string(),
-        name: z.string(),
-        call: z.string(),
+        name: text(),
+        call: text(),
       }),
     )
     .min(1),
-  explore: z.strictObject({ id: z.string(), name: z.string(), text: z.string() }),
-  failScene: z.array(z.string()),
-  gradeNames: z.record(z.enum(['top', 'mid', 'low']), z.string()),
-  epilogue: z.strictObject({ burnout: z.string(), money: z.string() }),
+  explore: z.strictObject({ id: z.string(), name: text(), text: text() }),
+  failScene: z.array(text()),
+  gradeNames: z.record(z.enum(['top', 'mid', 'low']), text()),
+  epilogue: z.strictObject({ burnout: text(), money: text() }),
 });
 
 export const surpriseSchema = z.strictObject({
   id: z.string(),
-  title: z.string(),
-  text: z.string(),
-  label: z.string(),
+  title: text(),
+  text: text(),
+  label: text(),
   check: checkSchema,
   onSuccess: effectsSchema,
   onFail: effectsSchema,
-  resultText: z.strictObject({ success: z.string(), fail: z.string() }),
+  resultText: z.strictObject({ success: text(), fail: text() }),
 });
 export type SurpriseEvent = z.infer<typeof surpriseSchema>;
 
 export const cafeteriaSchema = z.strictObject({
-  title: z.string(),
+  title: text(),
   outcomes: z
-    .array(z.strictObject({ id: z.string(), title: z.string(), text: z.string(), effects: effectsSchema }))
+    .array(z.strictObject({ id: z.string(), title: text(), text: text(), effects: effectsSchema }))
     .min(1),
   treat: z.strictObject({
     minMoney: int,
-    title: z.string(),
-    text: z.string(),
+    title: text(),
+    text: text(),
     options: z.array(optionSchema).length(2),
   }),
 });
 
 export const counselSchema = z.strictObject({
-  title: z.string(),
-  texts: z.array(z.string()).min(1),
+  title: text(),
+  texts: z.array(text()).min(1),
   options: z.array(optionSchema).min(3).max(4),
 });
 
 export const nurseSchema = z.strictObject({
-  title: z.string(),
-  stressRelief: z.strictObject({ text: z.string(), minStress: int, effects: effectsSchema }),
-  heal: z.strictObject({ text: z.string(), maxStamina: int, effects: effectsSchema }),
-  quiz: z.strictObject({ text: z.string(), option: optionSchema }),
+  title: text(),
+  stressRelief: z.strictObject({ text: text(), minStress: int, effects: effectsSchema }),
+  heal: z.strictObject({ text: text(), maxStamina: int, effects: effectsSchema }),
+  quiz: z.strictObject({ text: text(), option: optionSchema }),
 });
 
 export const staffroomSchema = z.strictObject({
-  title: z.string(),
-  text: z.string(),
+  title: text(),
+  text: text(),
   rules: z.strictObject({
-    scholarship: z.strictObject({ text: z.string(), minStudy: int, effects: effectsSchema }),
-    award: z.strictObject({ text: z.string(), effects: effectsSchema }),
-    praise: z.strictObject({ text: z.string(), effects: effectsSchema }),
-    late: z.strictObject({ text: z.string(), minLate: int, effects: effectsSchema }),
-    none: z.strictObject({ text: z.string(), effects: effectsSchema }),
+    scholarship: z.strictObject({ text: text(), minStudy: int, effects: effectsSchema }),
+    award: z.strictObject({ text: text(), effects: effectsSchema }),
+    praise: z.strictObject({ text: text(), effects: effectsSchema }),
+    late: z.strictObject({ text: text(), minLate: int, effects: effectsSchema }),
+    none: z.strictObject({ text: text(), effects: effectsSchema }),
   }),
 });
 
@@ -303,6 +306,17 @@ function parse<T>(schema: z.ZodType<T>, data: unknown, name: string): T {
     throw new Error(`[content] ${name}: ${z.prettifyError(r.error)}`);
   }
   return r.data;
+}
+
+/**
+ * 한국어 원문: 문장 키 → 글. 엔진이 쓰는 content의 문장 칸에는 글 대신 이 키가 들어 있다.
+ * 다른 언어는 content/i18n/<언어>.json에 같은 키로 있다.
+ */
+export const CONTENT_TEXT_KO: Record<string, string> = {};
+
+/** 검증하고, 문장 칸을 키로 바꾼다 (ns: 키 앞에 붙는 묶음 이름) */
+function load<T>(schema: z.ZodType<T>, data: unknown, name: string, ns: string): T {
+  return keyTexts(schema, parse(schema, data, name), ns, CONTENT_TEXT_KO);
 }
 
 export const rawEventFiles = {
@@ -316,36 +330,39 @@ export const rawEventFiles = {
 function loadContent() {
   const events: GameEvent[] = [];
   for (const [name, data] of Object.entries(rawEventFiles)) {
-    events.push(...parse(z.array(eventSchema), data, `events/${name}.json`));
+    // 장소 사건은 파일이 달라도 한 묶음('events')이다. id가 겹치면 키가 겹쳐 실패한다.
+    events.push(...load(z.array(eventSchema), data, `events/${name}.json`, 'events'));
   }
   return {
-    traits: parse(z.array(traitSchema).length(5), traitsJson, 'traits.json'),
-    board: parse(boardSchema, boardJson, 'board.json'),
-    vacations: parse(vacationsSchema, vacationsJson, 'vacations.json'),
-    exams: parse(examsSchema, examsJson, 'exams.json'),
-    clubs: parse(z.array(clubSchema).min(1), clubsJson, 'clubs.json'),
-    routes: parse(z.array(routeSchema).min(1), routesJson, 'routes.json'),
-    buffs: parse(z.array(buffSchema).min(1), buffsJson, 'buffs.json'),
-    items: parse(z.array(itemSchema).min(1), itemsJson, 'items.json'),
-    endings: parse(endingsSchema, endingsJson, 'endings.json'),
+    traits: load(z.array(traitSchema).length(5), traitsJson, 'traits.json', 'traits'),
+    board: load(boardSchema, boardJson, 'board.json', 'board'),
+    vacations: load(vacationsSchema, vacationsJson, 'vacations.json', 'vacations'),
+    exams: load(examsSchema, examsJson, 'exams.json', 'exams'),
+    clubs: load(z.array(clubSchema).min(1), clubsJson, 'clubs.json', 'clubs'),
+    routes: load(z.array(routeSchema).min(1), routesJson, 'routes.json', 'routes'),
+    buffs: load(z.array(buffSchema).min(1), buffsJson, 'buffs.json', 'buffs'),
+    items: load(z.array(itemSchema).min(1), itemsJson, 'items.json', 'items'),
+    endings: load(endingsSchema, endingsJson, 'endings.json', 'endings'),
     events,
-    surprises: parse(z.array(surpriseSchema).min(1), surpriseJson, 'events/surprise.json'),
-    cafeteria: parse(cafeteriaSchema, cafeteriaJson, 'events/cafeteria.json'),
-    counsel: parse(counselSchema, counselJson, 'events/counsel.json'),
-    nurse: parse(nurseSchema, nurseJson, 'events/nurse.json'),
-    staffroom: parse(staffroomSchema, staffroomJson, 'events/staffroom.json'),
+    surprises: load(z.array(surpriseSchema).min(1), surpriseJson, 'events/surprise.json', 'surprise'),
+    cafeteria: load(cafeteriaSchema, cafeteriaJson, 'events/cafeteria.json', 'cafeteria'),
+    counsel: load(counselSchema, counselJson, 'events/counsel.json', 'counsel'),
+    nurse: load(nurseSchema, nurseJson, 'events/nurse.json', 'nurse'),
+    staffroom: load(staffroomSchema, staffroomJson, 'events/staffroom.json', 'staffroom'),
   };
 }
 
 export type Content = ReturnType<typeof loadContent>;
+/** 게임 데이터. 문장 칸에는 글 대신 문장 키가 들어 있다 (화면에서 text()로 바꿔 그린다). */
 export const content: Content = loadContent();
 
 // ---------- 조회 도우미 ----------
-export const STAT_NAMES: Record<Stat, string> = {
-  study: '학업',
-  stamina: '체력',
-  social: '인맥',
-  luck: '운',
+/** 능력치 이름 (메시지 키) */
+export const STAT_TEXT: Record<Stat, MessageKey> = {
+  study: 'stat.study',
+  stamina: 'stat.stamina',
+  social: 'stat.social',
+  luck: 'stat.luck',
 };
 export const STAT_ICONS: Record<Stat, string> = {
   study: '📚',
@@ -353,12 +370,13 @@ export const STAT_ICONS: Record<Stat, string> = {
   social: '🤝',
   luck: '🍀',
 };
-export const CAREER_NAMES: Record<Career, string> = {
-  academic: '학문',
-  sports: '운동',
-  arts: '예술',
-  comm: '소통',
-  biz: '경영',
+/** 진로 분야 이름 (메시지 키) */
+export const CAREER_TEXT: Record<Career, MessageKey> = {
+  academic: 'career.academic',
+  sports: 'career.sports',
+  arts: 'career.arts',
+  comm: 'career.comm',
+  biz: 'career.biz',
 };
 export const CAREER_ICONS: Record<Career, string> = {
   academic: '🔬',
@@ -394,6 +412,7 @@ export function getEvent(id: string): GameEvent | undefined {
 
 export interface JobInfo {
   id: string;
+  /** 문장 키 */
   name: string;
   track: string;
   grade?: 'top' | 'mid' | 'low';
@@ -420,16 +439,16 @@ export function allJobs(): JobInfo[] {
   return [...seen.values()];
 }
 
-export function jobName(id: string): string {
-  return allJobs().find((j) => j.id === id)?.name ?? id;
+export function jobName(id: string): Text {
+  return allJobs().find((j) => j.id === id)?.name ?? lit(id);
 }
 
-export function trackName(track: string): string {
+export function trackName(track: string): Text {
   if (track.startsWith('combo:')) {
     const [a, b] = track.slice(6).split('+') as Career[];
-    return `${CAREER_NAMES[a]} + ${CAREER_NAMES[b]}`;
+    return tx('career.combo', { a: CAREER_TEXT[a], b: CAREER_TEXT[b] });
   }
-  return content.endings.fieldNames[track] ?? track;
+  return content.endings.fieldNames[track] ?? lit(track);
 }
 
 export type { ChoiceOption, Effects };

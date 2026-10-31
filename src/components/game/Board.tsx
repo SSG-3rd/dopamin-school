@@ -5,6 +5,7 @@ import { content } from '@/engine/content';
 import type { GameState } from '@/engine/types';
 import { Pawn } from './Pawn';
 import { Tile } from './Tile';
+import { useI18n } from '@/i18n/client';
 
 /** 성향마다 말(데굴이) 색 */
 const PAWN_COLORS: Record<string, string> = {
@@ -32,12 +33,13 @@ export function Board({
 }) {
   const tracks = large ? '17fr 22fr 22fr 22fr 17fr' : 'repeat(5, minmax(0, 1fr))';
   const pawn = PAWN_COLORS[game.traitId] ?? '#fffaf0';
+  const { t } = useI18n();
   return (
     <div className="relative aspect-square w-full rounded-[30px] border-[3px] border-outline bg-[#bfe3ad] p-1.5 shadow-[0_6px_0_0_rgb(107_79_58/0.28)] sm:p-2">
       <LayoutGroup id="board">
         <div
           role="list"
-          aria-label="학교 보드"
+          aria-label={t('ui.board.aria')}
           className="grid h-full w-full"
           style={{ gridTemplateColumns: tracks, gridTemplateRows: tracks }}
         >

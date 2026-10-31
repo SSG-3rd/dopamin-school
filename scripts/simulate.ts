@@ -3,6 +3,9 @@ import { playToEnd, type Policy } from '../src/engine/autoplay';
 import { careerLevels } from '../src/engine/rules';
 import { content, jobName } from '../src/engine/content';
 import { CAREERS } from '../src/engine/types';
+import { createTranslator } from '../src/i18n/translator';
+
+const ko = createTranslator('ko');
 
 function arg(name: string, fallback?: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -56,8 +59,8 @@ for (const t of content.traits) {
   const m = traits.get(t.id);
   if (!m) continue;
   const total = [...m.values()].reduce((a, b) => a + b, 0);
-  console.log(`  ${t.name.padEnd(4)} ` + [...m].map(([k, n]) => `${k} ${((n / total) * 100).toFixed(0)}%`).join(' · '));
+  console.log(`  ${ko.text(t.name).padEnd(4)} ` + [...m].map(([k, n]) => `${k} ${((n / total) * 100).toFixed(0)}%`).join(' · '));
 }
 console.log('\n직업 상위 15');
-for (const [k, n] of [...jobs].sort((a, b) => b[1] - a[1]).slice(0, 15)) console.log(`  ${jobName(k).padEnd(12)} ${pct(n)}`);
+for (const [k, n] of [...jobs].sort((a, b) => b[1] - a[1]).slice(0, 15)) console.log(`  ${ko.text(jobName(k)).padEnd(12)} ${pct(n)}`);
 console.log(`\n직업 종류 ${jobs.size}개 등장 · 룰렛 다시 돌림 ${pct(rerolled)}`);

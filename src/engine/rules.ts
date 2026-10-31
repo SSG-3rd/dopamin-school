@@ -1,4 +1,5 @@
 // 규칙 상수와 계산식. 숫자는 여기 모아 두고 테스트 플레이 후 조정한다.
+import { tx, type Text } from './text';
 import type { Career, GameState, OptionKind, Stat } from './types';
 import { CAREERS, STATS } from './types';
 
@@ -112,16 +113,28 @@ export function careerBonus(level: number): number {
 export type StressTierId = 'relaxed' | 'normal' | 'tired' | 'danger' | 'burnout';
 export interface StressTier {
   id: StressTierId;
-  label: string;
-  effect: string;
+  label: Text;
+  effect: Text;
+}
+
+function stressTierId(stress: number): StressTierId {
+  if (stress >= 100) return 'burnout';
+  if (stress >= 80) return 'danger';
+  if (stress >= 60) return 'tired';
+  if (stress >= 30) return 'normal';
+  return 'relaxed';
 }
 
 export function stressTier(stress: number): StressTier {
-  if (stress >= 100) return { id: 'burnout', label: '번아웃', effect: '가장 높은 능력치 −15, 체력 −10' };
-  if (stress >= 80) return { id: 'danger', label: '위험', effect: '성장형 잠김 · 휴식 효과 2배 · 판정 −1' };
-  if (stress >= 60) return { id: 'tired', label: '지침', effect: '모든 판정 −1' };
-  if (stress >= 30) return { id: 'normal', label: '보통', effect: '효과 없음' };
-  return { id: 'relaxed', label: '여유', effect: '모험형 판정 +1' };
+  const id = stressTierId(stress);
+  return {
+    id,
+    label: tx(`stress.tier.${id}.label`),
+    effect:
+      id === 'burnout'
+        ? tx('stress.tier.burnout.effect', { loss: BURNOUT_TOP_STAT_LOSS, stamina: BURNOUT_STAMINA_LOSS })
+        : tx(`stress.tier.${id}.effect`),
+  };
 }
 
 /**
@@ -164,9 +177,6 @@ export function clamp(v: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, v));
 }
 
-export function formatMoney(won: number): string {
-  return `${won.toLocaleString('ko-KR')}원`;
-}
 
 /** 5×5 테두리에서 칸 번호 → 격자 위치 (1부터) */
 export function tileGridPos(index: number): { row: number; col: number } {

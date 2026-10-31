@@ -3,11 +3,14 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { GameScreen } from '@/components/game/GameScreen';
+import { useI18n, useLocalePath } from '@/i18n/client';
 import { useSettings } from '@/lib/settings';
 import { useGame } from '@/store/game';
 
 export default function PlayPage() {
   const router = useRouter();
+  const { t } = useI18n();
+  const href = useLocalePath();
   const game = useGame((s) => s.game);
   const hydrated = useGame((s) => s.hydrated);
   const started = useRef(false);
@@ -27,8 +30,8 @@ export default function PlayPage() {
     if (wantsNew || !useGame.getState().game) {
       useGame.getState().newGame();
     }
-    if (wantsNew) router.replace('/play');
-  }, [router]);
+    if (wantsNew) router.replace(href('/play'));
+  }, [router, href]);
 
   if (!hydrated || !game) {
     return (
@@ -36,7 +39,7 @@ export default function PlayPage() {
         <span aria-hidden="true" className="animate-bounce text-5xl">
           🎲
         </span>
-        <p className="font-display text-xl text-muted">가방 챙기는 중…</p>
+        <p className="font-display text-xl text-muted">{t('ui.play.loading')}</p>
       </main>
     );
   }

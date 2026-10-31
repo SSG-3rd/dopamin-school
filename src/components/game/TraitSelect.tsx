@@ -1,9 +1,11 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { STAT_ICONS, STAT_NAMES, content } from '@/engine/content';
+import { STAT_ICONS, STAT_TEXT, content } from '@/engine/content';
+import { lit } from '@/engine/text';
 import { STATS } from '@/engine/types';
 import { Bar, Button } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { playSound } from '@/lib/sound';
 import { useGame } from '@/store/game';
 import { KeyBadge } from './EventCard';
@@ -15,7 +17,8 @@ export function TraitSelect() {
   const dispatch = useGame((s) => s.dispatch);
   const traits = content.traits;
   const [sel, setSel] = useState<string | null>(null);
-  const selected = traits.find((t) => t.id === sel);
+  const selected = traits.find((tr) => tr.id === sel);
+  const { t, text } = useI18n();
 
   const confirm = (id: string) => {
     playSound('click');
@@ -41,18 +44,18 @@ export function TraitSelect() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pb-32 pt-4">
       <div className="text-center">
-        <p className="font-display text-lg text-accent">입학 원서</p>
-        <h1 className="text-3xl sm:text-4xl">나는 어떤 학생일까?</h1>
-        <p className="mt-1 text-base text-muted">성향마다 시작 능력치와 특수 능력이 달라요. 카드를 눌러 골라 보세요.</p>
+        <p className="font-display text-lg text-accent">{t('ui.trait.badge')}</p>
+        <h1 className="text-3xl sm:text-4xl">{t('ui.trait.title')}</h1>
+        <p className="mt-1 text-base text-muted">{t('ui.trait.lead')}</p>
       </div>
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {traits.map((t, i) => {
-          const on = sel === t.id;
+        {traits.map((tr, i) => {
+          const on = sel === tr.id;
           return (
-            <li key={t.id}>
+            <li key={tr.id}>
               <motion.button
                 type="button"
-                onClick={() => choose(t.id)}
+                onClick={() => choose(tr.id)}
                 aria-pressed={on}
                 whileTap={{ scale: 0.98 }}
                 className={`flex h-full w-full flex-col gap-2 rounded-3xl border-[3px] bg-paper p-4 text-left transition-[box-shadow,border-color,background-color] ${
@@ -63,38 +66,43 @@ export function TraitSelect() {
               >
                 <span className="flex items-center gap-2">
                   <KeyBadge>{i + 1}</KeyBadge>
-                  {on && <span className="font-display text-base text-accent">✔ 선택됨</span>}
+                  {on && <span className="font-display text-base text-accent">{t('ui.trait.selected')}</span>}
                 </span>
                 <span className="flex items-center gap-3">
                   <span aria-hidden="true" className="text-5xl leading-none">
-                    {t.emoji}
+                    {tr.emoji}
                   </span>
-                  <span className="font-display text-2xl">{t.name}</span>
+                  <span className="font-display text-2xl">{text(tr.name)}</span>
                 </span>
-                <span className="text-base leading-relaxed text-ink/90">{t.desc}</span>
+                <span className="text-base leading-relaxed text-ink/90">{text(tr.desc)}</span>
                 <span className="mt-1 flex flex-col gap-1">
                   {STATS.map((s) => (
                     <span key={s} className="grid grid-cols-[4.25rem_1fr_2rem] items-center gap-2 text-base">
                       <span className="whitespace-nowrap">
-                        <span aria-hidden="true">{STAT_ICONS[s]}</span> {STAT_NAMES[s]}
+                        <span aria-hidden="true">{STAT_ICONS[s]}</span> {text(STAT_TEXT[s])}
                       </span>
-                      <Bar value={t.stats[s]} color={STAT_COLORS[s]} label={`${STAT_NAMES[s]} ${t.stats[s]}`} className="h-2.5" />
-                      <span className="text-right font-display tabular-nums">{t.stats[s]}</span>
+                      <Bar
+                        value={tr.stats[s]}
+                        color={STAT_COLORS[s]}
+                        label={t('ui.trait.statAria', { stat: STAT_TEXT[s], v: tr.stats[s] })}
+                        className="h-2.5"
+                      />
+                      <span className="text-right font-display tabular-nums">{tr.stats[s]}</span>
                     </span>
                   ))}
                   <span className="grid grid-cols-[4.25rem_1fr_2rem] items-center gap-2 text-base">
                     <span className="whitespace-nowrap">
-                      <span aria-hidden="true">😮‍💨</span> 스트레스
+                      <span aria-hidden="true">😮‍💨</span> {t('stress.name')}
                     </span>
-                    <Bar value={t.stress} color="var(--color-grape)" label={`시작 스트레스 ${t.stress}`} className="h-2.5" />
-                    <span className="text-right font-display tabular-nums">{t.stress}</span>
+                    <Bar value={tr.stress} color="var(--color-grape)" label={t('ui.trait.startStress', { v: tr.stress })} className="h-2.5" />
+                    <span className="text-right font-display tabular-nums">{tr.stress}</span>
                   </span>
                 </span>
                 <span className="mt-1 rounded-xl bg-grape/10 px-2.5 py-1.5 text-base">
-                  <strong className="font-display font-normal">⭐ 능력</strong> · {t.ability}
+                  <strong className="font-display font-normal">{t('ui.trait.ability')}</strong> · {text(tr.ability)}
                 </span>
                 <span className="rounded-xl bg-danger/8 px-2.5 py-1.5 text-base">
-                  <strong className="font-display font-normal">⚠️ 약점</strong> · {t.weakness}
+                  <strong className="font-display font-normal">{t('ui.trait.weakness')}</strong> · {text(tr.weakness)}
                 </span>
               </motion.button>
             </li>
@@ -104,7 +112,7 @@ export function TraitSelect() {
       <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-outline/45 bg-paper/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-xl flex-col items-center gap-1">
           <Button size="lg" block disabled={!selected} onClick={() => selected && confirm(selected.id)}>
-            {selected ? `${selected.emoji} ${selected.name}(으)로 입학하기` : '성향을 골라 주세요'}
+            {selected ? t('ui.trait.enroll', { emoji: lit(selected.emoji), name: selected.name }) : t('ui.trait.pickPrompt')}
             {selected && <KeyBadge>Enter</KeyBadge>}
           </Button>
         </div>

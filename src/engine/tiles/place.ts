@@ -3,6 +3,7 @@ import { content, type GameEvent } from '../content';
 import { hasBuff } from '../effects';
 import { setChoice, setResult, type Ctx } from '../flow';
 import { careerLevel } from '../rules';
+import { tx } from '../text';
 import type { ChoiceOption, GameState } from '../types';
 
 export function requiresOk(d: GameState, e: GameEvent): boolean {
@@ -48,7 +49,7 @@ export function showEvent(d: GameState, e: GameEvent, extra: ChoiceOption[] = []
 export function startPlaceEvent(d: GameState, ctx: Ctx, tile: 'commute' | 'classroom' | 'library' | 'field'): void {
   const e = pickEvent(d, ctx, tile);
   if (!e) {
-    setResult(d, { source: 'event', title: content.board[d.position].name, text: '오늘은 조용히 지나갔다.', changes: [] });
+    setResult(d, { source: 'event', title: content.board[d.position].name, text: tx('engine.place.quiet'), changes: [] });
     return;
   }
   showEvent(d, e);

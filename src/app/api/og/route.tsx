@@ -1,12 +1,19 @@
-// 결과 공유 미리보기 이미지 (1200×630). /api/og?d=<공유 데이터>
-// 한글은 Google Fonts에서 쓰는 글자만 잘라 받은 Jua로 그린다. 실패하면 폰트 없이 다시 그린다.
+// 결과 공유 미리보기 이미지 (1200×630). /api/og?l=<언어>&d=<공유 데이터>
+// 글자는 그 언어 글꼴(src/i18n/fonts.ts)을 Google Fonts에서 쓰는 글자만 잘라 받아 그린다. 실패하면 폰트 없이 다시 그린다.
 import { ImageResponse } from 'next/og';
 import type { ReactElement } from 'react';
-import { CAREERS } from '@/engine/types';
-import { CAREER_NAMES, findTrait, jobName, trackName } from '@/engine/content';
-import { APP_NAME, APP_NAME_PARTS, APP_TAGLINE } from '@/lib/brand';
+import { CAREERS, STATS } from '@/engine/types';
+import { CAREER_TEXT, STAT_TEXT, findTrait, jobName, trackName } from '@/engine/content';
+import { money } from '@/engine/text';
+import { DEFAULT_LOCALE, isLocale, type Locale } from '@/i18n/config';
+import { LOCALE_FONTS } from '@/i18n/fonts';
+import { getTranslator } from '@/i18n/server';
+import type { Translator } from '@/i18n/translator';
 import { ENDING_KIND_LABELS, decodeShare, gradeName } from '@/lib/share';
 import type { SharePayload } from '@/lib/share';
+
+/** ImageResponse 안에서 쓰는 글꼴 이름 (실제 글꼴은 언어마다 다르다) */
+const FONT = 'OG';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -33,10 +40,8 @@ const CAREER_COLORS: Record<(typeof CAREERS)[number], string> = {
   biz: '#f2c94c',
 };
 
-const STAT_LABELS = ['학업', '체력', '인맥', '운', '스트레스'] as const;
-
-async function loadGoogleFont(family: string, text: string): Promise<ArrayBuffer> {
-  const url = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}&text=${encodeURIComponent(text)}`;
+async function loadGoogleFont(family: string, weight: number, text: string): Promise<ArrayBuffer> {
+  const url = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}&text=${encodeURIComponent(text)}`;
   const css = await (await fetch(url, { cache: 'force-cache' })).text();
   const m = css.match(/src:\s*url\(([^)]+)\)\s*format\(['"]?(opentype|truetype|woff)['"]?\)/);
   if (!m) throw new Error('font url not found');
@@ -68,17 +73,21 @@ function Pips({ level, color }: { level: number; color: string }) {
   );
 }
 
-function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
+function resultCard(p: SharePayload, tr: Translator): { el: ReactElement; text: string[] } {
+  const { t, text } = tr;
   const trait = findTrait(p.t);
-  const job = jobName(p.j);
-  const kind = ENDING_KIND_LABELS[p.k];
-  const grade = p.g ? `${gradeName(p.g)} 등급` : '';
-  const track = p.tr ? trackName(p.tr) : '';
-  const traitLine = trait ? `${trait.name} 학생의 졸업 후 직업은` : '졸업 후 나의 직업은';
+  const job = text(jobName(p.j));
+  const kind = t(ENDING_KIND_LABELS[p.k]);
+  const grade = p.g ? t('ending.gradeOf', { grade: gradeName(p.g) }) : '';
+  const track = p.tr ? text(trackName(p.tr)) : '';
+  const traitLine = trait ? t('ui.result.lead', { trait: trait.name }) : t('ui.result.leadNoTrait');
   const jobSize = Math.max(56, Math.min(112, Math.floor(700 / Math.max(job.length, 1))));
-  const stats = p.s.slice(0, 5).map((v, i) => `${STAT_LABELS[i]} ${v}`);
-  const money = `돈 ${p.s[5].toLocaleString('ko-KR')}원`;
-  const footer = `${APP_NAME} · ${APP_TAGLINE}`;
+  const statLabels = [...STATS.map((s) => text(STAT_TEXT[s])), t('stress.name')];
+  const stats = p.s.slice(0, 5).map((v, i) => `${statLabels[i]} ${v}`);
+  const moneyLine = t('ui.og.money', { money: money(p.s[5]) });
+  const footer = `${t('brand.name')} · ${t('brand.tagline')}`;
+  const careersTitle = t('ui.og.careers');
+  const careerNames = CAREERS.map((c) => text(CAREER_TEXT[c]));
 
   const el = (
     <div
@@ -88,7 +97,7 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
         display: 'flex',
         backgroundImage: C.sky,
         padding: 28,
-        fontFamily: 'Jua',
+        fontFamily: FONT,
       }}
     >
       <div
@@ -157,7 +166,7 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
                   {s}
                 </div>
               ))}
-              <div style={{ display: 'flex' }}>{money}</div>
+              <div style={{ display: 'flex' }}>{moneyLine}</div>
             </div>
             <div style={{ display: 'flex', fontSize: 24, color: C.muted }}>{footer}</div>
           </div>
@@ -176,10 +185,10 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
             gap: 22,
           }}
         >
-          <div style={{ display: 'flex', fontSize: 30, color: C.ink }}>진로 레벨</div>
+          <div style={{ display: 'flex', fontSize: 30, color: C.ink }}>{careersTitle}</div>
           {CAREERS.map((c, i) => (
             <div key={c} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', fontSize: 30, color: C.ink }}>{CAREER_NAMES[c]}</div>
+              <div style={{ display: 'flex', fontSize: 30, color: C.ink }}>{careerNames[i]}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Pips level={p.c[i]} color={CAREER_COLORS[c]} />
                 <div style={{ display: 'flex', fontSize: 24, color: C.muted, width: 48 }}>
@@ -195,14 +204,15 @@ function resultCard(p: SharePayload): { el: ReactElement; text: string[] } {
 
   return {
     el,
-    text: [traitLine, job, kind, grade, track, ...stats, money, footer, '진로 레벨', ...Object.values(CAREER_NAMES), 'Lv012345'],
+    text: [traitLine, job, kind, grade, track, ...stats, moneyLine, footer, careersTitle, ...careerNames, 'Lv012345'],
   };
 }
 
-function titleCard(): { el: ReactElement; text: string[] } {
-  const title = APP_NAME;
-  const sub = APP_TAGLINE;
-  const sub2 = '졸업하는 날, 나는 무엇이 되어 있을까?';
+function titleCard(tr: Translator): { el: ReactElement; text: string[] } {
+  const { t } = tr;
+  const parts = [t('brand.namePart1'), t('brand.namePart2')];
+  const sub = t('brand.tagline');
+  const sub2 = t('brand.question');
   const el = (
     <div
       style={{
@@ -211,7 +221,7 @@ function titleCard(): { el: ReactElement; text: string[] } {
         display: 'flex',
         backgroundImage: C.sky,
         padding: 28,
-        fontFamily: 'Jua',
+        fontFamily: FONT,
       }}
     >
       <div
@@ -227,8 +237,8 @@ function titleCard(): { el: ReactElement; text: string[] } {
         }}
       >
         <div style={{ display: 'flex', fontSize: 140, color: C.ink, lineHeight: 1.1, gap: 28 }}>
-          <span style={{ color: '#e9668a' }}>{APP_NAME_PARTS[0]}</span>
-          <span>{APP_NAME_PARTS[1]}</span>
+          <span style={{ color: '#e9668a' }}>{parts[0]}</span>
+          <span>{parts[1]}</span>
         </div>
         <div style={{ display: 'flex', fontSize: 44, color: C.ink, marginTop: 24 }}>{sub}</div>
         <div style={{ display: 'flex', fontSize: 34, color: C.muted, marginTop: 12 }}>{sub2}</div>
@@ -240,27 +250,33 @@ function titleCard(): { el: ReactElement; text: string[] } {
       </div>
     </div>
   );
-  return { el, text: [title, sub, sub2] };
+  return { el, text: [...parts, sub, sub2] };
 }
 
-async function renderPng(el: ReactElement, font: ArrayBuffer | null): Promise<ArrayBuffer> {
+type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+
+async function renderPng(el: ReactElement, font: { data: ArrayBuffer; weight: number } | null): Promise<ArrayBuffer> {
   const res = new ImageResponse(el, {
     width: WIDTH,
     height: HEIGHT,
-    fonts: font ? [{ name: 'Jua', data: font, weight: 400, style: 'normal' }] : undefined,
+    fonts: font ? [{ name: FONT, data: font.data, weight: font.weight as FontWeight, style: 'normal' }] : undefined,
   });
   // 그리기 오류를 여기서 잡기 위해 끝까지 읽는다
   return res.arrayBuffer();
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const d = new URL(request.url).searchParams.get('d');
-  const payload = decodeShare(d);
-  const card = payload ? resultCard(payload) : titleCard();
+  const params = new URL(request.url).searchParams;
+  const l = params.get('l');
+  const locale: Locale = isLocale(l) ? l : DEFAULT_LOCALE;
+  const tr = await getTranslator(locale);
+  const payload = decodeShare(params.get('d'));
+  const card = payload ? resultCard(payload, tr) : titleCard(tr);
 
-  let font: ArrayBuffer | null = null;
+  const og = LOCALE_FONTS[locale].og;
+  let font: { data: ArrayBuffer; weight: number } | null = null;
   try {
-    font = await loadGoogleFont('Jua', uniqueChars(card.text));
+    font = { data: await loadGoogleFont(og.family, og.weight, uniqueChars(card.text)), weight: og.weight };
   } catch {
     font = null;
   }
@@ -273,9 +289,9 @@ export async function GET(request: Request): Promise<Response> {
       png = await renderPng(card.el, null);
     } catch {
       try {
-        png = await renderPng(titleCard().el, null);
+        png = await renderPng(titleCard(tr).el, null);
       } catch {
-        return new Response('이미지를 만들지 못했어요', { status: 500 });
+        return new Response(tr.t('ui.og.error'), { status: 500 });
       }
     }
   }

@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "validate:content": "tsx scripts/validate-content.ts",
-    "simulate": "tsx scripts/simulate.ts"
+    "simulate": "tsx scripts/simulate.ts",
+    "i18n:extract": "tsx scripts/i18n-extract.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

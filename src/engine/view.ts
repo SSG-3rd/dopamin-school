@@ -1,7 +1,7 @@
 // 화면용 조회 함수. 상태를 바꾸지 않는다.
 import {
-  CAREER_NAMES,
-  STAT_NAMES,
+  CAREER_TEXT,
+  STAT_TEXT,
   content,
   getBuffDef,
   getClub,
@@ -12,7 +12,8 @@ import {
 } from './content';
 import { resolveCareerKey } from './effects';
 import { planJudge } from './judge';
-import { ABILITY_USES_PER_YEAR, careerLevel, formatMoney, isGrowthLocked, scaleStatGain } from './rules';
+import { ABILITY_USES_PER_YEAR, careerLevel, isGrowthLocked, scaleStatGain } from './rules';
+import { lit, money, signed, tx, type Text } from './text';
 import type {
   Change,
   CheckBy,
@@ -20,87 +21,109 @@ import type {
   Effects,
   GameState,
   JudgeBonus,
+  RecordKey,
   Requirement,
 } from './types';
 import { CAREERS, STATS } from './types';
+
+export type Tone = 'good' | 'bad' | 'info';
+
+/** 효과 미리보기 한 줄 ("학업 +7", "스트레스 +15")과 그 좋고 나쁨 */
+export interface EffectLine {
+  text: Text;
+  tone: Tone;
+}
 
 export interface OptionView {
   option: ChoiceOption;
   key: number;
   disabled: boolean;
-  reason?: string;
-  preview: string[];
-  failPreview?: string[];
-  judge?: { byLabel: string; diff: number; bonus: number; probability: number; bonuses: JudgeBonus[] };
+  reason?: Text;
+  preview: EffectLine[];
+  failPreview?: EffectLine[];
+  judge?: { byLabel: Text; diff: number; bonus: number; probability: number; bonuses: JudgeBonus[] };
   unlocked: boolean;
 }
 
-const RECORD_NAMES = { examPass: '시험 기록', award: '수상 기록', praise: '칭찬 기록', late: '지각 기록' } as const;
+export const RECORD_TEXT = {
+  examPass: 'record.examPass',
+  award: 'record.award',
+  praise: 'record.praise',
+  late: 'record.late',
+} as const satisfies Record<RecordKey, string>;
 
-function signed(n: number): string {
-  const v = Math.round(n * 10) / 10;
-  return v > 0 ? `+${v}` : `${v}`.replace('-', '−');
+const up = (n: number): Tone => (n > 0 ? 'good' : 'bad');
+const down = (n: number): Tone => (n > 0 ? 'bad' : 'good');
+
+function moneyLine(delta: number): Text {
+  return tx('fx.money', { sign: lit(delta > 0 ? '+' : '−'), money: money(Math.abs(delta)) });
 }
 
-export function checkByLabel(by: CheckBy, state?: GameState): string {
+export function checkByLabel(by: CheckBy, state?: GameState): Text {
   if (by === 'club') {
     const club = state ? getClub(state.clubId) : undefined;
-    return club ? `동아리(${CAREER_NAMES[club.career]})` : '동아리';
+    return club ? tx('view.clubBy', { career: CAREER_TEXT[club.career] }) : tx('view.club');
   }
-  if ((STATS as readonly string[]).includes(by)) return STAT_NAMES[by as keyof typeof STAT_NAMES];
-  return CAREER_NAMES[by as keyof typeof CAREER_NAMES];
+  if ((STATS as readonly string[]).includes(by)) return STAT_TEXT[by as keyof typeof STAT_TEXT];
+  return CAREER_TEXT[by as keyof typeof CAREER_TEXT];
 }
 
-export function describeEffects(e: Effects | undefined, state?: GameState): string[] {
+export function describeEffects(e: Effects | undefined, state?: GameState): EffectLine[] {
   if (!e) return [];
-  const out: string[] = [];
-  if (e.stats) for (const s of STATS) if (e.stats[s]) out.push(`${STAT_NAMES[s]} ${signed(scaleStatGain(e.stats[s]!))}`);
-  if (e.stress) out.push(`스트레스 ${signed(e.stress)}`);
-  if (e.money) out.push(`돈 ${e.money > 0 ? '+' : '−'}${formatMoney(Math.abs(e.money))}`);
+  const out: EffectLine[] = [];
+  if (e.stats) {
+    for (const s of STATS) {
+      const v = e.stats[s];
+      if (v) out.push({ text: tx('fx.stat', { stat: STAT_TEXT[s], delta: signed(scaleStatGain(v)) }), tone: up(v) });
+    }
+  }
+  if (e.stress) out.push({ text: tx('fx.stress', { delta: signed(e.stress) }), tone: down(e.stress) });
+  if (e.money) out.push({ text: moneyLine(e.money), tone: up(e.money) });
   if (e.career) {
     for (const key of [...CAREERS, 'club'] as const) {
       const v = e.career[key];
       if (!v) continue;
       const c = state ? resolveCareerKey(state, key) : key === 'club' ? null : key;
-      out.push(`${c ? CAREER_NAMES[c] : '동아리 분야'} ${signed(v)}`);
+      out.push({ text: tx('fx.career', { career: c ? CAREER_TEXT[c] : 'fx.clubField', delta: signed(v) }), tone: up(v) });
     }
   }
   if (e.records) {
     for (const k of ['examPass', 'award', 'praise', 'late'] as const) {
-      if (e.records[k]) out.push(`${RECORD_NAMES[k]} ${signed(e.records[k]!)}`);
+      const v = e.records[k];
+      if (v) out.push({ text: tx('fx.record', { record: RECORD_TEXT[k], delta: signed(v) }), tone: k === 'late' ? down(v) : up(v) });
     }
   }
   if (e.buff) {
     const id = typeof e.buff === 'string' ? e.buff : e.buff.id;
-    out.push(`버프: ${getBuffDef(id)?.name ?? id}`);
+    out.push({ text: tx('fx.buff', { name: getBuffDef(id)?.name ?? lit(id) }), tone: 'good' });
   }
-  if (e.debuff) out.push(`디버프: ${getBuffDef(e.debuff)?.name ?? e.debuff}`);
-  if (e.flag) out.push('✨ 특별한 기회?');
+  if (e.debuff) out.push({ text: tx('fx.debuff', { name: getBuffDef(e.debuff)?.name ?? lit(e.debuff) }), tone: 'bad' });
+  if (e.flag) out.push({ text: tx('fx.flag'), tone: 'good' });
   return out;
 }
 
-function requirementReason(state: GameState, r: Requirement | undefined): string | undefined {
+function requirementReason(state: GameState, r: Requirement | undefined): Text | undefined {
   if (!r) return undefined;
   if (r.stats) {
     for (const s of STATS) {
       const need = r.stats[s];
-      if (need != null && state.stats[s] < need) return `조건: ${STAT_NAMES[s]} ${need}`;
+      if (need != null && state.stats[s] < need) return tx('view.req.stat', { stat: STAT_TEXT[s], need });
     }
   }
   if (r.career) {
     for (const c of CAREERS) {
       const need = r.career[c];
-      if (need != null && careerLevel(state.careerExp[c]) < need) return `조건: ${CAREER_NAMES[c]} Lv${need}`;
+      if (need != null && careerLevel(state.careerExp[c]) < need) return tx('view.req.career', { career: CAREER_TEXT[c], need });
     }
   }
-  if (r.money != null && state.money < r.money) return `조건: 돈 ${formatMoney(r.money)}`;
+  if (r.money != null && state.money < r.money) return tx('view.req.money', { money: money(r.money) });
   return undefined;
 }
 
-export function optionAvailability(state: GameState, o: ChoiceOption): { disabled: boolean; reason?: string } {
-  if (o.kind === 'growth' && isGrowthLocked(state.stress)) return { disabled: true, reason: '스트레스 위험: 성장형 잠김' };
+export function optionAvailability(state: GameState, o: ChoiceOption): { disabled: boolean; reason?: Text } {
+  if (o.kind === 'growth' && isGrowthLocked(state.stress)) return { disabled: true, reason: tx('view.locked.growth') };
   const cost = o.effects?.money;
-  if (cost != null && cost < 0 && state.money < -cost) return { disabled: true, reason: '용돈 부족' };
+  if (cost != null && cost < 0 && state.money < -cost) return { disabled: true, reason: tx('view.locked.money') };
   const req = requirementReason(state, o.require);
   if (req) return { disabled: true, reason: req };
   return { disabled: false };
@@ -112,11 +135,11 @@ export function getOptionViews(state: GameState): OptionView[] {
   const exam = p.source === 'exam';
   return p.options.map((o, i) => {
     const av = optionAvailability(state, o);
-    let preview: string[];
-    let failPreview: string[] | undefined;
+    let preview: EffectLine[];
+    let failPreview: EffectLine[] | undefined;
     if (exam) {
       preview = [];
-      if (o.judgeMod) preview.push(`판정 ${signed(o.judgeMod)}`);
+      if (o.judgeMod) preview.push({ text: tx('view.judgeMod', { delta: signed(o.judgeMod) }), tone: up(o.judgeMod) });
       preview.push(...describeEffects(o.after, state));
     } else if (o.check) {
       preview = describeEffects(o.onSuccess, state);
@@ -124,13 +147,13 @@ export function getOptionViews(state: GameState): OptionView[] {
     } else {
       preview = describeEffects(o.effects, state);
     }
-    if (preview.length === 0 && o.desc) preview = [o.desc];
+    if (preview.length === 0 && o.desc) preview = [{ text: o.desc, tone: 'info' }];
     let judge: OptionView['judge'];
     if (o.check) {
       const armed = !!p.abilityArmed && state.traitId === 'insider';
       const plan = planJudge(state, { check: o.check, kind: o.kind, judgeMod: o.judgeMod, exam, armed });
       judge = {
-        byLabel: armed ? '인맥(인싸력)' : checkByLabel(o.check.by, state),
+        byLabel: armed ? tx('view.byInsider') : checkByLabel(o.check.by, state),
         diff: plan.diff,
         bonus: plan.bonus,
         probability: plan.probability,
@@ -142,8 +165,8 @@ export function getOptionViews(state: GameState): OptionView[] {
 }
 
 export interface AbilityView {
-  label: string;
-  desc: string;
+  label: Text;
+  desc: Text;
   usesLeft: number;
   available: boolean;
   armed?: boolean;
@@ -156,8 +179,8 @@ export function getAbilityView(state: GameState): AbilityView | null {
     const armed = !!p?.abilityArmed;
     const hasCheck = state.phase === 'choice' && !!p?.options?.some((o) => o.check);
     return {
-      label: '인싸력',
-      desc: '이번 판정 기준을 인맥으로 바꾼다',
+      label: tx('ability.insider.label'),
+      desc: tx('ability.insider.desc'),
       usesLeft,
       available: hasCheck && (usesLeft > 0 || armed),
       armed,
@@ -165,8 +188,8 @@ export function getAbilityView(state: GameState): AbilityView | null {
   }
   if (state.traitId === 'lucky') {
     return {
-      label: '행운',
-      desc: '대실패를 일반 실패로 바꾼다',
+      label: tx('ability.lucky.label'),
+      desc: tx('ability.lucky.desc'),
       usesLeft,
       available: state.phase === 'judge' && p?.judge?.outcome === 'fumble' && usesLeft > 0,
     };
@@ -186,41 +209,41 @@ export function getShopView(state: GameState): { item: Item; affordable: boolean
     }));
 }
 
-export function getRouteViews(state: GameState): { route: Route; disabled: boolean; reason?: string; preview: string[] }[] {
+export function getRouteViews(state: GameState): { route: Route; disabled: boolean; reason?: Text; preview: EffectLine[] }[] {
   return content.routes.map((route) => {
     const reason = requirementReason(state, route.require);
     return { route, disabled: !!reason, reason, preview: describeEffects(route.effects, state) };
   });
 }
 
-export function describeChange(c: Change): { text: string; tone: 'good' | 'bad' | 'info' } {
+export function describeChange(c: Change): EffectLine {
   switch (c.kind) {
     case 'stat':
-      return { text: `${STAT_NAMES[c.key]} ${signed(c.delta)}`, tone: c.delta > 0 ? 'good' : 'bad' };
+      return { text: tx('fx.stat', { stat: STAT_TEXT[c.key], delta: signed(c.delta) }), tone: up(c.delta) };
     case 'stress':
-      return { text: `스트레스 ${signed(c.delta)}`, tone: c.delta > 0 ? 'bad' : 'good' };
+      return { text: tx('fx.stress', { delta: signed(c.delta) }), tone: down(c.delta) };
     case 'money':
-      return { text: `돈 ${c.delta > 0 ? '+' : '−'}${formatMoney(Math.abs(c.delta))}`, tone: c.delta > 0 ? 'good' : 'bad' };
+      return { text: moneyLine(c.delta), tone: up(c.delta) };
     case 'career':
-      if (c.levelUp) return { text: `${CAREER_NAMES[c.key]} Lv${c.level} 달성!`, tone: 'good' };
-      return { text: `${CAREER_NAMES[c.key]} 경험치 ${signed(c.delta)}`, tone: 'good' };
+      if (c.levelUp) return { text: tx('change.levelUp', { career: CAREER_TEXT[c.key], level: c.level }), tone: 'good' };
+      return { text: tx('change.careerExp', { career: CAREER_TEXT[c.key], delta: signed(c.delta) }), tone: 'good' };
     case 'record':
-      return { text: `${RECORD_NAMES[c.key]} ${signed(c.delta)}`, tone: c.key === 'late' ? 'bad' : 'info' };
+      return { text: tx('fx.record', { record: RECORD_TEXT[c.key], delta: signed(c.delta) }), tone: c.key === 'late' ? 'bad' : 'info' };
     case 'buff': {
       const def = getBuffDef(c.id);
-      const name = def ? `${def.emoji} ${def.name}` : c.id;
-      if (c.debuff) return { text: c.gained ? `디버프: ${name}` : `${name} 해제`, tone: c.gained ? 'bad' : 'good' };
-      return { text: c.gained ? `버프 획득: ${name}` : `${name} 종료`, tone: c.gained ? 'good' : 'info' };
+      const name = def ? tx('fmt.iconName', { icon: lit(def.emoji), name: def.name }) : lit(c.id);
+      if (c.debuff) return { text: tx(c.gained ? 'change.debuffGained' : 'change.debuffEnded', { name }), tone: c.gained ? 'bad' : 'good' };
+      return { text: tx(c.gained ? 'change.buffGained' : 'change.buffEnded', { name }), tone: c.gained ? 'good' : 'info' };
     }
     case 'flag':
-      return { text: '✨ 무언가 특별한 일이 생길 것 같다…', tone: 'good' };
+      return { text: tx('change.flag'), tone: 'good' };
     case 'club': {
       const club = getClub(c.id);
-      return { text: `${club?.emoji ?? ''} ${club?.name ?? c.id} 부원이 됐다`, tone: 'info' };
+      return { text: tx('change.club', { emoji: lit(club?.emoji ?? ''), name: club?.name ?? lit(c.id) }), tone: 'info' };
     }
     case 'route': {
       const r = getRoute(c.id);
-      return { text: `${r?.emoji ?? ''} ${r?.name ?? c.id} 배정`, tone: 'info' };
+      return { text: tx('change.route', { emoji: lit(r?.emoji ?? ''), name: r?.name ?? lit(c.id) }), tone: 'info' };
     }
     case 'note':
       return { text: c.text, tone: 'info' };
@@ -229,14 +252,14 @@ export function describeChange(c: Change): { text: string; tone: 'good' | 'bad' 
 
 export function activeBuffViews(
   state: GameState,
-): { id: string; name: string; emoji: string; desc: string; remaining?: number; debuff: boolean }[] {
+): { id: string; name: Text; emoji: string; desc: Text; remaining?: number; debuff: boolean }[] {
   return [...state.buffs, ...state.debuffs].map((b) => {
     const def = getBuffDef(b.id);
-    let desc = def?.desc ?? '';
-    if (b.id === 'practice' && b.field) desc = `${CAREER_NAMES[b.field]} 경험치 2배`;
+    let desc: Text = def?.desc ?? '';
+    if (b.id === 'practice' && b.field) desc = tx('view.practiceDesc', { career: CAREER_TEXT[b.field] });
     return {
       id: b.id,
-      name: def?.name ?? b.id,
+      name: def?.name ?? lit(b.id),
       emoji: def?.emoji ?? '✨',
       desc,
       remaining: b.remaining,

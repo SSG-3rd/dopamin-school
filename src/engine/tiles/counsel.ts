@@ -1,6 +1,7 @@
 // 상담실: 고정 선택지 3개(원하는 능력치 +5 / 원하는 진로 +3 / 스트레스 −20) + 선생님의 신뢰 해금 1개.
-import { CAREER_ICONS, CAREER_NAMES, STAT_ICONS, STAT_NAMES, content } from '../content';
+import { CAREER_ICONS, CAREER_TEXT, STAT_ICONS, STAT_TEXT, content } from '../content';
 import { setChoice, type Ctx } from '../flow';
+import { lit, tx } from '../text';
 import type { ChoiceOption, GameState } from '../types';
 import { CAREERS, STATS } from '../types';
 import { unlockOk } from './place';
@@ -22,14 +23,14 @@ export function handleCounselAction(d: GameState, opt: ChoiceOption): boolean {
       setChoice(d, {
         source: 'pick',
         pickFor: 'stat5',
-        title: '어떤 능력치를 키울까?',
-        text: '상담 선생님이 맞춤 계획을 짜 주신다.',
+        title: tx('engine.counsel.statTitle'),
+        text: tx('engine.counsel.statText'),
         options: STATS.map((s) => ({
           id: `stat:${s}`,
-          label: `${STAT_ICONS[s]} ${STAT_NAMES[s]}`,
+          label: tx('fmt.iconName', { icon: lit(STAT_ICONS[s]), name: STAT_TEXT[s] }),
           kind: 'special' as const,
           effects: { stats: { [s]: 5 } },
-          resultText: { done: `${STAT_NAMES[s]} 계획표를 받아 들었다.` },
+          resultText: { done: tx('engine.counsel.statDone', { stat: STAT_TEXT[s] }) },
         })),
       });
       return true;
@@ -39,14 +40,14 @@ export function handleCounselAction(d: GameState, opt: ChoiceOption): boolean {
       setChoice(d, {
         source: 'pick',
         pickFor: trust ? 'career3_trust' : 'career3',
-        title: '어떤 진로를 상담할까?',
-        text: trust ? '선생님과 함께 3년 로드맵을 그린다.' : '관심 있는 분야를 이야기해 보자.',
+        title: tx('engine.counsel.careerTitle'),
+        text: tx(trust ? 'engine.counsel.careerTextTrust' : 'engine.counsel.careerText'),
         options: CAREERS.map((c) => ({
           id: `career:${c}`,
-          label: `${CAREER_ICONS[c]} ${CAREER_NAMES[c]}`,
+          label: tx('fmt.iconName', { icon: lit(CAREER_ICONS[c]), name: CAREER_TEXT[c] }),
           kind: 'special' as const,
           effects: trust ? { career: { [c]: 3 }, stress: -10 } : { career: { [c]: 3 } },
-          resultText: { done: `${CAREER_NAMES[c]} 쪽 길이 조금 더 또렷해졌다.` },
+          resultText: { done: tx('engine.counsel.careerDone', { career: CAREER_TEXT[c] }) },
         })),
       });
       return true;

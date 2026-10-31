@@ -2,7 +2,7 @@
 // 게임 스토어: 엔진 호출 + 저장(yd:save) + 변화 알림(토스트).
 // 규칙 계산은 하지 않는다. 모든 변화는 엔진의 reduce를 거친다.
 import { create } from 'zustand';
-import { describeChange, newGame as createGame, randomSeed, reduce } from '@/engine';
+import { describeChange, newGame as createGame, randomSeed, reduce, tx, type Text } from '@/engine';
 import type { Action, Change, GameState } from '@/engine/types';
 import { recordEnding } from '@/lib/collection';
 import { useSettings } from '@/lib/settings';
@@ -14,7 +14,8 @@ export type ToastTone = 'good' | 'bad' | 'info';
 
 export interface Toast {
   id: number;
-  text: string;
+  /** 문장 키 (화면이 지금 언어로 그린다) */
+  text: Text;
   tone: ToastTone;
 }
 
@@ -68,7 +69,7 @@ function save(game: GameState): void {
 }
 
 export const useGame = create<GameStore>((set, get) => {
-  function pushToasts(items: { text: string; tone: ToastTone }[]): void {
+  function pushToasts(items: { text: Text; tone: ToastTone }[]): void {
     if (items.length === 0) return;
     const added: Toast[] = items.map((t) => ({ id: ++toastSeq, text: t.text, tone: t.tone }));
     const all = [...get().toasts, ...added];
@@ -91,7 +92,7 @@ export const useGame = create<GameStore>((set, get) => {
   }
 
   function toastsFromLog(log: Change[]): void {
-    const items: { text: string; tone: ToastTone }[] = [];
+    const items: { text: Text; tone: ToastTone }[] = [];
     for (const c of log) {
       try {
         items.push(describeChange(c));
@@ -108,7 +109,7 @@ export const useGame = create<GameStore>((set, get) => {
     if (!ending) return;
     try {
       const { isNew } = recordEnding(ending.jobId);
-      if (isNew) pushToasts([{ text: '📖 엔딩 도감에 새 직업 등록!', tone: 'good' }]);
+      if (isNew) pushToasts([{ text: tx('ui.toast.newJob'), tone: 'good' }]);
     } catch {
       // 도감 기록 실패는 무시
     }

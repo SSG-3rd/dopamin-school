@@ -2,10 +2,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { content, trackName } from '@/engine/content';
+import { useI18n } from '@/i18n/client';
+import type { MessageKey } from '@/i18n/keys';
 import { GRADE_MID, GRADE_TOP, GRADUATION_USES_BONUSES } from '@/engine/rules';
 import type { EndingResult, GameState, Grade } from '@/engine/types';
 import { Button } from '@/components/ui';
-import { ENDING_KIND_LABELS, GRADE_ICONS, gradeName } from '@/lib/share';
+import { GRADE_ICONS, endingKindLabel, gradeName } from '@/lib/share';
 import { playSound } from '@/lib/sound';
 import { useGame } from '@/store/game';
 import { RollingDie } from './Dice';
@@ -27,6 +29,7 @@ const KIND_EMOJI: Record<EndingResult['kind'], string> = {
 function FailScene({ timing, onDone }: { timing: Timing; onDone: () => void }) {
   const lines = content.endings.failScene;
   const [n, setN] = useState(0);
+  const { t, text } = useI18n();
   useEffect(() => {
     if (n < lines.length) {
       const t = setTimeout(() => setN((x) => x + 1), n === 0 ? 500 : timing.sceneLine);
@@ -59,12 +62,12 @@ function FailScene({ timing, onDone }: { timing: Timing; onDone: () => void }) {
             transition={{ duration: timing.fast ? 0.2 : 0.7 }}
             className="font-display text-xl leading-relaxed text-paper/90 sm:text-2xl"
           >
-            {l}
+            {text(l)}
           </motion.p>
         ))}
       </div>
       <button type="button" onClick={onDone} className="mt-4 text-base text-paper/60 underline">
-        계속 <span aria-hidden="true">⏎</span>
+        {t('ui.scene.continue')} <span aria-hidden="true">⏎</span>
       </button>
     </motion.div>
   );
@@ -73,6 +76,7 @@ function FailScene({ timing, onDone }: { timing: Timing; onDone: () => void }) {
 // ───────── 졸업식 날 밤, 휴대폰이 울렸다 ─────────
 function PhoneCall({ ending, timing, onDone }: { ending: EndingResult; timing: Timing; onDone: () => void }) {
   const [answered, setAnswered] = useState(false);
+  const { t, text } = useI18n();
   useEffect(() => {
     if (answered) {
       playSound('success');
@@ -96,7 +100,7 @@ function PhoneCall({ ending, timing, onDone }: { ending: EndingResult; timing: T
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <p className="font-display text-xl text-paper/80 sm:text-2xl">졸업식 날 밤, 휴대폰이 울렸다</p>
+      <p className="font-display text-xl text-paper/80 sm:text-2xl">{t('ui.scene.phoneLead')}</p>
       <motion.div
         aria-hidden="true"
         className="text-7xl"
@@ -107,7 +111,7 @@ function PhoneCall({ ending, timing, onDone }: { ending: EndingResult; timing: T
       </motion.div>
       {!answered ? (
         <Button size="lg" onClick={() => setAnswered(true)}>
-          📞 전화 받기 <KeyBadge>Enter</KeyBadge>
+          {t('ui.scene.answer')} <KeyBadge>Enter</KeyBadge>
         </Button>
       ) : (
         <motion.div
@@ -117,16 +121,16 @@ function PhoneCall({ ending, timing, onDone }: { ending: EndingResult; timing: T
         >
           {ending.rescueFriend && (
             <p className="font-display text-2xl">
-              <span aria-hidden="true">📞</span> {ending.rescueFriend}
+              <span aria-hidden="true">📞</span> {text(ending.rescueFriend)}
             </p>
           )}
           {ending.flavor && (
             <p className="rounded-3xl rounded-tl-md bg-paper px-5 py-4 text-left text-lg leading-relaxed text-ink">
-              {ending.flavor}
+              {text(ending.flavor)}
             </p>
           )}
           <Button size="lg" onClick={onDone}>
-            계속 <KeyBadge>Enter</KeyBadge>
+            {t('ui.scene.continue')} <KeyBadge>Enter</KeyBadge>
           </Button>
         </motion.div>
       )}
@@ -135,10 +139,10 @@ function PhoneCall({ ending, timing, onDone }: { ending: EndingResult; timing: T
 }
 
 // ───────── 졸업 판정 (등급) ─────────
-const GRADE_ROWS: { g: Grade; range: string }[] = [
-  { g: 'low', range: `${GRADE_MID - 1} 이하` },
-  { g: 'mid', range: `${GRADE_MID}~${GRADE_TOP - 1}` },
-  { g: 'top', range: `${GRADE_TOP} 이상` },
+const GRADE_ROWS: { g: Grade; range: MessageKey; vars: Record<string, number> }[] = [
+  { g: 'low', range: 'ui.scene.gradeLow', vars: { n: GRADE_MID - 1 } },
+  { g: 'mid', range: 'ui.scene.gradeMid', vars: { a: GRADE_MID, b: GRADE_TOP - 1 } },
+  { g: 'top', range: 'ui.scene.gradeTop', vars: { n: GRADE_TOP } },
 ];
 
 function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: Timing; onDone: () => void }) {
@@ -146,6 +150,7 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
   const bonuses = r?.bonuses ?? [];
   const [stage, setStage] = useState(0); // 0 굴림, 1 멈춤, 2 보정, 3 합계·등급
   const [shown, setShown] = useState(0);
+  const { t, text } = useI18n();
 
   useEffect(() => {
     if (!r) {
@@ -192,11 +197,11 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-6">
       <div className="text-center">
-        <p className="font-display text-lg text-accent">{ending.track ? trackName(ending.track) : ''}</p>
+        <p className="font-display text-lg text-accent">{ending.track ? text(trackName(ending.track)) : ''}</p>
         <h1 className="text-3xl">
-          <span aria-hidden="true">🎓</span> 졸업 판정
+          <span aria-hidden="true">🎓</span> {t('ui.scene.gradeTitle')}
         </h1>
-        <p className="mt-1 text-base text-muted">{GRADUATION_USES_BONUSES ? '주사위 2개 + 보정으로 직업 등급이 정해져요.' : '주사위 2개만으로 직업 등급이 정해져요. 완전히 운!'}</p>
+        <p className="mt-1 text-base text-muted">{t(GRADUATION_USES_BONUSES ? 'ui.scene.gradeLeadBonus' : 'ui.scene.gradeLeadDice')}</p>
       </div>
       <div className="flex items-center justify-center gap-4 rounded-[22px] border-[2.5px] border-outline bg-[#bfe3ad] py-5">
         <RollingDie value={r.dice[0]} rolling={stage === 0} size={80} />
@@ -205,7 +210,7 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
       <div className="flex flex-col gap-1.5 rounded-2xl border-2 border-outline/45 bg-paper p-3" aria-live="polite">
         {stage >= 1 && (
           <p className="flex items-center justify-between font-display text-lg">
-            <span>주사위</span>
+            <span>{t('ui.scene.dice')}</span>
             <span className="tabular-nums">
               {r.dice[0]} + {r.dice[1]} = {sum}
             </span>
@@ -213,12 +218,12 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
         )}
         {bonuses.slice(0, stage >= 3 ? bonuses.length : shown).map((b, i) => (
           <motion.p
-            key={`${b.label}-${i}`}
+            key={i}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center justify-between text-base"
           >
-            <span>{b.label}</span>
+            <span>{text(b.label)}</span>
             <span
               className={`font-display tabular-nums ${b.value > 0 ? 'text-good' : b.value < 0 ? 'text-bad' : 'text-muted'}`}
             >
@@ -228,12 +233,12 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
         ))}
         {stage >= 3 && (
           <p className="mt-1 flex items-center justify-between border-t-2 border-dashed border-outline/45 pt-2 font-display text-2xl">
-            <span>합계</span>
+            <span>{t('ui.scene.total')}</span>
             <span className="tabular-nums">{r.total}</span>
           </p>
         )}
       </div>
-      <ol className="grid grid-cols-3 gap-2" aria-label="등급 기준">
+      <ol className="grid grid-cols-3 gap-2" aria-label={t('ui.scene.gradeAria')}>
         {GRADE_ROWS.map((row) => {
           const hit = stage >= 3 && ending.grade === row.g;
           return (
@@ -248,14 +253,14 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
               <span aria-hidden="true" className="text-2xl">
                 {GRADE_ICONS[row.g]}
               </span>
-              <span className="font-display text-lg">{gradeName(row.g)}</span>
-              <span className="text-base text-muted">{row.range}</span>
+              <span className="font-display text-lg">{text(gradeName(row.g))}</span>
+              <span className="text-base text-muted">{t(row.range, row.vars)}</span>
             </motion.li>
           );
         })}
       </ol>
       <Button size="lg" block onClick={finish}>
-        {stage < 3 ? '바로 보기' : '직업 공개!'} <KeyBadge>Enter</KeyBadge>
+        {t(stage < 3 ? 'ui.scene.skip' : 'ui.scene.reveal')} <KeyBadge>Enter</KeyBadge>
       </Button>
     </div>
   );
@@ -265,15 +270,11 @@ function GradeRoll({ ending, timing, onDone }: { ending: EndingResult; timing: T
 const CONFETTI = ['🎉', '✨', '🎊', '⭐', '🌸', '🎈'];
 
 function RevealCard({ ending, animate }: { ending: EndingResult; animate: boolean }) {
+  const { t, text } = useI18n();
   useEffect(() => {
     if (animate) playSound('reveal');
   }, [animate]);
-  const kindLabel =
-    ending.kind === 'normal' && ending.track
-      ? `${trackName(ending.track)} 분야`
-      : ending.kind === 'combo' && ending.track
-        ? `${trackName(ending.track)} · ${ENDING_KIND_LABELS.combo}`
-        : ENDING_KIND_LABELS[ending.kind];
+  const kindLabel = text(endingKindLabel(ending.kind, ending.track));
   return (
     <div className="relative overflow-hidden rounded-[28px] border-4 border-outline bg-paper px-5 py-7 text-center shadow-[0_6px_0_0_rgb(107_79_58/0.32)]">
       {animate && (
@@ -301,18 +302,18 @@ function RevealCard({ ending, animate }: { ending: EndingResult; animate: boolea
         <span aria-hidden="true" className="text-6xl leading-none">
           {KIND_EMOJI[ending.kind]}
         </span>
-        <p className="text-base text-muted">졸업 후 나는…</p>
-        <h1 className="text-4xl leading-tight sm:text-5xl">{ending.jobName}</h1>
+        <p className="text-base text-muted">{t('ui.scene.after')}</p>
+        <h1 className="text-4xl leading-tight sm:text-5xl">{text(ending.jobName)}</h1>
         <div className="mt-1 flex flex-wrap justify-center gap-2">
           <span className="rounded-full border-2 border-outline bg-grape/15 px-3 py-0.5 font-display text-lg">{kindLabel}</span>
           {ending.grade && (
             <span className="rounded-full border-2 border-outline bg-sun px-3 py-0.5 font-display text-lg">
-              {GRADE_ICONS[ending.grade]} {gradeName(ending.grade)} 등급
+              {GRADE_ICONS[ending.grade]} {t('ending.gradeOf', { grade: gradeName(ending.grade) })}
             </span>
           )}
         </div>
         {ending.flavor && (
-          <p className="mt-2 max-w-lg rounded-2xl bg-paper-2 px-4 py-3 text-lg leading-relaxed">{ending.flavor}</p>
+          <p className="mt-2 max-w-lg rounded-2xl bg-paper-2 px-4 py-3 text-lg leading-relaxed">{text(ending.flavor)}</p>
         )}
       </motion.div>
     </div>
@@ -327,6 +328,7 @@ export function EndingScene({ game }: { game: GameState }) {
   const ending = game.ending;
   const fresh = useGame((s) => s.freshEnding);
   const timing = useTiming();
+  const { t } = useI18n();
   const [step, setStep] = useState<number>(() =>
     ending && !fresh && !ending.awaitingReroll ? Number.POSITIVE_INFINITY : 0,
   );
@@ -371,7 +373,7 @@ export function EndingScene({ game }: { game: GameState }) {
           onClick={skip}
           className="fixed bottom-4 right-4 z-50 rounded-full border-2 border-outline bg-paper px-4 py-2 font-display text-base shadow-[0_3px_0_0_rgb(107_79_58/0.32)]"
         >
-          건너뛰기 ⏭
+          {t('ui.scene.skipAll')}
         </button>
       )}
       <AnimatePresence mode="wait">

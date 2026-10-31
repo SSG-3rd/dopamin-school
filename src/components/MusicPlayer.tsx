@@ -5,7 +5,7 @@
 // - 설정을 끄면 즉시 멈추고, 다시 켜면 다시 나온다. 탭이 가려지면 멈췄다가 돌아오면 다시 튼다.
 // - 휴대폰 알림창·잠금화면의 재생/일시정지 버튼도 같은 설정을 켜고 끈다.
 import { useEffect, useState } from 'react';
-import { APP_NAME } from '@/lib/brand';
+import { useI18n } from '@/i18n/client';
 import { musicBlocked, startMusic, stopMusic, unlockAudio } from '@/lib/music';
 import { useSettings } from '@/lib/settings';
 
@@ -15,6 +15,7 @@ export function MusicPlayer() {
   const music = useSettings((s) => s.music);
   const loaded = useSettings((s) => s.loaded);
   const [blocked, setBlocked] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     useSettings.getState().load();
@@ -24,13 +25,13 @@ export function MusicPlayer() {
     try {
       const ms = navigator.mediaSession;
       if (!ms || typeof MediaMetadata === 'undefined') return;
-      ms.metadata = new MediaMetadata({ title: '배경음악', artist: APP_NAME });
+      ms.metadata = new MediaMetadata({ title: t('ui.music.title'), artist: t('brand.name') });
       ms.setActionHandler('play', () => useSettings.getState().set({ music: true }));
       ms.setActionHandler('pause', () => useSettings.getState().set({ music: false }));
     } catch {
       // 지원하지 않는 브라우저
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -75,7 +76,7 @@ export function MusicPlayer() {
       <span aria-hidden="true" className="yd-note-hint">
         🎵
       </span>
-      화면을 누르면 음악이 나와요
+      {t('ui.music.hint')}
     </button>
   );
 }

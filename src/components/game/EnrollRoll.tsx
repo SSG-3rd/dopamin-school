@@ -1,24 +1,20 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { STAT_ICONS, STAT_NAMES } from '@/engine/content';
+import { STAT_ICONS, STAT_TEXT } from '@/engine/content';
+import { ENROLL_FACES } from '@/engine/reducer';
 import { scaleStatGain } from '@/engine/rules';
+import { signed } from '@/engine/text';
 import { STATS } from '@/engine/types';
 import type { GameState } from '@/engine/types';
 import { Button } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { playSound } from '@/lib/sound';
 import { RollingDie } from './Dice';
 import { ChangeList, KeyBadge } from './EventCard';
 import { digitKey, isEnter, isSpace, useAct, useHotkeys, useTiming } from './hooks';
 
-const FACES: { face: number; text: string }[] = [
-  { face: 1, text: `학업 +${scaleStatGain(10)}` },
-  { face: 2, text: `체력 +${scaleStatGain(10)}` },
-  { face: 3, text: `인맥 +${scaleStatGain(10)}` },
-  { face: 4, text: `운 +${scaleStatGain(10)}` },
-  { face: 5, text: '스트레스 −10' },
-  { face: 6, text: `원하는 능력치 +${scaleStatGain(10)}` },
-];
+const FACES = [1, 2, 3, 4, 5, 6].map((face) => ({ face, label: ENROLL_FACES[face].label }));
 
 /**
  * 입학 주사위 (성향 선택 직후 1회).
@@ -30,6 +26,7 @@ export function EnrollRoll({ game }: { game: GameState }) {
   const timing = useTiming();
   const p = game.pending;
   const die = p?.enrollDie;
+  const { t, text } = useI18n();
   const picking = game.phase === 'enroll_roll' && die === 6 && p?.pickFor === 'enroll_stat';
   const done = game.phase !== 'enroll_roll';
 
@@ -85,14 +82,14 @@ export function EnrollRoll({ game }: { game: GameState }) {
           🎒
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl">{die === undefined || rolling ? '입학 주사위' : (p?.title ?? '입학 주사위')}</h2>
-          <p className="mt-1 text-base text-ink/90">{rolling ? '데굴데굴… 무엇이 나올까?' : p?.text}</p>
+          <h2 className="text-2xl">{die === undefined || rolling || !p?.title ? t('engine.enroll.title') : text(p.title)}</h2>
+          <p className="mt-1 text-base text-ink/90">{rolling ? t('ui.enroll.rolling') : text(p?.text)}</p>
         </div>
       </div>
 
       <div className="yd-ground flex flex-wrap items-center gap-4 rounded-[22px] border-[2.5px] border-outline p-4">
         <RollingDie value={die} rolling={rolling} size={84} />
-        <ol className="grid flex-1 grid-cols-2 gap-1 text-base text-ink" aria-label="입학 주사위 표">
+        <ol className="grid flex-1 grid-cols-2 gap-1 text-base text-ink" aria-label={t('ui.enroll.tableAria')}>
           {FACES.map((f) => {
             const hit = !rolling && die === f.face;
             return (
@@ -101,7 +98,7 @@ export function EnrollRoll({ game }: { game: GameState }) {
                 className={`rounded-lg px-2 py-1 ${hit ? 'bg-sun font-display text-ink' : 'bg-white/10'}`}
                 aria-current={hit ? 'true' : undefined}
               >
-                <span className="font-display">{f.face}</span> · {f.text}
+                <span className="font-display">{f.face}</span> · {text(f.label)}
               </li>
             );
           })}
@@ -110,18 +107,18 @@ export function EnrollRoll({ game }: { game: GameState }) {
 
       {die === undefined && (
         <Button size="lg" block onClick={roll}>
-          🎲 입학 주사위 굴리기 <KeyBadge>Space</KeyBadge>
+          {t('ui.enroll.roll')} <KeyBadge>Space</KeyBadge>
         </Button>
       )}
 
       {!rolling && picking && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
-          <p className="font-display text-lg">🎉 6! 올리고 싶은 능력치를 골라요 (+{scaleStatGain(10)})</p>
+          <p className="font-display text-lg">{t('ui.enroll.pickSix', { delta: signed(scaleStatGain(10)) })}</p>
           <div className="grid grid-cols-2 gap-2">
             {STATS.map((s, i) => (
               <Button key={s} variant="secondary" size="md" onClick={() => dispatch({ type: 'ENROLL_PICK_STAT', stat: s })}>
                 <KeyBadge>{i + 1}</KeyBadge>
-                <span aria-hidden="true">{STAT_ICONS[s]}</span> {STAT_NAMES[s]}
+                <span aria-hidden="true">{STAT_ICONS[s]}</span> {text(STAT_TEXT[s])}
               </Button>
             ))}
           </div>
@@ -131,11 +128,11 @@ export function EnrollRoll({ game }: { game: GameState }) {
       {!rolling && done && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
           {p?.resultText && (
-            <p className="rounded-2xl border-2 border-outline/45 bg-paper-2 px-3 py-2.5 text-lg">{p.resultText}</p>
+            <p className="rounded-2xl border-2 border-outline/45 bg-paper-2 px-3 py-2.5 text-lg">{text(p.resultText)}</p>
           )}
           <ChangeList changes={p?.changes ?? []} />
           <Button size="lg" block onClick={next}>
-            학교 생활 시작! <KeyBadge>Enter</KeyBadge>
+            {t('ui.enroll.start')} <KeyBadge>Enter</KeyBadge>
           </Button>
         </motion.div>
       )}

@@ -1,0 +1,593 @@
+{
+  "fmt": {
+    "money": "{n}원",
+    "iconName": "{icon} {name}"
+  },
+  "stat": {
+    "study": "학업",
+    "stamina": "체력",
+    "social": "인맥",
+    "luck": "운"
+  },
+  "career": {
+    "academic": "학문",
+    "sports": "운동",
+    "arts": "예술",
+    "comm": "소통",
+    "biz": "경영",
+    "combo": "{a} + {b}"
+  },
+  "record": {
+    "examPass": "시험 기록",
+    "award": "수상 기록",
+    "praise": "칭찬 기록",
+    "late": "지각 기록"
+  },
+  "stress": {
+    "name": "스트레스",
+    "tier": {
+      "relaxed": {
+        "label": "여유",
+        "effect": "모험형 판정 +1"
+      },
+      "normal": {
+        "label": "보통",
+        "effect": "효과 없음"
+      },
+      "tired": {
+        "label": "지침",
+        "effect": "모든 판정 −1"
+      },
+      "danger": {
+        "label": "위험",
+        "effect": "성장형 잠김 · 휴식 효과 2배 · 판정 −1"
+      },
+      "burnout": {
+        "label": "번아웃",
+        "effect": "가장 높은 능력치 −{loss}, 체력 −{stamina}"
+      }
+    }
+  },
+  "fx": {
+    "stat": "{stat} {delta}",
+    "stress": "스트레스 {delta}",
+    "money": "돈 {sign}{money}",
+    "career": "{career} {delta}",
+    "clubField": "동아리 분야",
+    "record": "{record} {delta}",
+    "buff": "버프: {name}",
+    "debuff": "디버프: {name}",
+    "flag": "✨ 특별한 기회?"
+  },
+  "change": {
+    "levelUp": "{career} Lv{level} 달성!",
+    "careerExp": "{career} 경험치 {delta}",
+    "buffGained": "버프 획득: {name}",
+    "buffEnded": "{name} 종료",
+    "debuffGained": "디버프: {name}",
+    "debuffEnded": "{name} 해제",
+    "flag": "✨ 무언가 특별한 일이 생길 것 같다…",
+    "club": "{emoji} {name} 부원이 됐다",
+    "route": "{emoji} {name} 배정"
+  },
+  "judge": {
+    "stat": "{stat} {v}",
+    "statArmed": "{stat} {v} (인싸력)",
+    "career": "{career} Lv{lv}",
+    "examStrategy": "시험 전략",
+    "relaxed": "여유로운 마음"
+  },
+  "view": {
+    "club": "동아리",
+    "clubBy": "동아리({career})",
+    "byInsider": "인맥(인싸력)",
+    "judgeMod": "판정 {delta}",
+    "practiceDesc": "{career} 경험치 2배",
+    "req": {
+      "stat": "조건: {stat} {need}",
+      "career": "조건: {career} Lv{need}",
+      "money": "조건: 돈 {money}"
+    },
+    "locked": {
+      "growth": "스트레스 위험: 성장형 잠김",
+      "money": "용돈 부족"
+    }
+  },
+  "ability": {
+    "insider": {
+      "label": "인싸력",
+      "desc": "이번 판정 기준을 인맥으로 바꾼다"
+    },
+    "lucky": {
+      "label": "행운",
+      "desc": "대실패를 일반 실패로 바꾼다"
+    }
+  },
+  "engine": {
+    "promo": {
+      "title": "🎉 {year}학년 진급!",
+      "text": "새 학년, 새 교실. 용돈 {money}을 받았다."
+    },
+    "summer": {
+      "title": "🏖️ 여름방학 시작!",
+      "text": "방학 용돈 {money}을 받았다."
+    },
+    "route": {
+      "title": "2학년 반 배정",
+      "text": "2학년은 어떤 반에서 보낼까? 조건이 맞아야 들어갈 수 있다.",
+      "assigned": "{emoji} {name} 배정!"
+    },
+    "shop": {
+      "title": "학교 앞 문구점",
+      "text": "용돈으로 필요한 걸 사 두자. 여러 개 살 수 있다."
+    },
+    "burnout": {
+      "title": "번아웃!",
+      "text": "스트레스가 한계에 달했다. 머리가 하얘진다… 가장 자신 있던 {stat}마저 흔들린다. ({stat} −{loss}, 체력 −{stamina}, 스트레스 {reset}으로)"
+    },
+    "graduation": {
+      "title": "졸업식",
+      "text": "3년이 눈 깜짝할 새 지나갔다. 꽃다발을 든 채 교문을 나선다. 나는 어떤 어른이 될까?"
+    },
+    "place": {
+      "quiet": "오늘은 조용히 지나갔다."
+    },
+    "exam": {
+      "finalTitle": "{title}: {type}",
+      "finalText": "{text} ({career} 레벨로 판정)",
+      "regularTitle": "{year}학년 {title}"
+    },
+    "club": {
+      "modeTitle": "동아리 가입",
+      "modeText": "동아리방 앞 게시판이 신입 부원 모집 포스터로 가득하다. 어떻게 정할까?",
+      "follow": "👫 친구 따라간다",
+      "followDesc": "동아리 무작위 · 인맥 {social} · 스트레스 −5",
+      "choose": "🧭 내가 고른다",
+      "chooseDesc": "원하는 동아리 · 스트레스 +5",
+      "switch": "🔁 동아리 옮기기",
+      "switchDesc": "경험치는 유지, 배율만 새 분야로",
+      "quiet": "동아리방이 조용하다. 오늘은 각자 쉬는 날.",
+      "pickDesc": "{career} 분야 · {desc}",
+      "joinedTitle": "{emoji} {name} 가입!",
+      "followText": "친구 손에 이끌려 들어간 곳은 {name}. {desc}",
+      "pickTitle": "어떤 동아리에 들어갈까?",
+      "pickText": "가입한 동아리 분야는 진로 경험치를 1.5배로 얻는다.",
+      "switchTitle": "어느 동아리로 옮길까?",
+      "switchText": "쌓은 경험치는 그대로, 1.5배 배율만 새 분야로 바뀐다.",
+      "movedTitle": "{emoji} {name}(으)로 이동",
+      "movedText": "새 동아리 사람들이 반갑게 맞아 준다."
+    },
+    "counsel": {
+      "statTitle": "어떤 능력치를 키울까?",
+      "statText": "상담 선생님이 맞춤 계획을 짜 주신다.",
+      "statDone": "{stat} 계획표를 받아 들었다.",
+      "careerTitle": "어떤 진로를 상담할까?",
+      "careerText": "관심 있는 분야를 이야기해 보자.",
+      "careerTextTrust": "선생님과 함께 3년 로드맵을 그린다.",
+      "careerDone": "{career} 쪽 길이 조금 더 또렷해졌다."
+    },
+    "enroll": {
+      "title": "입학 주사위",
+      "text": "{emoji} {name}(으)로 입학했다! 입학식 날의 운을 주사위로 정해 보자.",
+      "six": "6이 나왔다! 원하는 능력치 하나를 {delta} 올릴 수 있다.",
+      "rolled": "입학 주사위: {die}",
+      "pickAny": "원하는 능력치 {delta}",
+      "start": "설레는 고등학교 생활이 시작된다!"
+    },
+    "note": {
+      "graduationPlus": "졸업 판정 +1",
+      "effort": "노력형: 실패에서도 배운다",
+      "insider": "인싸력 발동! 인맥으로 판정",
+      "critical": "대성공 보너스!",
+      "lucky": "행운 발동! 대실패를 실패로",
+      "refuse": "인싸형: 거절하고 나니 마음이 쓰인다"
+    }
+  },
+  "ending": {
+    "bizMoney": "{track} (모아 둔 돈)",
+    "savedMoney": "모아 둔 돈 {money}",
+    "finalExam": "진로 시험 성공",
+    "kind": {
+      "normal": "분야 직업",
+      "combo": "조합 직업",
+      "miracle": "기적 엔딩",
+      "rescue": "친구 구원 엔딩",
+      "explore": "탐색 엔딩"
+    },
+    "fieldOf": "{track} 분야",
+    "comboOf": "{track} · {kind}",
+    "gradeOf": "{grade} 등급"
+  },
+  "brand": {
+    "name": "터닝포인트",
+    "namePart1": "터닝",
+    "namePart2": "포인트",
+    "tagline": "주사위 굴려 보내는 고등학교 3년",
+    "question": "졸업하는 날, 나는 무엇이 되어 있을까?",
+    "description": "주사위를 굴려 학교 보드를 세 바퀴 돌며 고등학교 3년을 보내는 1인용 보드게임. 졸업하는 날, 나는 무엇이 되어 있을까?"
+  },
+  "ui": {
+    "common": {
+      "cancel": "취소",
+      "on": "켜짐",
+      "off": "꺼짐",
+      "close": "닫기",
+      "home": "처음으로",
+      "language": "언어"
+    },
+    "title": {
+      "badge": "1인용 고교생활 보드게임",
+      "menu": "메뉴",
+      "resume": "이어하기",
+      "resumeYear": "({year}학년)",
+      "resumeYearTurn": "({year}학년 · {turn}턴)",
+      "newGame": "새 게임",
+      "confirmTitle": "새로 시작할까요?",
+      "confirmText": "진행 중인 게임이 있어요. 새 게임을 시작하면 지금 저장된 게임은 사라져요.",
+      "restart": "새로 시작",
+      "collection": "엔딩 도감",
+      "stats": "통계",
+      "settings": "설정",
+      "howto": "게임 방법",
+      "keyboard": "키보드:",
+      "keyDice": "주사위",
+      "keyChoose": "선택",
+      "keyContinue": "계속",
+      "footer": "로그인 없이 플레이해요. 끝난 판의 익명 요약만 통계로 모아요."
+    },
+    "settings": {
+      "fast": {
+        "label": "빠른 진행",
+        "desc": "주사위·이동 연출을 짧게, 결과 창은 자동으로 닫혀요."
+      },
+      "music": {
+        "label": "배경음악",
+        "desc": "게임 내내 배경음악을 틀어요."
+      },
+      "sound": {
+        "label": "효과음",
+        "desc": "주사위·판정 효과음을 켜요."
+      },
+      "booth": {
+        "label": "부스 모드",
+        "desc": "행사 부스용: 결과 화면에 QR 코드를 크게 띄워요."
+      }
+    },
+    "howto": {
+      "trait": {
+        "title": "성향 고르기",
+        "text": "재능형·노력형·운동형·인싸형·운빨형 중 하나. 시작 능력치와 특수 능력이 달라요."
+      },
+      "enroll": {
+        "title": "입학 주사위",
+        "text": "한 번 굴려서 학업·체력·인맥·운 중 하나를 올리거나 스트레스를 낮춰요."
+      },
+      "board": {
+        "title": "3년 동안 보드 3바퀴",
+        "text": "주사위로 16칸 학교를 돌며 사건마다 선택해요. 시험, 방학, 동아리, 상점도 있어요."
+      },
+      "ending": {
+        "title": "졸업과 엔딩",
+        "text": "쌓인 진로 레벨이 직업 후보를 정하고, 운이 룰렛을 돌리고, 마지막 주사위가 등급을 정해요."
+      }
+    },
+    "play": {
+      "title": "플레이",
+      "loading": "가방 챙기는 중…"
+    },
+    "header": {
+      "homeAria": "처음 화면으로",
+      "home": "← 처음으로",
+      "fast": "빠른 진행",
+      "on": "켬",
+      "off": "끔",
+      "musicOff": "배경음악 끄기",
+      "musicOn": "배경음악 켜기",
+      "music": "음악",
+      "soundOff": "효과음 끄기",
+      "soundOn": "효과음 켜기",
+      "sound": "효과음"
+    },
+    "stage": {
+      "choosing": "고르는 중…",
+      "expand": "▲ 펼치기",
+      "showBoard": "▼ 보드 보기",
+      "event": "사건"
+    },
+    "kind": {
+      "growth": "성장",
+      "rest": "휴식",
+      "adventure": "모험",
+      "special": "특별"
+    },
+    "outcome": {
+      "critical": "대성공",
+      "success": "성공",
+      "fail": "실패",
+      "fumble": "대실패"
+    },
+    "picker": {
+      "byCheck": "{kind} · {by} 판정",
+      "sure": "{kind} · 확정",
+      "ariaNumber": "{n}번",
+      "ariaChance": "성공 확률 {p}",
+      "ariaUnlocked": "해금 선택지",
+      "ariaDisabled": "고를 수 없음",
+      "ariaDisabledReason": "고를 수 없음: {reason}",
+      "success": "성공",
+      "chance": "성공 확률",
+      "modifier": "보정 {bonus} · 난이도 {diff}",
+      "onSuccess": "성공 시",
+      "onFail": "실패 시",
+      "noChange": "특별한 변화 없음",
+      "unlocked": "🔓 해금",
+      "locked": "잠김",
+      "pickNamed": "‘{name}’ 이걸로 고르기",
+      "hintLift": "카드를 누르면 들어 올려요. 한 번 더 누르면 골라요.",
+      "detailAria": "고른 카드 자세히",
+      "cannotPick": "🔒 고를 수 없어요",
+      "pick": "이걸로 고르기",
+      "hintDetail": "카드를 누르면 자세히 보여요. 한 번 더 누르면 골라요.",
+      "pickOne": "하나를 골라요",
+      "numberKeys": "숫자 키 1~{n}",
+      "abilityActive": "{name} 발동 중 (취소)",
+      "abilityUse": "{name} 쓰기",
+      "abilityBasisOn": "판정 기준: 인맥",
+      "abilityBasisOff": "판정 기준을 인맥으로",
+      "usesLeft": "남은 {n}회",
+      "aKey": "A키"
+    },
+    "event": {
+      "judgeLine": "{by} 판정 · 🎲 {d1}+{d2}{mod} = {total} / 난이도 {diff}",
+      "luckySaved": " · 🍀 행운으로 대실패 면함",
+      "noChange": "변화 없음",
+      "burnoutContinue": "정신 차리기",
+      "graduationContinue": "엔딩 보러 가기 🎓",
+      "continue": "계속하기",
+      "chosen": "선택:",
+      "pause": "멈추기",
+      "chosenOption": "고른 선택지",
+      "judging": "🎲 판정 중…"
+    },
+    "panel": {
+      "statAria": "{stat} {v} / 100, 판정 {bonus}",
+      "stressAria": "스트레스 {v} / 100, {tier}",
+      "careerAria": "{career} 경험치 {exp} / {to}",
+      "careerAriaMax": "{career} 경험치 {exp} (최고 레벨)",
+      "yearTurn": "{year}학년 · {turn}턴",
+      "yearTurnShort": "{year}학년 {turn}턴",
+      "statsAria": "기본 능력치",
+      "stats": "능력치",
+      "money": "돈",
+      "careerAriaSection": "진로 레벨",
+      "career": "진로",
+      "buffs": "버프",
+      "none": "지금은 없음",
+      "debuffPrefix": "디버프 · ",
+      "remaining": "{n}칸 남음",
+      "clubRouteAria": "동아리와 반",
+      "club": "동아리",
+      "route": "2학년 반",
+      "notYet": "아직 없음",
+      "abilityAria": "특수 능력",
+      "abilityTitle": "{name} 특수 능력",
+      "usesLeft": "올해 남은 횟수:",
+      "usesCount": "{n}회",
+      "armed": " · 발동 준비됨",
+      "always": "항상 적용",
+      "recordsAria": "미수령 기록",
+      "records": "교무실에서 정산할 기록",
+      "recExam": "📝 시험 {n}",
+      "recAward": "🏆 수상 {n}",
+      "recPraise": "👏 칭찬 {n}",
+      "recLate": "⏰ 지각 {n}",
+      "stressShort": "스트레스 {v}",
+      "collapse": "접기 ▲",
+      "expand": "자세히 ▼"
+    },
+    "drawer": {
+      "close": "능력치 닫기",
+      "open": "내 능력치",
+      "statAria": "{stat} {v} / 100",
+      "aria": "지금까지의 능력치와 돈",
+      "title": "지금까지의 나",
+      "simple": "간단히 ▴",
+      "detail": "자세히 ▾"
+    },
+    "route": {
+      "fallbackTitle": "2학년 반 배정",
+      "fallbackText": "2학년에 어떤 반으로 갈까? 한 번 정하면 졸업까지 간다."
+    },
+    "shop": {
+      "fallbackTitle": "매점",
+      "wallet": "가진 돈",
+      "noMoney": "🔒 돈 부족",
+      "bought": "✔ {n}개 샀음",
+      "leave": "매점 나가기"
+    },
+    "trait": {
+      "badge": "입학 원서",
+      "title": "나는 어떤 학생일까?",
+      "lead": "성향마다 시작 능력치와 특수 능력이 달라요. 카드를 눌러 골라 보세요.",
+      "selected": "✔ 선택됨",
+      "statAria": "{stat} {v}",
+      "startStress": "시작 스트레스 {v}",
+      "ability": "⭐ 능력",
+      "weakness": "⚠️ 약점",
+      "enroll": "{emoji} {name}(으)로 입학하기",
+      "pickPrompt": "성향을 골라 주세요"
+    },
+    "judge": {
+      "aria": "{by} 판정",
+      "title": "{by} 판정",
+      "dice": "주사위",
+      "total": "합계",
+      "vsDiff": "난이도 {diff}",
+      "natural12": "눈 합 12는 보정과 상관없이 무조건 대성공!",
+      "natural2": "눈 합 2는 보정과 상관없이 무조건 대실패!",
+      "luckyUsed": "🍀 행운 발동! 대실패를 일반 실패로 바꿨어요.",
+      "luckyButton": "🍀 행운: 대실패 → 실패 (남은 {n}회)",
+      "skip": "바로 보기",
+      "result": "결과 보기"
+    },
+    "enroll": {
+      "rolling": "데굴데굴… 무엇이 나올까?",
+      "tableAria": "입학 주사위 표",
+      "roll": "🎲 입학 주사위 굴리기",
+      "pickSix": "🎉 6! 올리고 싶은 능력치를 골라요 ({delta})",
+      "start": "학교 생활 시작!"
+    },
+    "toast": {
+      "newJob": "📖 엔딩 도감에 새 직업 등록!",
+      "dismiss": "{text} (알림 닫기)"
+    },
+    "roll": {
+      "rolling": "데굴데굴…",
+      "moving": "{die}칸 이동! ({done}/{die})",
+      "faces": "이동 주사위 1·1·1·2·2·3",
+      "button": "🎲 주사위 굴리기",
+      "cornerHint": "코너 칸(진급·시험·방학)에 닿으면 남은 눈과 상관없이 멈춰요."
+    },
+    "dice": {
+      "die": "주사위",
+      "dieValue": "주사위 {n}",
+      "move": "이동 주사위",
+      "moveValue": "이동 주사위 {n}칸",
+      "moveEmpty": "칸",
+      "facesAria": "이동 주사위 면: 1, 1, 1, 2, 2, 3"
+    },
+    "board": {
+      "aria": "학교 보드",
+      "tileAria": "{n}번 칸 {name}",
+      "tileAriaHere": "{n}번 칸 {name} (지금 위치)"
+    },
+    "music": {
+      "title": "배경음악",
+      "hint": "화면을 누르면 음악이 나와요"
+    },
+    "scene": {
+      "continue": "계속",
+      "phoneLead": "졸업식 날 밤, 휴대폰이 울렸다",
+      "answer": "📞 전화 받기",
+      "gradeLow": "{n} 이하",
+      "gradeMid": "{a}~{b}",
+      "gradeTop": "{n} 이상",
+      "gradeTitle": "졸업 판정",
+      "gradeLeadBonus": "주사위 2개 + 보정으로 직업 등급이 정해져요.",
+      "gradeLeadDice": "주사위 2개만으로 직업 등급이 정해져요. 완전히 운!",
+      "dice": "주사위",
+      "total": "합계",
+      "gradeAria": "등급 기준",
+      "skip": "바로 보기",
+      "reveal": "직업 공개!",
+      "after": "졸업 후 나는…",
+      "skipAll": "건너뛰기 ⏭"
+    },
+    "roulette": {
+      "lead": "졸업식 날",
+      "second": "두 번째 진로 룰렛!",
+      "title": "진로 룰렛",
+      "hint": "진로 레벨이 높을수록 당첨 확률이 커요.",
+      "exploreLanded": "룰렛이 멈춘 곳은… 🧭 {name}",
+      "landed": "🎯 {label}!",
+      "rerollAria": "룰렛 다시 돌리기",
+      "rerollQ": "🍀 운이 좋아요! 룰렛을 한 번 더 돌릴까요?",
+      "rerollNote": "다시 돌리면 두 번째 결과로 확정돼요.",
+      "reroll": "🎰 다시 돌리기",
+      "keep": "✅ 이대로 확정"
+    },
+    "summary": {
+      "shareTitle": "{name} 결과",
+      "shareText": "내 고등학교 3년의 결말은?",
+      "share": "결과 공유",
+      "qrAlt": "결과 페이지 QR 코드",
+      "qrBooth": "📱 휴대폰 카메라로 찍어 결과를 가져가세요!",
+      "qrNormal": "휴대폰으로 찍어 가져가기",
+      "qrLoading": "QR 준비 중…",
+      "url": "결과 주소",
+      "copy": "📋 주소 복사",
+      "shareButton": "📤 공유하기",
+      "card": "🃏 결과 카드 보기",
+      "copied": "✔ 복사했어요!",
+      "copyFail": "복사하지 못했어요. 주소를 길게 눌러 복사해 주세요.",
+      "candidates": "될 수 있었던 직업들",
+      "noCandidates": "진로 레벨 2 이상인 분야가 없어서 룰렛 후보가 없었어요.",
+      "won": " (당첨)",
+      "chanceAria": "{label} 확률 {p}",
+      "rerolled": "🍀 룰렛을 한 번 더 돌렸어요.",
+      "epilogue": "그 뒤 이야기",
+      "report": "졸업 성적표",
+      "trait": "성향",
+      "club": "동아리",
+      "route": "반",
+      "none": "없음",
+      "turns": "{n}턴",
+      "moneyLeft": "남은 돈",
+      "again": "🎲 다시 하기",
+      "collection": "📖 엔딩 도감",
+      "home": "🏠 처음으로",
+      "replay": "🎬 엔딩 연출 다시 보기"
+    },
+    "result": {
+      "pageTitle": "결과",
+      "student": "고등학생",
+      "title": "{trait} 학생의 졸업 후 직업: {job}",
+      "description": "{name}에서 고등학교 3년을 보내고 {job}{ga} 되었어요{grade}. 나는 무엇이 될까? 지금 주사위를 굴려 보세요!",
+      "descriptionGrade": " ({grade} 등급)",
+      "ogAlt": "{name} 결과: {job}",
+      "badge": "졸업 결과",
+      "lead": "{trait} 학생의 졸업 후 직업은",
+      "leadNoTrait": "졸업 후 나의 직업은",
+      "careers": "진로 레벨",
+      "stats": "졸업할 때 능력치",
+      "moneyLeft": "남은 돈",
+      "tryIt": "나도 해 보기",
+      "privacy": "결과는 이 주소에만 담겨 있어요. 개인정보는 저장하지 않아요."
+    },
+    "stats": {
+      "title": "플레이 통계",
+      "description": "{name} 익명 플레이 통계: 오늘 플레이 수, 인기 성향, 직업 분포",
+      "plays": "{n}판",
+      "unavailable": "통계를 불러올 수 없어요",
+      "stillPlayable": "게임은 그대로 즐길 수 있어요!",
+      "back": "타이틀로",
+      "rangeAria": "기간",
+      "today": "오늘 (24시간)",
+      "week": "최근 7일",
+      "rangeToday": "오늘",
+      "rangeWeek": "최근 7일",
+      "serverDown": "통계 서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      "noServer": "이 사이트에는 통계 서버가 설정되어 있지 않아요.",
+      "playCount": "{range} 플레이 수",
+      "refresh": "판 · 30초마다 새로 고쳐져요",
+      "empty": "아직 {range} 끝난 판이 없어요. 첫 번째 졸업생이 되어 보세요!",
+      "traits": "인기 성향",
+      "traitsAria": "성향별 플레이 수",
+      "jobs": "직업 분포 TOP 10",
+      "jobsAria": "직업별 엔딩 수",
+      "privacy": "끝난 판의 익명 요약(성향·직업·능력치)만 모아요. 이름 같은 개인정보는 없어요."
+    },
+    "collection": {
+      "title": "엔딩 도감",
+      "hintMiracle": "축제 영상, 학교 SNS, 공모전… 특별한 순간을 만들고 운이 따르면?",
+      "hintRescue": "인맥은 넓은데 진로를 정하지 못했다면, 졸업식 날 밤 전화가 올지도.",
+      "hintExplore": "어느 진로도 Lv2에 닿지 못하면 찾아오는 엔딩.",
+      "firstSeen": "{date} 처음 봄",
+      "times": " · {n}번",
+      "unseenAria": "아직 못 본 엔딩",
+      "unseen": "아직 못 본 직업",
+      "back": "타이틀로",
+      "collected": "모은 직업",
+      "progressAria": "도감 진행도",
+      "localOnly": "이 기기의 브라우저에만 저장돼요.",
+      "combo": "조합 · {track}",
+      "hidden": "숨겨진 엔딩",
+      "play": "게임하러 가기"
+    },
+    "og": {
+      "careers": "진로 레벨",
+      "money": "돈 {money}",
+      "error": "이미지를 만들지 못했어요"
+    }
+  }
+}

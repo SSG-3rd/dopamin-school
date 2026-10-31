@@ -1,5 +1,5 @@
 // (state, action) → { state, log }. 순수 함수: 입력 상태를 바꾸지 않는다.
-import { STAT_NAMES, findTrait, getClub, getEvent, getItem, getRoute } from './content';
+import { STAT_TEXT, findTrait, getClub, getEvent, getItem, getRoute } from './content';
 import {
   addCareerExp,
   applyEffects,
@@ -17,6 +17,7 @@ import { resolveReroll, startEnding } from './ending';
 import { setResult, since, type Ctx } from './flow';
 import { isSuccess, planJudge, rollJudge } from './judge';
 import { createRng } from './rng';
+import { lit, signed, tx, type Text } from './text';
 import {
   ABILITY_USES_PER_YEAR,
   BOARD_SIZE,
@@ -39,13 +40,17 @@ import type { Action, ChoiceOption, Effects, GameState, PendingEvent, ReduceResu
 import { STATS } from './types';
 import { getRouteViews, optionAvailability } from './view';
 
-const ENROLL_FACES: Record<number, { label: string; effects?: Effects }> = {
-  1: { label: `학업 +${scaleStatGain(10)}`, effects: { stats: { study: 10 } } },
-  2: { label: `체력 +${scaleStatGain(10)}`, effects: { stats: { stamina: 10 } } },
-  3: { label: `인맥 +${scaleStatGain(10)}`, effects: { stats: { social: 10 } } },
-  4: { label: `운 +${scaleStatGain(10)}`, effects: { stats: { luck: 10 } } },
-  5: { label: '스트레스 −10', effects: { stress: -10 } },
-  6: { label: `원하는 능력치 +${scaleStatGain(10)}` },
+/** 입학 주사위 능력치 상승(배율 적용 전) */
+const ENROLL_GAIN = 10;
+const enrollStat = (s: Stat): Text => tx('fx.stat', { stat: STAT_TEXT[s], delta: signed(scaleStatGain(ENROLL_GAIN)) });
+
+export const ENROLL_FACES: Record<number, { label: Text; effects?: Effects }> = {
+  1: { label: enrollStat('study'), effects: { stats: { study: ENROLL_GAIN } } },
+  2: { label: enrollStat('stamina'), effects: { stats: { stamina: ENROLL_GAIN } } },
+  3: { label: enrollStat('social'), effects: { stats: { social: ENROLL_GAIN } } },
+  4: { label: enrollStat('luck'), effects: { stats: { luck: ENROLL_GAIN } } },
+  5: { label: tx('fx.stress', { delta: signed(-10) }), effects: { stress: -10 } },
+  6: { label: tx('engine.enroll.pickAny', { delta: signed(scaleStatGain(ENROLL_GAIN)) }) },
 };
 
 export function reduce(state: GameState, action: Action): ReduceResult {
@@ -74,8 +79,8 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
         source: 'enroll',
         icon: '🎲',
         tile: 0,
-        title: '입학 주사위',
-        text: `${t.emoji} ${t.name}(으)로 입학했다! 입학식 날의 운을 주사위로 정해 보자.`,
+        title: tx('engine.enroll.title'),
+        text: tx('engine.enroll.text', { emoji: lit(t.emoji), name: t.name }),
       };
       return;
     }
@@ -83,7 +88,12 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       if (d.phase !== 'enroll_roll' || !p || p.enrollDie != null) return 'not now';
       const die = ctx.rng.d6();
       if (die === 6) {
-        d.pending = { ...p, enrollDie: 6, pickFor: 'enroll_stat', text: '6이 나왔다! 원하는 능력치 하나를 +10 올릴 수 있다.' };
+        d.pending = {
+          ...p,
+          enrollDie: 6,
+          pickFor: 'enroll_stat',
+          text: tx('engine.enroll.six', { delta: signed(scaleStatGain(ENROLL_GAIN)) }),
+        };
         return;
       }
       const start = ctx.log.length;
@@ -91,9 +101,9 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       setResult(d, {
         source: 'enroll',
         enrollDie: die,
-        title: `입학 주사위: ${die}`,
+        title: tx('engine.enroll.rolled', { die }),
         text: ENROLL_FACES[die].label,
-        resultText: '설레는 고등학교 생활이 시작된다!',
+        resultText: tx('engine.enroll.start'),
         changes: since(ctx.log, start),
       });
       return;
@@ -102,13 +112,13 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       if (d.phase !== 'enroll_roll' || p?.enrollDie !== 6) return 'not now';
       if (!STATS.includes(a.stat)) return 'unknown stat';
       const start = ctx.log.length;
-      applyStat(d, a.stat, 10, ctx.log);
+      applyStat(d, a.stat, ENROLL_GAIN, ctx.log);
       setResult(d, {
         source: 'enroll',
         enrollDie: 6,
-        title: '입학 주사위: 6',
-        text: `${STAT_NAMES[a.stat as Stat]} +${scaleStatGain(10)}`,
-        resultText: '설레는 고등학교 생활이 시작된다!',
+        title: tx('engine.enroll.rolled', { die: 6 }),
+        text: enrollStat(a.stat),
+        resultText: tx('engine.enroll.start'),
         changes: since(ctx.log, start),
       });
       return;
@@ -138,7 +148,7 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       const opt = p.options.find((o) => o.id === a.optionId);
       if (!opt) return 'unknown option';
       const av = optionAvailability(d, opt);
-      if (av.disabled) return av.reason ?? 'disabled';
+      if (av.disabled) return 'disabled';
       return choose(d, ctx, p, opt);
     }
     case 'USE_ABILITY':
@@ -172,7 +182,7 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       if (d.phase !== 'shop' || !p) return 'not now';
       const item = getItem(a.itemId);
       if (!item || !p.shopItems?.includes(item.id)) return 'unknown item';
-      if (d.money < item.price) return '용돈 부족';
+      if (d.money < item.price) return 'not enough money';
       applyMoney(d, -item.price, ctx.log);
       applyEffects(d, item.effects, ctx.log);
       d.pending = { ...d.pending!, bought: [...(p.bought ?? []), item.id] };
@@ -188,7 +198,7 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       const route = getRoute(a.routeId);
       const view = getRouteViews(d).find((v) => v.route.id === a.routeId);
       if (!route || !view) return 'unknown route';
-      if (view.disabled) return view.reason ?? 'disabled';
+      if (view.disabled) return 'disabled';
       const start = ctx.log.length;
       d.routeId = route.id;
       ctx.log.push({ kind: 'route', id: route.id });
@@ -196,7 +206,7 @@ function step(d: GameState, ctx: Ctx, a: Action): string | undefined {
       setResult(d, {
         source: 'route',
         icon: route.emoji,
-        title: `${route.emoji} ${route.name} 배정!`,
+        title: tx('engine.route.assigned', { emoji: lit(route.emoji), name: route.name }),
         text: route.desc,
         changes: since(ctx.log, start),
       });
@@ -244,7 +254,7 @@ function startJudge(d: GameState, ctx: Ctx, p: PendingEvent, opt: ChoiceOption, 
   const judge = rollJudge(ctx.rng, plan, opt.check!.by);
   if (armed) {
     d.abilityUses += 1;
-    ctx.log.push({ kind: 'note', text: '인싸력 발동! 인맥으로 판정' });
+    ctx.log.push({ kind: 'note', text: tx('engine.note.insider') });
   }
   if (hasBuff(d, 'energy_drink')) removeBuff(d, 'energy_drink', ctx.log);
   if (plan.resolvedBy === 'social' && hasBuff(d, 'travel')) removeBuff(d, 'travel', ctx.log);
@@ -267,12 +277,12 @@ function resolveJudge(d: GameState, ctx: Ctx): void {
   applyEffects(d, eff, ctx.log, { kind: opt.kind });
   if (j.outcome === 'critical') {
     applyStress(d, -CRITICAL_STRESS_RELIEF, ctx.log, opt.kind);
-    ctx.log.push({ kind: 'note', text: '대성공 보너스!' });
+    ctx.log.push({ kind: 'note', text: tx('engine.note.critical') });
   }
   if (j.outcome === 'fumble') applyStress(d, FUMBLE_EXTRA_STRESS, ctx.log);
   if (!ok && j.resolvedBy === 'study' && d.traitId === 'effort') {
     applyStat(d, 'study', 3, ctx.log);
-    ctx.log.push({ kind: 'note', text: '노력형: 실패에서도 배운다' });
+    ctx.log.push({ kind: 'note', text: tx('engine.note.effort') });
   }
   if (ok) clubEventBonus(d, ctx, p, eff);
   applyEffects(d, opt.after, ctx.log, { kind: opt.kind });
@@ -295,16 +305,16 @@ function useAbility(d: GameState, ctx: Ctx): string | undefined {
   if (!p) return 'not now';
   if (d.traitId === 'insider') {
     if (d.phase !== 'choice' || !p.options?.some((o) => o.check)) return 'not now';
-    if (!p.abilityArmed && d.abilityUses >= ABILITY_USES_PER_YEAR) return '올해 능력을 다 썼다';
+    if (!p.abilityArmed && d.abilityUses >= ABILITY_USES_PER_YEAR) return 'no ability uses left';
     d.pending = { ...p, abilityArmed: !p.abilityArmed };
     return;
   }
   if (d.traitId === 'lucky') {
     if (d.phase !== 'judge' || p.judge?.outcome !== 'fumble') return 'not now';
-    if (d.abilityUses >= ABILITY_USES_PER_YEAR) return '올해 능력을 다 썼다';
+    if (d.abilityUses >= ABILITY_USES_PER_YEAR) return 'no ability uses left';
     d.abilityUses += 1;
     d.pending = { ...p, judge: { ...p.judge, outcome: 'fail', converted: true } };
-    ctx.log.push({ kind: 'note', text: '행운 발동! 대실패를 실패로' });
+    ctx.log.push({ kind: 'note', text: tx('engine.note.lucky') });
     return;
   }
   return 'no active ability';
@@ -314,7 +324,7 @@ function useAbility(d: GameState, ctx: Ctx): string | undefined {
 function refuseFavorPenalty(d: GameState, ctx: Ctx, opt: ChoiceOption): void {
   if (d.traitId === 'insider' && opt.tags?.includes('refuseFavor')) {
     applyStress(d, 10, ctx.log);
-    ctx.log.push({ kind: 'note', text: '인싸형: 거절하고 나니 마음이 쓰인다' });
+    ctx.log.push({ kind: 'note', text: tx('engine.note.refuse') });
   }
 }
 

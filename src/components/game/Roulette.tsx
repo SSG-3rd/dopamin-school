@@ -2,8 +2,10 @@
 import { motion } from 'framer-motion';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { allJobs, content } from '@/engine/content';
+import type { Text } from '@/engine/text';
 import type { EndingResult } from '@/engine/types';
 import { Button } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { playSound } from '@/lib/sound';
 import { useGame } from '@/store/game';
 import { KeyBadge } from './EventCard';
@@ -14,7 +16,7 @@ type Phase = 'spin1' | 'landed1' | 'spin2' | 'landed2';
 
 interface Slot {
   id: string;
-  label: string;
+  label: Text;
   probability: number;
 }
 
@@ -35,6 +37,7 @@ export function Roulette({
   onDone: () => void;
 }) {
   const dispatch = useGame((s) => s.dispatch);
+  const { t, text } = useI18n();
   const exploreOnly = ending.candidates.length === 0 || ending.firstPick === 'explore';
   const slots: Slot[] = useMemo(
     () =>
@@ -135,11 +138,12 @@ export function Roulette({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-6">
       <div className="text-center">
-        <p className="font-display text-lg text-accent">졸업식 날</p>
+        <p className="font-display text-lg text-accent">{t('ui.roulette.lead')}</p>
         <h1 className="text-3xl sm:text-4xl">
-          <span aria-hidden="true">🎰</span> {phase === 'spin2' || phase === 'landed2' ? '두 번째 진로 룰렛!' : '진로 룰렛'}
+          <span aria-hidden="true">🎰</span>{' '}
+          {t(phase === 'spin2' || phase === 'landed2' ? 'ui.roulette.second' : 'ui.roulette.title')}
         </h1>
-        {!exploreOnly && <p className="mt-1 text-base text-muted">진로 레벨이 높을수록 당첨 확률이 커요.</p>}
+        {!exploreOnly && <p className="mt-1 text-base text-muted">{t('ui.roulette.hint')}</p>}
       </div>
 
       <ul
@@ -162,7 +166,7 @@ export function Roulette({
               <span className="flex items-center justify-between gap-2">
                 <span className="font-display text-xl leading-tight">
                   {on && <span aria-hidden="true">{hit ? '🎯 ' : '▶ '}</span>}
-                  {flicker && on && !landed ? flicker : exploreOnly && !landed ? '???' : s.label}
+                  {flicker && on && !landed ? text(flicker) : exploreOnly && !landed ? '???' : text(s.label)}
                 </span>
                 {!exploreOnly && <span className="font-display text-lg tabular-nums">{pct(s.probability)}</span>}
               </span>
@@ -182,7 +186,9 @@ export function Roulette({
           animate={{ opacity: 1, y: 0 }}
           className="text-center font-display text-2xl"
         >
-          {exploreOnly ? '룰렛이 멈춘 곳은… 🧭 아직 나를 찾는 중' : `🎯 ${landedSlot.label}!`}
+          {exploreOnly
+            ? t('ui.roulette.exploreLanded', { name: content.endings.explore.name })
+            : t('ui.roulette.landed', { label: landedSlot.label })}
         </motion.p>
       )}
 
@@ -192,16 +198,16 @@ export function Roulette({
           animate={{ opacity: 1, y: 0 }}
           className="flex w-full max-w-md flex-col gap-2 rounded-3xl border-[3px] border-outline bg-paper p-4 shadow-[0_4px_0_0_rgb(107_79_58/0.32)]"
           role="group"
-          aria-label="룰렛 다시 돌리기"
+          aria-label={t('ui.roulette.rerollAria')}
         >
-          <p className="text-center font-display text-xl">🍀 운이 좋아요! 룰렛을 한 번 더 돌릴까요?</p>
-          <p className="text-center text-base text-muted">다시 돌리면 두 번째 결과로 확정돼요.</p>
+          <p className="text-center font-display text-xl">{t('ui.roulette.rerollQ')}</p>
+          <p className="text-center text-base text-muted">{t('ui.roulette.rerollNote')}</p>
           <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
             <Button size="md" onClick={() => decide(true)}>
-              <KeyBadge>1</KeyBadge> 🎰 다시 돌리기
+              <KeyBadge>1</KeyBadge> {t('ui.roulette.reroll')}
             </Button>
             <Button size="md" variant="secondary" onClick={() => decide(false)}>
-              <KeyBadge>2</KeyBadge> ✅ 이대로 확정
+              <KeyBadge>2</KeyBadge> {t('ui.roulette.keep')}
             </Button>
           </div>
         </motion.div>

@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { MOVE_DIE } from '@/engine/rules';
+import { useI18n } from '@/i18n/client';
 
 const PIP_CELLS: Record<number, number[]> = {
   1: [4],
@@ -16,10 +17,11 @@ const PIP_CELLS: Record<number, number[]> = {
 export function DieFace({ value, size = 64, className = '' }: { value?: number; size?: number; className?: string }) {
   const cells = value ? (PIP_CELLS[value] ?? []) : [];
   const pip = Math.max(6, Math.round(size * 0.17));
+  const { t } = useI18n();
   return (
     <div
       role="img"
-      aria-label={value ? `주사위 ${value}` : '주사위'}
+      aria-label={value ? t('ui.dice.dieValue', { n: value }) : t('ui.dice.die')}
       className={`grid shrink-0 grid-cols-3 grid-rows-3 place-items-center rounded-[22%] border-[3px] border-outline bg-paper shadow-[0_4px_0_0_rgb(107_79_58/0.32)] ${className}`}
       style={{ width: size, height: size, padding: size * 0.12 }}
     >
@@ -46,10 +48,11 @@ export function DieFace({ value, size = 64, className = '' }: { value?: number; 
 
 /** 이동 주사위 한 면 (1·1·1·2·2·3). 노란 바탕에 큰 숫자와 발자국 화살표 */
 export function MoveDieFace({ value, size = 72, className = '' }: { value?: number; size?: number; className?: string }) {
+  const { t } = useI18n();
   return (
     <div
       role="img"
-      aria-label={value ? `이동 주사위 ${value}칸` : '이동 주사위'}
+      aria-label={value ? t('ui.dice.moveValue', { n: value }) : t('ui.dice.move')}
       className={`relative flex shrink-0 flex-col items-center justify-center rounded-[26%] border-[3px] border-outline bg-sun shadow-[0_4px_0_0_rgb(107_79_58/0.32)] ${className}`}
       style={{ width: size, height: size }}
     >
@@ -61,7 +64,7 @@ export function MoveDieFace({ value, size = 72, className = '' }: { value?: numb
         {value ?? '?'}
       </span>
       <span aria-hidden="true" className="font-display leading-none text-ink/80" style={{ fontSize: Math.max(10, size * 0.2) }}>
-        {value ? '▶'.repeat(value) : '칸'}
+        {value ? '▶'.repeat(value) : t('ui.dice.moveEmpty')}
       </span>
     </div>
   );
@@ -116,9 +119,10 @@ export function RollingDie({
 
 /** 이동 주사위 면 구성 띠: 1·1·1·2·2·3, 나온 눈과 같은 면을 강조 */
 export function MoveDieStrip({ value, dark = false }: { value?: number; dark?: boolean }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className="flex gap-1" aria-label="이동 주사위 면: 1, 1, 1, 2, 2, 3">
+      <div className="flex gap-1" aria-label={t('ui.dice.facesAria')}>
         {MOVE_DIE.map((f, i) => {
           const hit = value === f;
           return (

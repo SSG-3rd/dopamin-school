@@ -4,7 +4,10 @@ import { z } from 'zod';
 import { CAREERS } from '@/engine/types';
 import type { GameState } from '@/engine/types';
 import { careerLevel } from '@/engine/rules';
-import { allJobs, content, findTrait } from '@/engine/content';
+import { allJobs, content, findTrait, trackName } from '@/engine/content';
+import { tx, type Text } from '@/engine/text';
+import { localePath, type Locale } from '@/i18n/config';
+import type { MessageKey } from '@/i18n/keys';
 
 export const ENDING_KINDS = ['normal', 'combo', 'miracle', 'rescue', 'explore'] as const;
 export type EndingKind = (typeof ENDING_KINDS)[number];
@@ -137,25 +140,33 @@ export function decodeShare(d: string | null | undefined): SharePayload | null {
   }
 }
 
-/** '/result?d=...' (엔딩 전이면 '/') */
-export function sharePath(state: GameState): string {
+/** '/<언어>/result?d=...' (엔딩 전이면 '/<언어>') */
+export function sharePath(state: GameState, locale: Locale): string {
   const p = buildSharePayload(state);
-  return p ? `/result?d=${encodeShare(p)}` : '/';
+  return localePath(locale, p ? `/result?d=${encodeShare(p)}` : '/');
 }
 
 // ---------- 화면·OG 이미지 공용 문구 ----------
-export const ENDING_KIND_LABELS: Record<EndingKind, string> = {
-  normal: '분야 직업',
-  combo: '조합 직업',
-  miracle: '기적 엔딩',
-  rescue: '친구 구원 엔딩',
-  explore: '탐색 엔딩',
+export const ENDING_KIND_LABELS: Record<EndingKind, MessageKey> = {
+  normal: 'ending.kind.normal',
+  combo: 'ending.kind.combo',
+  miracle: 'ending.kind.miracle',
+  rescue: 'ending.kind.rescue',
+  explore: 'ending.kind.explore',
 };
 
 export const GRADE_ICONS: Record<'top' | 'mid' | 'low', string> = { top: '🥇', mid: '🥈', low: '🥉' };
 
-export function gradeName(g: 'top' | 'mid' | 'low'): string {
+/** 등급 이름 (문장 키) */
+export function gradeName(g: 'top' | 'mid' | 'low'): Text {
   return content.endings.gradeNames[g] ?? g;
+}
+
+/** 엔딩 종류 줄: "예술·음악 분야", "운동 + 예술 · 조합 직업", "기적 엔딩" */
+export function endingKindLabel(kind: EndingKind, track: string | undefined): Text {
+  if (kind === 'normal' && track) return tx('ending.fieldOf', { track: trackName(track) });
+  if (kind === 'combo' && track) return tx('ending.comboOf', { track: trackName(track), kind: ENDING_KIND_LABELS.combo });
+  return ENDING_KIND_LABELS[kind];
 }
 
 /** 받침에 따라 '이'/'가' 같은 조사를 고른다. */

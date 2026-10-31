@@ -6,7 +6,10 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { z } from 'zod';
 import type { GameEvent } from '../src/engine/content';
+import type { Text } from '../src/engine/text';
 import type { Career, ChoiceOption, Effects } from '../src/engine/types';
+import { DEFAULT_LOCALE, LOCALES } from '../src/i18n/config';
+import { flattenMessages } from '../src/i18n/flatten';
 
 type ContentModule = typeof import('../src/engine/content');
 
@@ -66,7 +69,10 @@ async function main() {
     console.error(e instanceof Error ? e.message : String(e));
     process.exit(1);
   }
-  const { content, rawEventFiles, eventSchema } = mod;
+  const { content, rawEventFiles, eventSchema, CONTENT_TEXT_KO } = mod;
+  /** 문장 키 → 한국어 원문 (초안 사건은 키가 아니라 글이 그대로 들어 있다) */
+  const src = (v: Text | undefined): string =>
+    typeof v === 'string' ? (CONTENT_TEXT_KO[v] ?? v) : v == null ? '' : JSON.stringify(v);
 
   const buffIds = new Set(content.buffs.map((b) => b.id));
   const clubs = new Map(content.clubs.map((c) => [c.id, c]));
@@ -123,13 +129,16 @@ async function main() {
   }
 
   function checkOptionText(id: string, o: ChoiceOption) {
-    if (o.label.length > LIMIT.label) fail(id, `${o.id}.label ${o.label.length}자 > ${LIMIT.label}자: "${o.label}"`);
-    for (const [k, v] of Object.entries(o.resultText ?? {})) {
+    const label = src(o.label);
+    if (label.length > LIMIT.label) fail(id, `${o.id}.label ${label.length}자 > ${LIMIT.label}자: "${label}"`);
+    for (const [k, t] of Object.entries(o.resultText ?? {})) {
+      const v = src(t);
       if (v && v.length > LIMIT.result) fail(id, `${o.id}.resultText.${k} ${v.length}자 > ${LIMIT.result}자: "${v}"`);
     }
   }
 
-  function checkText(id: string, where: string, text: string) {
+  function checkText(id: string, where: string, t: Text) {
+    const text = src(t);
     if (text.length > LIMIT.text) fail(id, `${where} ${text.length}자 > ${LIMIT.text}자: "${text}"`);
   }
 
@@ -272,8 +281,10 @@ async function main() {
   for (const s of content.surprises) {
     addId(s.id);
     checkText(s.id, 'text', s.text);
-    if (s.label.length > LIMIT.label) fail(s.id, `label ${s.label.length}자 > ${LIMIT.label}자: "${s.label}"`);
-    for (const [k, v] of Object.entries(s.resultText)) {
+    const label = src(s.label);
+    if (label.length > LIMIT.label) fail(s.id, `label ${label.length}자 > ${LIMIT.label}자: "${label}"`);
+    for (const [k, t] of Object.entries(s.resultText)) {
+      const v = src(t);
       if (v.length > LIMIT.result) fail(s.id, `resultText.${k} ${v.length}자 > ${LIMIT.result}자: "${v}"`);
     }
     checkEffectRefs(s.id, 'onSuccess', s.onSuccess, true);
@@ -318,6 +329,9 @@ async function main() {
     });
   }
 
+  // ---------- 7. 번역 (content/i18n, src/i18n/messages) ----------
+  checkTranslations(CONTENT_TEXT_KO, content);
+
   // ---------- 결과 ----------
   if (errors.length) {
     console.error(`✖ 콘텐츠 검사 실패: ${errors.length}건\n`);
@@ -341,6 +355,75 @@ async function main() {
   console.log(
     `돌발 ${content.surprises.length}개, 급식실 결과 ${cafeteria.outcomes.length}개, refuseFavor 사건 ${refuse.length}개`,
   );
+}
+
+/** 번역 검사에서 빠져도 되는 자리표시자 (한국어 조사처럼 그 언어에만 필요한 것) */
+const OPTIONAL_PLACEHOLDERS = new Set(['ga']);
+const placeholders = (s: string) => new Set([...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]));
+const HANGUL = /[가-힣]/;
+
+function readJsonFile(file: string): unknown {
+  try {
+    return JSON.parse(readFileSync(file, 'utf8'));
+  } catch (e) {
+    fail(relative(ROOT, file), `JSON을 읽을 수 없습니다: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  }
+}
+
+/** 한 언어의 문장표를 원문(ko)과 견준다: 키가 같고, 비어 있지 않고, 자리표시자가 맞고, 한글이 남지 않았는지 */
+function compareTable(name: string, ko: Record<string, string>, tr: Record<string, string>) {
+  const missing = Object.keys(ko).filter((k) => !(k in tr));
+  const extra = Object.keys(tr).filter((k) => !(k in ko));
+  if (missing.length) fail(name, `번역이 빠진 키 ${missing.length}개: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ' …' : ''}`);
+  if (extra.length) fail(name, `원문에 없는 키 ${extra.length}개: ${extra.slice(0, 8).join(', ')}${extra.length > 8 ? ' …' : ''}`);
+  for (const [k, v] of Object.entries(tr)) {
+    if (!(k in ko)) continue;
+    if (typeof v !== 'string' || !v.trim()) {
+      fail(name, `${k}: 비어 있습니다`);
+      continue;
+    }
+    if (HANGUL.test(v)) fail(name, `${k}: 한글이 남아 있습니다 "${v}"`);
+    const want = placeholders(ko[k]);
+    const got = placeholders(v);
+    for (const p of got) if (!want.has(p)) fail(name, `${k}: 원문에 없는 자리표시자 {${p}}`);
+    for (const p of want) if (!got.has(p) && !OPTIONAL_PLACEHOLDERS.has(p)) fail(name, `${k}: 자리표시자 {${p}}가 빠졌습니다`);
+  }
+}
+
+function checkTranslations(contentKo: Record<string, string>, content: ContentModule['content']) {
+  // 콘텐츠 원문표(content/i18n/ko.json)가 지금 콘텐츠와 같은지 (다르면 pnpm i18n:extract)
+  const koFile = join(CONTENT_DIR, 'i18n', 'ko.json');
+  const koSaved = existsSync(koFile) ? (readJsonFile(koFile) as Record<string, string> | null) : null;
+  if (!koSaved) fail('content/i18n/ko.json', '없습니다. pnpm i18n:extract로 만드세요');
+  else if (JSON.stringify(koSaved) !== JSON.stringify(contentKo))
+    fail('content/i18n/ko.json', '콘텐츠 문장이 바뀌었습니다. pnpm i18n:extract를 돌리고 다른 언어 번역도 고치세요');
+
+  const koMessages = flattenMessages(readJsonFile(join(ROOT, 'src/i18n/messages/ko.json')));
+  // 같은 직업 id는 어느 표에 있든 같은 이름이어야 한다
+  const jobKeys = new Map<string, string[]>();
+  const addJob = (id: string, key: string) => jobKeys.set(id, [...(jobKeys.get(id) ?? []), key]);
+  const E = content.endings;
+  for (const table of [...Object.values(E.fields), ...Object.values(E.combos)]) {
+    for (const g of ['top', 'mid', 'low'] as const) for (const j of table[g]) addJob(j.id, j.name);
+  }
+
+  for (const locale of LOCALES) {
+    if (locale === DEFAULT_LOCALE) continue;
+    const cFile = join(CONTENT_DIR, 'i18n', `${locale}.json`);
+    const mFile = join(ROOT, 'src/i18n/messages', `${locale}.json`);
+    if (!existsSync(cFile)) fail(relative(ROOT, cFile), '번역 파일이 없습니다');
+    else {
+      const tr = (readJsonFile(cFile) ?? {}) as Record<string, string>;
+      compareTable(relative(ROOT, cFile), contentKo, tr);
+      for (const [id, keys] of jobKeys) {
+        const names = new Set(keys.map((k) => tr[k]));
+        if (names.size > 1) fail(relative(ROOT, cFile), `직업 ${id}의 이름이 서로 다릅니다: ${[...names].join(' / ')}`);
+      }
+    }
+    if (!existsSync(mFile)) fail(relative(ROOT, mFile), '번역 파일이 없습니다');
+    else compareTable(relative(ROOT, mFile), koMessages, flattenMessages(readJsonFile(mFile)));
+  }
 }
 
 function listJson(dir: string): string[] {

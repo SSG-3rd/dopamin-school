@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 import { DiceBuddy } from '@/components/DiceBuddy';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Card, buttonClass } from '@/components/ui';
-import { APP_NAME_EN, APP_NAME_PARTS, APP_TAGLINE } from '@/lib/brand';
+import { useI18n, useLocalePath } from '@/i18n/client';
+import type { MessageKey } from '@/i18n/keys';
+import { APP_NAME_EN } from '@/lib/brand';
 import { KEYS, readJSON } from '@/lib/storage';
 import { useSettings } from '@/lib/settings';
 import type { Settings } from '@/lib/settings';
@@ -30,18 +33,18 @@ function readSaveInfo(): SaveInfo {
 }
 
 const HOW_TO = [
-  { icon: '🧑‍🎓', title: '성향 고르기', text: '재능형·노력형·운동형·인싸형·운빨형 중 하나. 시작 능력치와 특수 능력이 달라요.' },
-  { icon: '🎲', title: '입학 주사위', text: '한 번 굴려서 학업·체력·인맥·운 중 하나를 올리거나 스트레스를 낮춰요.' },
-  { icon: '🏫', title: '3년 동안 보드 3바퀴', text: '주사위로 16칸 학교를 돌며 사건마다 선택해요. 시험, 방학, 동아리, 상점도 있어요.' },
-  { icon: '🎓', title: '졸업과 엔딩', text: '쌓인 진로 레벨이 직업 후보를 정하고, 운이 룰렛을 돌리고, 마지막 주사위가 등급을 정해요.' },
-] as const;
+  { id: 'trait', icon: '🧑‍🎓' },
+  { id: 'enroll', icon: '🎲' },
+  { id: 'board', icon: '🏫' },
+  { id: 'ending', icon: '🎓' },
+] as const satisfies readonly { id: string; icon: string }[];
 
-const TOGGLES: { key: keyof Settings; icon: string; label: string; desc: string }[] = [
-  { key: 'fast', icon: '⏩', label: '빠른 진행', desc: '주사위·이동 연출을 짧게, 결과 창은 자동으로 닫혀요.' },
-  { key: 'music', icon: '🎵', label: '배경음악', desc: '게임 내내 배경음악을 틀어요.' },
-  { key: 'sound', icon: '🔊', label: '효과음', desc: '주사위·판정 효과음을 켜요.' },
-  { key: 'booth', icon: '🎪', label: '부스 모드', desc: '행사 부스용: 결과 화면에 QR 코드를 크게 띄워요.' },
-];
+const TOGGLES = [
+  { key: 'fast', icon: '⏩' },
+  { key: 'music', icon: '🎵' },
+  { key: 'sound', icon: '🔊' },
+  { key: 'booth', icon: '🎪' },
+] as const satisfies readonly { key: keyof Settings; icon: string }[];
 
 function Toggle({
   icon,
@@ -57,6 +60,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   const id = useId();
+  const { t } = useI18n();
   return (
     <div className="flex items-center justify-between gap-4 py-3">
       <div className="min-w-0">
@@ -84,7 +88,7 @@ function Toggle({
             checked ? 'left-[calc(100%-1.75rem)]' : 'left-1'
           }`}
         />
-        <span className="sr-only">{checked ? '켜짐' : '꺼짐'}</span>
+        <span className="sr-only">{t(checked ? 'ui.common.on' : 'ui.common.off')}</span>
       </button>
     </div>
   );
@@ -95,6 +99,8 @@ export default function TitlePage() {
   const [confirming, setConfirming] = useState(false);
   const confirmRef = useRef<HTMLDivElement>(null);
   const settings = useSettings();
+  const { t } = useI18n();
+  const href = useLocalePath();
 
   useEffect(() => {
     setSave(readSaveInfo());
@@ -110,35 +116,42 @@ export default function TitlePage() {
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 pt-6 pb-12 sm:pt-10">
       {/* 하늘 위 타이틀 */}
-      <header className="flex flex-col items-center pt-2 text-center">
-        <p className="rounded-full border-2 border-outline bg-paper px-3 py-0.5 font-display text-base text-ink shadow-[0_3px_0_0_rgb(107_79_58/0.22)]">
-          1인용 고교생활 보드게임
-        </p>
+      <header className="relative flex flex-col items-center pt-2 text-center">
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:justify-between">
+          <p className="rounded-full border-2 border-outline bg-paper px-3 py-0.5 font-display text-base text-ink shadow-[0_3px_0_0_rgb(107_79_58/0.22)]">
+            {t('ui.title.badge')}
+          </p>
+          <LanguageSwitcher />
+        </div>
         <div className="mt-3 flex items-center gap-2 sm:gap-4">
           <DiceBuddy size={72} className="yd-buddy-hop shrink-0 -rotate-6" />
           <h1 className="yd-logo font-display text-[3.4rem] leading-[1.05] sm:text-7xl">
-            <span className="text-accent">{APP_NAME_PARTS[0]}</span>
+            <span className="text-accent">{t('brand.namePart1')}</span>
             <br className="sm:hidden" />
-            <span className="text-sun sm:ml-3">{APP_NAME_PARTS[1]}</span>
+            <span className="text-sun sm:ml-3">{t('brand.namePart2')}</span>
           </h1>
           <DiceBuddy size={56} mood="wink" color="#ffe08a" className="yd-buddy-hop yd-buddy-hop--late hidden shrink-0 rotate-6 sm:block" />
         </div>
-        <p className="mt-2 font-display text-lg tracking-[0.35em] text-outline/80">{APP_NAME_EN}</p>
+        {t('brand.name').toUpperCase() !== APP_NAME_EN && (
+          <p className="mt-2 font-display text-lg tracking-[0.35em] text-outline/80">{APP_NAME_EN}</p>
+        )}
         <p className="yd-panel mt-4 max-w-sm px-5 py-3 text-base leading-relaxed text-ink">
-          {APP_TAGLINE}.
+          {t('brand.tagline')}
           <br />
-          졸업하는 날, 나는 무엇이 되어 있을까?
+          {t('brand.question')}
         </p>
       </header>
 
       {/* 메뉴 */}
-      <nav aria-label="메뉴" className="flex flex-col gap-3">
+      <nav aria-label={t('ui.title.menu')} className="flex flex-col gap-3">
         {resumable && (
-          <Link href="/play" className={buttonClass('primary', 'lg', true)}>
-            <span aria-hidden="true">▶️</span> 이어하기
+          <Link href={href('/play')} className={buttonClass('primary', 'lg', true)}>
+            <span aria-hidden="true">▶️</span> {t('ui.title.resume')}
             {save?.year ? (
               <span className="font-sans text-base text-ink/75">
-                ({save.year}학년{save.turn ? ` · ${save.turn}턴` : ''})
+                {save.turn
+                  ? t('ui.title.resumeYearTurn', { year: save.year, turn: save.turn })
+                  : t('ui.title.resumeYear', { year: save.year })}
               </span>
             ) : null}
           </Link>
@@ -152,11 +165,11 @@ export default function TitlePage() {
             aria-controls="new-game-confirm"
             onClick={() => setConfirming(true)}
           >
-            <span aria-hidden="true">✏️</span> 새 게임
+            <span aria-hidden="true">✏️</span> {t('ui.title.newGame')}
           </button>
         ) : (
-          <Link href="/play?new=1" className={buttonClass('primary', 'lg', true)}>
-            <span aria-hidden="true">✏️</span> 새 게임
+          <Link href={href('/play?new=1')} className={buttonClass('primary', 'lg', true)}>
+            <span aria-hidden="true">✏️</span> {t('ui.title.newGame')}
           </Link>
         )}
 
@@ -171,28 +184,28 @@ export default function TitlePage() {
             className="border-accent/60 bg-paper-2 p-4"
           >
             <h2 id="new-game-confirm-title" className="text-xl">
-              <span aria-hidden="true">⚠️</span> 새로 시작할까요?
+              <span aria-hidden="true">⚠️</span> {t('ui.title.confirmTitle')}
             </h2>
             <p id="new-game-confirm-desc" className="mt-1 text-muted">
-              진행 중인 게임이 있어요. 새 게임을 시작하면 지금 저장된 게임은 사라져요.
+              {t('ui.title.confirmText')}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button type="button" className={buttonClass('secondary', 'md', true)} onClick={() => setConfirming(false)}>
-                취소
+                {t('ui.common.cancel')}
               </button>
-              <Link href="/play?new=1" className={buttonClass('danger', 'md', true)}>
-                새로 시작
+              <Link href={href('/play?new=1')} className={buttonClass('danger', 'md', true)}>
+                {t('ui.title.restart')}
               </Link>
             </div>
           </Card>
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          <Link href="/collection" className={buttonClass('secondary', 'md', true)}>
-            <span aria-hidden="true">📖</span> 엔딩 도감
+          <Link href={href('/collection')} className={buttonClass('secondary', 'md', true)}>
+            <span aria-hidden="true">📖</span> {t('ui.title.collection')}
           </Link>
-          <Link href="/stats" className={buttonClass('secondary', 'md', true)}>
-            <span aria-hidden="true">📊</span> 통계
+          <Link href={href('/stats')} className={buttonClass('secondary', 'md', true)}>
+            <span aria-hidden="true">📊</span> {t('ui.title.stats')}
           </Link>
         </div>
       </nav>
@@ -200,17 +213,17 @@ export default function TitlePage() {
       {/* 설정 */}
       <Card className="px-4 py-2 sm:px-5">
         <h2 className="pt-2 text-xl">
-          <span aria-hidden="true">⚙️</span> 설정
+          <span aria-hidden="true">⚙️</span> {t('ui.title.settings')}
         </h2>
         <div className="divide-y-2 divide-dashed divide-line">
-          {TOGGLES.map((t) => (
+          {TOGGLES.map((tg) => (
             <Toggle
-              key={t.key}
-              icon={t.icon}
-              label={t.label}
-              desc={t.desc}
-              checked={settings[t.key]}
-              onChange={(v) => settings.set({ [t.key]: v })}
+              key={tg.key}
+              icon={tg.icon}
+              label={t(`ui.settings.${tg.key}.label` satisfies MessageKey)}
+              desc={t(`ui.settings.${tg.key}.desc` satisfies MessageKey)}
+              checked={settings[tg.key]}
+              onChange={(v) => settings.set({ [tg.key]: v })}
             />
           ))}
         </div>
@@ -219,11 +232,11 @@ export default function TitlePage() {
       {/* 게임 방법 */}
       <section aria-labelledby="howto-title" className="flex flex-col gap-3">
         <h2 id="howto-title" className="yd-panel self-start px-4 py-1 text-2xl">
-          <span aria-hidden="true">📝</span> 게임 방법
+          <span aria-hidden="true">📝</span> {t('ui.title.howto')}
         </h2>
         <ol className="flex flex-col gap-3">
           {HOW_TO.map((s, i) => (
-            <li key={s.title}>
+            <li key={s.id}>
               <Card className="flex gap-3 p-4">
                 <div
                   aria-hidden="true"
@@ -233,25 +246,25 @@ export default function TitlePage() {
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-lg">
-                    <span className="text-accent-deep">{i + 1}.</span> {s.title}
+                    <span className="text-accent-deep">{i + 1}.</span> {t(`ui.howto.${s.id}.title` satisfies MessageKey)}
                   </h3>
-                  <p className="text-base leading-relaxed text-muted">{s.text}</p>
+                  <p className="text-base leading-relaxed text-muted">{t(`ui.howto.${s.id}.text` satisfies MessageKey)}</p>
                 </div>
               </Card>
             </li>
           ))}
         </ol>
         <p className="yd-panel px-4 py-2 text-base text-muted">
-          키보드: <kbd className="rounded border border-line bg-white px-1.5">Space</kbd> 주사위 ·{' '}
-          <kbd className="rounded border border-line bg-white px-1.5">1</kbd>
+          {t('ui.title.keyboard')} <kbd className="rounded border border-line bg-white px-1.5">Space</kbd>{' '}
+          {t('ui.title.keyDice')} · <kbd className="rounded border border-line bg-white px-1.5">1</kbd>
           <kbd className="ml-0.5 rounded border border-line bg-white px-1.5">2</kbd>
-          <kbd className="ml-0.5 rounded border border-line bg-white px-1.5">3</kbd> 선택 ·{' '}
-          <kbd className="rounded border border-line bg-white px-1.5">Enter</kbd> 계속
+          <kbd className="ml-0.5 rounded border border-line bg-white px-1.5">3</kbd> {t('ui.title.keyChoose')} ·{' '}
+          <kbd className="rounded border border-line bg-white px-1.5">Enter</kbd> {t('ui.title.keyContinue')}
         </p>
       </section>
 
       <footer className="yd-panel px-4 py-2 text-center text-base text-muted">
-        로그인 없이 플레이해요. 끝난 판의 익명 요약만 통계로 모아요.
+        {t('ui.title.footer')}
       </footer>
     </main>
   );

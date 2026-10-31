@@ -1,5 +1,5 @@
 // 칸 도착 처리와 코너 칸의 여러 단계(용돈 → 루트 → 방학 → 상점 …)를 순서대로 진행한다.
-import { STAT_NAMES, content } from '../content';
+import { STAT_TEXT, content } from '../content';
 import { applyMoney, consumeBuffs, hasBuff } from '../effects';
 import { endTurn, setChoice, setResult, since, type Ctx } from '../flow';
 import {
@@ -11,6 +11,7 @@ import {
   PART_TIMER_MULT,
   highestStat,
 } from '../rules';
+import { money, tx } from '../text';
 import type { ChoiceOption, GameState } from '../types';
 import { startClub } from './club';
 import { startCounsel } from './counsel';
@@ -85,8 +86,8 @@ export function runNext(d: GameState, ctx: Ctx): void {
       const amount = giveAllowance(d, ctx, ALLOWANCE_PROMO);
       setResult(d, {
         source: 'allowance',
-        title: `🎉 ${d.year}학년 진급!`,
-        text: `새 학년, 새 교실. 용돈 ${amount.toLocaleString('ko-KR')}원을 받았다.`,
+        title: tx('engine.promo.title', { year: d.year }),
+        text: tx('engine.promo.text', { money: money(amount) }),
         changes: since(ctx.log, start),
       });
       return;
@@ -95,8 +96,8 @@ export function runNext(d: GameState, ctx: Ctx): void {
       const amount = giveAllowance(d, ctx, ALLOWANCE_SUMMER);
       setResult(d, {
         source: 'allowance',
-        title: '🏖️ 여름방학 시작!',
-        text: `방학 용돈 ${amount.toLocaleString('ko-KR')}원을 받았다.`,
+        title: tx('engine.summer.title'),
+        text: tx('engine.summer.text', { money: money(amount) }),
         changes: since(ctx.log, start),
       });
       return;
@@ -106,8 +107,8 @@ export function runNext(d: GameState, ctx: Ctx): void {
         source: 'route',
         tile: d.position,
         icon: '🧭',
-        title: '2학년 반 배정',
-        text: '2학년은 어떤 반에서 보낼까? 조건이 맞아야 들어갈 수 있다.',
+        title: tx('engine.route.title'),
+        text: tx('engine.route.text'),
       };
       d.phase = 'route_select';
       return;
@@ -122,8 +123,8 @@ export function runNext(d: GameState, ctx: Ctx): void {
         source: 'shop',
         tile: d.position,
         icon: '🛒',
-        title: '학교 앞 문구점',
-        text: '용돈으로 필요한 걸 사 두자. 여러 개 살 수 있다.',
+        title: tx('engine.shop.title'),
+        text: tx('engine.shop.text'),
         shopItems: content.items.map((i) => i.id),
         bought: [],
       };
@@ -146,8 +147,13 @@ function startBurnout(d: GameState): void {
     source: 'burnout',
     tile: d.position,
     icon: '🫠',
-    title: '번아웃!',
-    text: `스트레스가 한계에 달했다. 머리가 하얘진다… 가장 자신 있던 ${STAT_NAMES[top]}마저 흔들린다. (${STAT_NAMES[top]} −${BURNOUT_TOP_STAT_LOSS}, 체력 −${BURNOUT_STAMINA_LOSS}, 스트레스 ${BURNOUT_STRESS_RESET}으로)`,
+    title: tx('engine.burnout.title'),
+    text: tx('engine.burnout.text', {
+      stat: STAT_TEXT[top],
+      loss: BURNOUT_TOP_STAT_LOSS,
+      stamina: BURNOUT_STAMINA_LOSS,
+      reset: BURNOUT_STRESS_RESET,
+    }),
   };
   d.phase = 'burnout';
 }
@@ -158,8 +164,8 @@ function startGraduation(d: GameState): void {
     source: 'graduation',
     tile: d.position,
     icon: '🎓',
-    title: '졸업식',
-    text: '3년이 눈 깜짝할 새 지나갔다. 꽃다발을 든 채 교문을 나선다. 나는 어떤 어른이 될까?',
+    title: tx('engine.graduation.title'),
+    text: tx('engine.graduation.text'),
   };
   d.phase = 'graduation';
 }

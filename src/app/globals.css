@@ -35,10 +35,10 @@
   --color-biz: #f2c94c;
 }
 
-/* next/font 변수는 <html>에 붙으므로 inline으로 참조한다 */
+/* 글꼴은 언어마다 다르다: 레이아웃이 <html>에 --tp-font-* 를 붙인다 (src/i18n/fonts.ts) */
 @theme inline {
-  --font-display: var(--font-jua), "Jua", ui-rounded, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-  --font-sans: var(--font-noto-sans-kr), "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-display: var(--tp-font-display, "Jua", ui-rounded, system-ui, sans-serif);
+  --font-sans: var(--tp-font-body, "Noto Sans KR", system-ui, sans-serif);
 }
 
 @layer base {
@@ -75,7 +75,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: var(--tp-display-weight, 400);
     line-height: 1.25;
   }
 
@@ -159,7 +159,7 @@
     border: 2.5px solid var(--color-outline);
     border-radius: 999px;
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: var(--tp-display-weight, 400);
     line-height: 1.2;
     text-align: center;
     text-decoration: none;
@@ -324,4 +324,22 @@
 .yd-note-hint {
   display: inline-block;
   animation: yd-bob 1.6s ease-in-out infinite;
+}
+
+/* 제목 글꼴 굵기도 언어마다 다르다 (일본어 둥근 고딕은 굵게 써야 다른 언어 제목과 무게가 맞는다) */
+@layer utilities {
+  .font-display {
+    font-weight: var(--tp-display-weight, 400);
+  }
+}
+
+/* keep-all(낱말 단위 줄바꿈)은 한국어용. 일본어·중국어는 글자 사이에서 줄을 바꿔야 넘치지 않는다 */
+:lang(ja),
+:lang(zh) {
+  word-break: normal;
+  line-break: strict;
+}
+:lang(ja) .break-keep,
+:lang(zh) .break-keep {
+  word-break: normal;
 }

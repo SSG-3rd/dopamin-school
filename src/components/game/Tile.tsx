@@ -2,6 +2,7 @@
 import type { ReactNode } from 'react';
 import type { BoardTile } from '@/engine/content';
 import { tileGridPos } from '@/engine/rules';
+import { useI18n } from '@/i18n/client';
 
 const CORNER_BG: Record<string, string> = {
   promotion: 'bg-sun',
@@ -20,11 +21,12 @@ export function Tile({ tile, here, children }: { tile: BoardTile; here: boolean;
   const { row, col } = tileGridPos(tile.index);
   const corner = tile.kind === 'corner';
   const bg = corner ? (CORNER_BG[tile.type] ?? KIND_BG.corner) : KIND_BG[tile.kind];
+  const { t, text } = useI18n();
   return (
     <div
       className="relative min-h-0 min-w-0 p-[3px]"
       style={{ gridRow: row, gridColumn: col }}
-      aria-label={`${tile.index}번 칸 ${tile.name}${here ? ' (지금 위치)' : ''}`}
+      aria-label={t(here ? 'ui.board.tileAriaHere' : 'ui.board.tileAria', { n: tile.index, name: tile.name })}
       role="listitem"
     >
       <div
@@ -43,7 +45,7 @@ export function Tile({ tile, here, children }: { tile: BoardTile; here: boolean;
             corner ? 'text-[clamp(14px,4vw,18px)]' : 'text-[clamp(14px,3.9vw,16px)]'
           }`}
         >
-          {tile.name}
+          {text(tile.name)}
         </span>
       </div>
       {children}

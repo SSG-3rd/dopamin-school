@@ -1,19 +1,19 @@
 'use client';
-import { APP_NAME } from '@/lib/brand';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { content, findTrait, getClub, getRoute } from '@/engine/content';
-import { formatMoney } from '@/engine/rules';
+import { lit, money, type Text } from '@/engine/text';
 import type { Candidate, EndingResult, GameState } from '@/engine/types';
 import { Bar, Button, Card, buttonClass } from '@/components/ui';
+import { useI18n, useLocalePath } from '@/i18n/client';
 import { useSettings } from '@/lib/settings';
 import { sharePath } from '@/lib/share';
 import { useGame } from '@/store/game';
 import { pct } from './meta';
 import { CareerRows, StatRows, StressGauge } from './StatPanel';
 
-/** 후보(분야·조합)에 속한 직업 이름들 */
-function candidateJobs(c: Candidate, ending: EndingResult): string[] {
+/** 후보(분야·조합)에 속한 직업 이름들 (문장 키) */
+function candidateJobs(c: Candidate, ending: EndingResult): Text[] {
   const E = content.endings;
   let table: { top: { name: string }[]; mid: { name: string }[]; low: { name: string }[] } | undefined;
   if (c.id.startsWith('combo:')) {
@@ -39,15 +39,16 @@ function SharePanel({ game }: { game: GameState }) {
   const [qr, setQr] = useState<string | null>(null);
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [canShare, setCanShare] = useState(false);
+  const { t, locale } = useI18n();
 
   useEffect(() => {
     try {
-      setUrl(window.location.origin + sharePath(game));
+      setUrl(window.location.origin + sharePath(game, locale));
       setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
     } catch {
       setUrl('');
     }
-  }, [game]);
+  }, [game, locale]);
 
   useEffect(() => {
     if (!url) return;
@@ -83,7 +84,7 @@ function SharePanel({ game }: { game: GameState }) {
   };
   const share = async () => {
     try {
-      await navigator.share({ title: `${APP_NAME} 결과`, text: '내 고등학교 3년의 결말은?', url });
+      await navigator.share({ title: t('ui.summary.shareTitle', { name: t('brand.name') }), text: t('ui.summary.shareText'), url });
     } catch {
       // 사용자가 취소한 경우 등
     }
@@ -92,30 +93,30 @@ function SharePanel({ game }: { game: GameState }) {
   return (
     <Card className="flex flex-col gap-3 p-4">
       <h2 className="text-2xl">
-        <span aria-hidden="true">🔗</span> 결과 공유
+        <span aria-hidden="true">🔗</span> {t('ui.summary.share')}
       </h2>
       <div className={`flex flex-col items-center gap-3 ${booth ? '' : 'sm:flex-row sm:items-start'}`}>
         {qr ? (
           <figure className="flex flex-col items-center gap-1">
             <img
               src={qr}
-              alt="결과 페이지 QR 코드"
+              alt={t('ui.summary.qrAlt')}
               width={booth ? 320 : 160}
               height={booth ? 320 : 160}
               className={`rounded-xl border-2 border-outline/45 bg-paper ${booth ? 'h-auto w-[min(320px,80vw)]' : 'h-40 w-40'}`}
             />
             <figcaption className="text-center text-base text-muted">
-              {booth ? '📱 휴대폰 카메라로 찍어 결과를 가져가세요!' : '휴대폰으로 찍어 가져가기'}
+              {t(booth ? 'ui.summary.qrBooth' : 'ui.summary.qrNormal')}
             </figcaption>
           </figure>
         ) : (
           <div className="flex h-40 w-40 items-center justify-center rounded-xl border-2 border-dashed border-outline/45 text-base text-muted">
-            QR 준비 중…
+            {t('ui.summary.qrLoading')}
           </div>
         )}
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <label className="text-base text-muted" htmlFor="yd-share-url">
-            결과 주소
+            {t('ui.summary.url')}
           </label>
           <input
             id="yd-share-url"
@@ -126,21 +127,21 @@ function SharePanel({ game }: { game: GameState }) {
           />
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" size="sm" onClick={copy} disabled={!url}>
-              📋 주소 복사
+              {t('ui.summary.copy')}
             </Button>
             {canShare && (
               <Button variant="secondary" size="sm" onClick={share} disabled={!url}>
-                📤 공유하기
+                {t('ui.summary.shareButton')}
               </Button>
             )}
             {url && (
-              <Link href={sharePath(game)} className={buttonClass('ghost', 'sm')}>
-                🃏 결과 카드 보기
+              <Link href={sharePath(game, locale)} className={buttonClass('ghost', 'sm')}>
+                {t('ui.summary.card')}
               </Link>
             )}
           </div>
           <p className="min-h-6 text-base" aria-live="polite">
-            {copied === 'ok' ? '✔ 복사했어요!' : copied === 'fail' ? '복사하지 못했어요. 주소를 길게 눌러 복사해 주세요.' : ''}
+            {copied === 'ok' ? t('ui.summary.copied') : copied === 'fail' ? t('ui.summary.copyFail') : ''}
           </p>
         </div>
       </div>
@@ -156,11 +157,13 @@ export function EndingSummary({ game, onReplay }: { game: GameState; onReplay?: 
   const club = getClub(game.clubId);
   const route = getRoute(game.routeId);
   const cands = [...ending.candidates].sort((a, b) => b.probability - a.probability);
+  const { t, text } = useI18n();
+  const href = useLocalePath();
 
   const again = () => {
     newGame();
     try {
-      window.history.replaceState(null, '', '/play');
+      window.history.replaceState(null, '', href('/play'));
       window.scrollTo({ top: 0 });
     } catch {
       // 무시
@@ -171,10 +174,10 @@ export function EndingSummary({ game, onReplay }: { game: GameState; onReplay?: 
     <div className="flex flex-col gap-4">
       <Card className="flex flex-col gap-3 p-4">
         <h2 className="text-2xl">
-          <span aria-hidden="true">🎰</span> 될 수 있었던 직업들
+          <span aria-hidden="true">🎰</span> {t('ui.summary.candidates')}
         </h2>
         {cands.length === 0 ? (
-          <p className="text-base text-muted">진로 레벨 2 이상인 분야가 없어서 룰렛 후보가 없었어요.</p>
+          <p className="text-base text-muted">{t('ui.summary.noCandidates')}</p>
         ) : (
           <ul className="flex flex-col gap-2.5">
             {cands.map((c) => {
@@ -188,30 +191,36 @@ export function EndingSummary({ game, onReplay }: { game: GameState; onReplay?: 
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-display text-lg">
                       {picked && <span aria-hidden="true">🎯 </span>}
-                      {c.label}
-                      {picked && <span className="text-base text-muted"> (당첨)</span>}
+                      {text(c.label)}
+                      {picked && <span className="text-base text-muted">{t('ui.summary.won')}</span>}
                     </span>
                     <span className="font-display text-lg tabular-nums">{pct(c.probability)}</span>
                   </div>
-                  <Bar value={c.probability} max={1} color="var(--color-accent)" label={`${c.label} 확률 ${pct(c.probability)}`} className="mt-1 h-2" />
-                  {jobs.length > 0 && <p className="mt-1 text-base text-muted">{jobs.join(' · ')}</p>}
+                  <Bar
+                    value={c.probability}
+                    max={1}
+                    color="var(--color-accent)"
+                    label={t('ui.summary.chanceAria', { label: c.label, p: lit(pct(c.probability)) })}
+                    className="mt-1 h-2"
+                  />
+                  {jobs.length > 0 && <p className="mt-1 text-base text-muted">{jobs.map((j) => text(j)).join(' · ')}</p>}
                 </li>
               );
             })}
           </ul>
         )}
-        {ending.rerolled && <p className="text-base text-muted">🍀 룰렛을 한 번 더 돌렸어요.</p>}
+        {ending.rerolled && <p className="text-base text-muted">{t('ui.summary.rerolled')}</p>}
       </Card>
 
       {ending.epilogue.length > 0 && (
         <Card className="flex flex-col gap-2 p-4">
           <h2 className="text-2xl">
-            <span aria-hidden="true">📔</span> 그 뒤 이야기
+            <span aria-hidden="true">📔</span> {t('ui.summary.epilogue')}
           </h2>
           <ul className="flex flex-col gap-1.5">
             {ending.epilogue.map((line, i) => (
               <li key={i} className="rounded-xl bg-paper-2 px-3 py-2 text-base leading-relaxed">
-                {line}
+                {text(line)}
               </li>
             ))}
           </ul>
@@ -220,23 +229,26 @@ export function EndingSummary({ game, onReplay }: { game: GameState; onReplay?: 
 
       <Card className="flex flex-col gap-4 p-4">
         <h2 className="text-2xl">
-          <span aria-hidden="true">📋</span> 졸업 성적표
+          <span aria-hidden="true">📋</span> {t('ui.summary.report')}
         </h2>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-base">
           {trait && (
             <span>
-              성향 <strong className="font-display font-normal">{trait.emoji} {trait.name}</strong>
+              {t('ui.summary.trait')}{' '}
+              <strong className="font-display font-normal">
+                {trait.emoji} {text(trait.name)}
+              </strong>
             </span>
           )}
           <span>
-            동아리 <strong className="font-display font-normal">{club ? `${club.emoji} ${club.name}` : '없음'}</strong>
+            {t('ui.summary.club')}{' '}
+            <strong className="font-display font-normal">{club ? `${club.emoji} ${text(club.name)}` : t('ui.summary.none')}</strong>
           </span>
           <span>
-            반 <strong className="font-display font-normal">{route ? `${route.emoji} ${route.name}` : '없음'}</strong>
+            {t('ui.summary.route')}{' '}
+            <strong className="font-display font-normal">{route ? `${route.emoji} ${text(route.name)}` : t('ui.summary.none')}</strong>
           </span>
-          <span>
-            <strong className="font-display font-normal">{game.turn}</strong>턴
-          </span>
+          <span className="font-display">{t('ui.summary.turns', { n: game.turn })}</span>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="flex flex-col gap-3">
@@ -244,9 +256,9 @@ export function EndingSummary({ game, onReplay }: { game: GameState; onReplay?: 
             <StressGauge stress={game.stress} />
             <p className="flex items-center justify-between rounded-xl bg-paper-2 px-3 py-2">
               <span>
-                <span aria-hidden="true">💰</span> 남은 돈
+                <span aria-hidden="true">💰</span> {t('ui.summary.moneyLeft')}
               </span>
-              <strong className="font-display text-xl font-normal tabular-nums">{formatMoney(game.money)}</strong>
+              <strong className="font-display text-xl font-normal tabular-nums">{text(money(game.money))}</strong>
             </p>
           </div>
           <CareerRows game={game} />
@@ -257,18 +269,18 @@ export function EndingSummary({ game, onReplay }: { game: GameState; onReplay?: 
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <Button size="lg" onClick={again}>
-          🎲 다시 하기
+          {t('ui.summary.again')}
         </Button>
-        <Link href="/collection" className={buttonClass('secondary', 'lg')}>
-          📖 엔딩 도감
+        <Link href={href('/collection')} className={buttonClass('secondary', 'lg')}>
+          {t('ui.summary.collection')}
         </Link>
-        <Link href="/" className={buttonClass('secondary', 'lg')}>
-          🏠 처음으로
+        <Link href={href('/')} className={buttonClass('secondary', 'lg')}>
+          {t('ui.summary.home')}
         </Link>
       </div>
       {onReplay && (
         <button type="button" onClick={onReplay} className="self-center text-base text-muted underline">
-          🎬 엔딩 연출 다시 보기
+          {t('ui.summary.replay')}
         </button>
       )}
     </div>

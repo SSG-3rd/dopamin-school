@@ -2,16 +2,17 @@
 import { getRouteViews } from '@/engine/view';
 import type { GameState } from '@/engine/types';
 import { Chip } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { playSound } from '@/lib/sound';
 import { KeyBadge } from './EventCard';
 import { digitKey, useAct, useHotkeys } from './hooks';
-import { previewTone } from './meta';
 
 /** 2학년 반(루트) 고르기. 조건이 모자란 반은 잠기고 이유를 보여 준다. */
 export function RouteSelect({ game }: { game: GameState }) {
   const dispatch = useAct(game);
   const views = getRouteViews(game);
   const p = game.pending;
+  const { t, text } = useI18n();
 
   const pick = (id: string) => {
     playSound('click');
@@ -35,8 +36,8 @@ export function RouteSelect({ game }: { game: GameState }) {
           {p?.icon ?? '🏫'}
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl">{p?.title ?? '2학년 반 배정'}</h2>
-          <p className="mt-1 text-base text-ink/90">{p?.text ?? '2학년에 어떤 반으로 갈까? 한 번 정하면 졸업까지 간다.'}</p>
+          <h2 className="text-2xl">{p?.title ? text(p.title) : t('ui.route.fallbackTitle')}</h2>
+          <p className="mt-1 text-base text-ink/90">{p?.text ? text(p.text) : t('ui.route.fallbackText')}</p>
         </div>
       </div>
       <ul className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-2">
@@ -57,19 +58,19 @@ export function RouteSelect({ game }: { game: GameState }) {
                 <span aria-hidden="true" className="text-2xl leading-none">
                   {v.route.emoji}
                 </span>
-                <span className="font-display text-xl leading-tight">{v.route.name}</span>
+                <span className="font-display text-xl leading-tight">{text(v.route.name)}</span>
               </span>
-              <span className="text-base text-muted">{v.route.desc}</span>
+              <span className="text-base text-muted">{text(v.route.desc)}</span>
               <span className="flex flex-wrap gap-1.5">
-                {v.preview.map((t, k) => (
-                  <Chip key={`${t}-${k}`} tone={previewTone(t)}>
-                    {t}
+                {v.preview.map((l, k) => (
+                  <Chip key={k} tone={l.tone}>
+                    {text(l.text)}
                   </Chip>
                 ))}
               </span>
               {v.disabled && v.reason && (
                 <span className="font-display text-base text-danger">
-                  <span aria-hidden="true">🔒</span> {v.reason}
+                  <span aria-hidden="true">🔒</span> {text(v.reason)}
                 </span>
               )}
             </button>

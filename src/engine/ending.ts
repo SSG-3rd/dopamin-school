@@ -1,5 +1,5 @@
 // 엔딩 계산: 친구 구원 → 기적 → 룰렛 후보 → 룰렛 → 졸업 판정 → 에필로그
-import { CAREER_NAMES, STAT_NAMES, content, getClub, trackName } from './content';
+import { CAREER_TEXT, STAT_TEXT, content, getClub, trackName } from './content';
 import type { Ctx } from './flow';
 import {
   BIZ_MONEY_CANDIDATE,
@@ -19,6 +19,7 @@ import {
   moneyBonus,
   statBonus,
 } from './rules';
+import { money, tx, type Text } from './text';
 import type { Candidate, Career, EndingResult, GameState, Grade, JudgeBonus } from './types';
 import { CAREERS } from './types';
 
@@ -55,14 +56,14 @@ export function buildCandidates(d: GameState): Candidate[] {
     }
   }
   if (d.money >= BIZ_MONEY_CANDIDATE && lv.biz < ROULETTE_MIN_LEVEL) {
-    raw.push({ id: 'field:biz', label: `${trackName('biz')} (모아 둔 돈)`, weight: ROULETTE_MIN_LEVEL ** 2 });
+    raw.push({ id: 'field:biz', label: tx('ending.bizMoney', { track: trackName('biz') }), weight: ROULETTE_MIN_LEVEL ** 2 });
   }
   const total = raw.reduce((a, c) => a + c.weight, 0);
   return raw.map((c) => ({ ...c, probability: total > 0 ? c.weight / total : 0 }));
 }
 
-function epilogue(d: GameState): string[] {
-  const out: string[] = [];
+function epilogue(d: GameState): Text[] {
+  const out: Text[] = [];
   if (d.stress >= EPILOGUE_STRESS) out.push(content.endings.epilogue.burnout);
   if (d.money >= EPILOGUE_MONEY) out.push(content.endings.epilogue.money);
   return out;
@@ -206,9 +207,9 @@ function finalizeRoulette(d: GameState, ctx: Ctx, e: EndingResult, pick: string)
 }
 
 export function graduationBonuses(d: GameState, field: Career, level: number): JudgeBonus[] {
-  const out: JudgeBonus[] = [{ label: `${CAREER_NAMES[field]} Lv${level}`, value: careerBonus(level) }];
+  const out: JudgeBonus[] = [{ label: tx('judge.career', { career: CAREER_TEXT[field], lv: level }), value: careerBonus(level) }];
   if (field === 'biz') {
-    out.push({ label: `모아 둔 돈 ${d.money.toLocaleString('ko-KR')}원`, value: moneyBonus(d.money) });
+    out.push({ label: tx('ending.savedMoney', { money: money(d.money) }), value: moneyBonus(d.money) });
   } else {
     const stat =
       field === 'academic'
@@ -218,10 +219,10 @@ export function graduationBonuses(d: GameState, field: Career, level: number): J
           : field === 'comm'
             ? 'social'
             : (['study', 'stamina', 'social'] as const).reduce((best, s) => (d.stats[s] > d.stats[best] ? s : best), 'study' as 'study' | 'stamina' | 'social');
-    out.push({ label: `${STAT_NAMES[stat]} ${d.stats[stat]}`, value: statBonus(d.stats[stat]) });
+    out.push({ label: tx('judge.stat', { stat: STAT_TEXT[stat], v: d.stats[stat] }), value: statBonus(d.stats[stat]) });
   }
-  out.push({ label: `운 ${d.stats.luck}`, value: statBonus(d.stats.luck) });
-  if (d.finalExamBonus) out.push({ label: '진로 시험 성공', value: 1 });
-  if (d.stress >= 80) out.push({ label: '스트레스', value: -1 });
+  out.push({ label: tx('judge.stat', { stat: STAT_TEXT.luck, v: d.stats.luck }), value: statBonus(d.stats.luck) });
+  if (d.finalExamBonus) out.push({ label: tx('ending.finalExam'), value: 1 });
+  if (d.stress >= 80) out.push({ label: tx('stress.name'), value: -1 });
   return out;
 }

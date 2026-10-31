@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { content } from '@/engine/content';
 import type { GameState } from '@/engine/types';
 import { Button } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { playSound } from '@/lib/sound';
 import { MoveDieStrip, RollingDie } from './Dice';
 import { KeyBadge } from './EventCard';
@@ -14,6 +15,7 @@ export function MoveDieDisplay({ game, size = 88, showStrip = true }: { game: Ga
   const move = game.phase === 'moving' ? game.move : undefined;
   const rollId = move && move.remaining === move.die ? `${game.turn}-${move.from}` : null;
   const [rolling, setRolling] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (rollId == null) return;
@@ -33,9 +35,9 @@ export function MoveDieDisplay({ game, size = 88, showStrip = true }: { game: Ga
       <p className="min-h-6 text-center font-display text-lg leading-tight text-ink" aria-live="polite">
         {move
           ? rolling
-            ? '데굴데굴…'
-            : `${move.die}칸 이동! (${move.die - move.remaining}/${move.die})`
-          : '이동 주사위 1·1·1·2·2·3'}
+            ? t('ui.roll.rolling')
+            : t('ui.roll.moving', { die: move.die, done: move.die - move.remaining })
+          : t('ui.roll.faces')}
       </p>
     </div>
   );
@@ -45,6 +47,7 @@ export function MoveDieDisplay({ game, size = 88, showStrip = true }: { game: Ga
 export function RollButton({ game }: { game: GameState }) {
   const dispatch = useAct(game);
   const canRoll = game.phase === 'await_roll';
+  const { t } = useI18n();
   const roll = () => {
     if (!canRoll) return;
     playSound('roll');
@@ -61,7 +64,7 @@ export function RollButton({ game }: { game: GameState }) {
   );
   return (
     <Button size="lg" block onClick={roll} disabled={!canRoll}>
-      🎲 주사위 굴리기 <KeyBadge>Space</KeyBadge>
+      {t('ui.roll.button')} <KeyBadge>Space</KeyBadge>
     </Button>
   );
 }
@@ -69,14 +72,13 @@ export function RollButton({ game }: { game: GameState }) {
 /** 칠판(보드 가운데)에 쓰는 지금 상황 */
 export function ChalkStatus({ game }: { game: GameState }) {
   const tile = content.board[game.position];
+  const { t, text } = useI18n();
   return (
     <div className="flex flex-col items-center gap-0.5 text-center text-ink">
-      <p className="font-display text-xl leading-tight">
-        {game.year}학년 · {game.turn}턴
-      </p>
+      <p className="font-display text-xl leading-tight">{t('ui.panel.yearTurn', { year: game.year, turn: game.turn })}</p>
       {tile && (
         <p className="font-display text-lg leading-tight text-muted">
-          <span aria-hidden="true">{tile.icon}</span> {tile.name}
+          <span aria-hidden="true">{tile.icon}</span> {text(tile.name)}
         </p>
       )}
     </div>
@@ -85,6 +87,7 @@ export function ChalkStatus({ game }: { game: GameState }) {
 
 /** 넓은 화면의 보드 가운데: 칠판 위에 주사위와 버튼 */
 export function RollPanel({ game }: { game: GameState }) {
+  const { t } = useI18n();
   return (
     <div className="yd-ground flex h-full flex-col items-center justify-center gap-3 rounded-[22px] border-[2.5px] border-outline p-4">
       <ChalkStatus game={game} />
@@ -93,7 +96,7 @@ export function RollPanel({ game }: { game: GameState }) {
         {game.phase === 'await_roll' ? (
           <RollButton game={game} />
         ) : (
-          <p className="text-center text-base text-muted">코너 칸(진급·시험·방학)에 닿으면 남은 눈과 상관없이 멈춰요.</p>
+          <p className="text-center text-base text-muted">{t('ui.roll.cornerHint')}</p>
         )}
       </div>
     </div>

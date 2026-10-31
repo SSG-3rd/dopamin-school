@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { checkByLabel, getAbilityView } from '@/engine/view';
 import type { GameState } from '@/engine/types';
 import { Button } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { playSound } from '@/lib/sound';
 import { RollingDie } from './Dice';
 import { KeyBadge } from './EventCard';
@@ -22,6 +23,7 @@ export function JudgeOverlay({ game }: { game: GameState }) {
   const [stage, setStage] = useState(0);
   const [shownBonuses, setShownBonuses] = useState(0);
   const bonusCount = j?.bonuses.length ?? 0;
+  const { t, text } = useI18n();
 
   useEffect(() => {
     playSound('roll');
@@ -83,18 +85,18 @@ export function JudgeOverlay({ game }: { game: GameState }) {
       exit={{ opacity: 0 }}
       role="dialog"
       aria-modal="true"
-      aria-label={`${byLabel} 판정`}
+      aria-label={t('ui.judge.aria', { by: byLabel })}
     >
       <motion.div
         initial={{ y: 40, scale: 0.96 }}
         animate={{ y: 0, scale: 1 }}
         className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl border-4 border-outline bg-paper p-5 shadow-[0_6px_0_0_rgb(107_79_58/0.32)]"
       >
-        <p className="text-base text-muted">{p.title}</p>
+        <p className="text-base text-muted">{text(p.title)}</p>
         <h2 className="text-2xl">
-          <span aria-hidden="true">🎲</span> {byLabel} 판정
+          <span aria-hidden="true">🎲</span> {t('ui.judge.title', { by: byLabel })}
         </h2>
-        {p.chosen && <p className="mt-0.5 font-display text-lg text-ink/80">“{p.chosen.label}”</p>}
+        {p.chosen && <p className="mt-0.5 font-display text-lg text-ink/80">“{text(p.chosen.label)}”</p>}
 
         <div className="my-4 flex items-center justify-center gap-4 rounded-[22px] border-[2.5px] border-outline bg-[#bfe3ad] py-5">
           <RollingDie value={j.dice[0]} rolling={stage === 0} size={76} />
@@ -104,7 +106,7 @@ export function JudgeOverlay({ game }: { game: GameState }) {
         <div aria-live="polite" className="flex flex-col gap-1.5">
           {stage >= 1 && (
             <p className="flex items-center justify-between font-display text-lg">
-              <span>주사위</span>
+              <span>{t('ui.judge.dice')}</span>
               <span className="tabular-nums">
                 {j.dice[0]} + {j.dice[1]} = {sum}
               </span>
@@ -113,12 +115,12 @@ export function JudgeOverlay({ game }: { game: GameState }) {
           <AnimatePresence initial={false}>
             {j.bonuses.slice(0, stage >= 3 ? bonusCount : shownBonuses).map((b, i) => (
               <motion.p
-                key={`${b.label}-${i}`}
+                key={i}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center justify-between text-base"
               >
-                <span>{b.label}</span>
+                <span>{text(b.label)}</span>
                 <span className={`font-display tabular-nums ${b.value > 0 ? 'text-good' : b.value < 0 ? 'text-bad' : 'text-muted'}`}>
                   {signed(b.value)}
                 </span>
@@ -127,16 +129,14 @@ export function JudgeOverlay({ game }: { game: GameState }) {
           </AnimatePresence>
           {stage >= 3 && (
             <p className="mt-1 flex items-center justify-between border-t-2 border-dashed border-outline/45 pt-2 font-display text-xl">
-              <span>합계</span>
+              <span>{t('ui.judge.total')}</span>
               <span className="tabular-nums">
-                {j.total} {natural ? '' : j.total >= j.diff ? '≥' : '<'} 난이도 {j.diff}
+                {j.total} {natural ? '' : j.total >= j.diff ? '≥' : '<'} {t('ui.judge.vsDiff', { diff: j.diff })}
               </span>
             </p>
           )}
           {stage >= 3 && natural && (
-            <p className="text-base text-muted">
-              눈 합 {sum}은(는) 보정과 상관없이 {sum === 12 ? '무조건 대성공' : '무조건 대실패'}!
-            </p>
+            <p className="text-base text-muted">{t(sum === 12 ? 'ui.judge.natural12' : 'ui.judge.natural2')}</p>
           )}
         </div>
 
@@ -150,22 +150,22 @@ export function JudgeOverlay({ game }: { game: GameState }) {
               className="mt-4 flex items-center justify-center gap-2 rounded-2xl border-[3px] border-outline py-3 font-display text-3xl"
               style={{ backgroundColor: meta.color, color: j.outcome === 'fumble' ? '#fff' : 'var(--color-ink)' }}
             >
-              <span aria-hidden="true">{meta.icon}</span> {meta.word}
+              <span aria-hidden="true">{meta.icon}</span> {t(meta.word)}
             </motion.div>
           )}
         </AnimatePresence>
         {stage >= 3 && j.converted && (
-          <p className="mt-2 text-center font-display text-base">🍀 행운 발동! 대실패를 일반 실패로 바꿨어요.</p>
+          <p className="mt-2 text-center font-display text-base">{t('ui.judge.luckyUsed')}</p>
         )}
 
         <div className="mt-4 flex flex-col gap-2">
           {luckyAvailable && ability && (
             <Button variant="secondary" size="md" block onClick={() => dispatch({ type: 'USE_ABILITY' })}>
-              🍀 행운: 대실패 → 실패 (남은 {ability.usesLeft}회) <KeyBadge>L</KeyBadge>
+              {t('ui.judge.luckyButton', { n: ability.usesLeft })} <KeyBadge>L</KeyBadge>
             </Button>
           )}
           <Button size="lg" block onClick={finish}>
-            {stage < 3 ? '바로 보기' : '결과 보기'} <KeyBadge>Enter</KeyBadge>
+            {t(stage < 3 ? 'ui.judge.skip' : 'ui.judge.result')} <KeyBadge>Enter</KeyBadge>
           </Button>
         </div>
       </motion.div>

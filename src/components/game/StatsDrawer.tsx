@@ -3,12 +3,14 @@
 // 버튼은 화면 오른쪽 위에 고정. 넓은 화면은 버튼 아래 오른쪽 패널, 좁은 화면은 버튼 아래 위쪽 패널(카드는 그 아래로 비켜 난다).
 import { motion } from 'framer-motion';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type Ref } from 'react';
-import { CAREER_ICONS, CAREER_NAMES, STAT_ICONS, STAT_NAMES } from '@/engine/content';
-import { careerLevel, formatMoney, stressTier } from '@/engine/rules';
+import { CAREER_ICONS, CAREER_TEXT, STAT_ICONS, STAT_TEXT } from '@/engine/content';
+import { careerLevel, stressTier } from '@/engine/rules';
+import { money } from '@/engine/text';
 import { CAREERS, STATS } from '@/engine/types';
 import type { GameState } from '@/engine/types';
 import { activeBuffViews } from '@/engine/view';
 import { Bar } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
 import { STAT_COLORS, STRESS_META } from './meta';
 import { StatPanel } from './StatPanel';
 
@@ -27,6 +29,7 @@ export function StatsToggle({
   showKey: boolean;
   buttonRef?: Ref<HTMLButtonElement>;
 }) {
+  const { t, text } = useI18n();
   return (
     <button
       ref={buttonRef}
@@ -39,11 +42,11 @@ export function StatsToggle({
       }`}
     >
       <span>
-        <span aria-hidden="true">{open ? '✕' : '📊'}</span> {open ? '능력치 닫기' : '내 능력치'}
+        <span aria-hidden="true">{open ? '✕' : '📊'}</span> {t(open ? 'ui.drawer.close' : 'ui.drawer.open')}
       </span>
       {!open && (
         <span className="rounded-full border-2 border-outline/40 bg-paper px-2 text-base tabular-nums">
-          <span aria-hidden="true">💰</span> {formatMoney(game.money)}
+          <span aria-hidden="true">💰</span> {text(money(game.money))}
         </span>
       )}
       {showKey && (
@@ -60,14 +63,15 @@ function StatsCompact({ game }: { game: GameState }) {
   const tier = stressTier(game.stress);
   const meta = STRESS_META[tier.id];
   const buffs = activeBuffViews(game);
+  const { t, text } = useI18n();
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between gap-2">
         <p className="font-display text-xl leading-none">
-          {game.year}학년 · {game.turn}턴
+          {t('ui.panel.yearTurn', { year: game.year, turn: game.turn })}
         </p>
         <p className="rounded-full border-2 border-outline/40 bg-paper-2 px-2.5 py-0.5 font-display text-lg tabular-nums">
-          <span aria-hidden="true">💰</span> {formatMoney(game.money)}
+          <span aria-hidden="true">💰</span> {text(money(game.money))}
         </p>
       </div>
       <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
@@ -75,39 +79,40 @@ function StatsCompact({ game }: { game: GameState }) {
           <li key={s} className="flex flex-col gap-0.5">
             <span className="flex items-center justify-between text-base">
               <span>
-                <span aria-hidden="true">{STAT_ICONS[s]}</span> {STAT_NAMES[s]}
+                <span aria-hidden="true">{STAT_ICONS[s]}</span> {text(STAT_TEXT[s])}
               </span>
               <span className="font-display text-lg tabular-nums">{game.stats[s]}</span>
             </span>
-            <Bar value={game.stats[s]} color={STAT_COLORS[s]} label={`${STAT_NAMES[s]} ${game.stats[s]} / 100`} />
+            <Bar value={game.stats[s]} color={STAT_COLORS[s]} label={t('ui.drawer.statAria', { stat: STAT_TEXT[s], v: game.stats[s] })} />
           </li>
         ))}
       </ul>
       <div className="flex flex-col gap-0.5">
         <span className="flex items-center justify-between text-base">
           <span>
-            <span aria-hidden="true">{meta.icon}</span> 스트레스 · <strong className="font-display font-normal">{tier.label}</strong>
+            <span aria-hidden="true">{meta.icon}</span> {t('stress.name')} ·{' '}
+            <strong className="font-display font-normal">{text(tier.label)}</strong>
           </span>
           <span className="font-display text-lg tabular-nums">{game.stress}</span>
         </span>
-        <Bar value={game.stress} color={meta.color} label={`스트레스 ${game.stress} / 100, ${tier.label}`} />
+        <Bar value={game.stress} color={meta.color} label={t('ui.panel.stressAria', { v: game.stress, tier: tier.label })} />
       </div>
-      <ul className="flex flex-wrap gap-1.5" aria-label="진로 레벨">
+      <ul className="flex flex-wrap gap-1.5" aria-label={t('ui.panel.careerAriaSection')}>
         {CAREERS.map((c) => (
           <li key={c} className="rounded-full border-2 border-outline/35 bg-paper px-2 py-0.5 text-base">
-            <span aria-hidden="true">{CAREER_ICONS[c]}</span> {CAREER_NAMES[c]}{' '}
+            <span aria-hidden="true">{CAREER_ICONS[c]}</span> {text(CAREER_TEXT[c])}{' '}
             <strong className="font-display font-normal">Lv{careerLevel(game.careerExp[c])}</strong>
           </li>
         ))}
       </ul>
       {buffs.length > 0 && (
-        <ul className="flex flex-wrap gap-1.5" aria-label="버프">
+        <ul className="flex flex-wrap gap-1.5" aria-label={t('ui.panel.buffs')}>
           {buffs.map((b) => (
             <li
               key={b.id}
               className={`rounded-full border-2 px-2 py-0.5 text-base ${b.debuff ? 'border-danger/40 bg-danger/10' : 'border-mint/50 bg-mint/15'}`}
             >
-              <span aria-hidden="true">{b.emoji}</span> {b.name}
+              <span aria-hidden="true">{b.emoji}</span> {text(b.name)}
             </li>
           ))}
         </ul>
@@ -132,6 +137,7 @@ export function StatsDrawer({
 }) {
   const panelRef = useRef<HTMLElement>(null);
   const [full, setFull] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     panelRef.current?.focus({ preventScroll: true });
@@ -176,7 +182,7 @@ export function StatsDrawer({
       ref={panelRef}
       id="yd-stats-drawer"
       role="region"
-      aria-label="지금까지의 능력치와 돈"
+      aria-label={t('ui.drawer.aria')}
       tabIndex={-1}
       onKeyDown={onKeyDown}
       initial={wide ? { x: '110%' } : { y: -16, opacity: 0 }}
@@ -192,7 +198,7 @@ export function StatsDrawer({
     >
       <header className="flex items-center gap-2 border-b-2 border-dashed border-outline/30 bg-[#e3f2fb] px-4 py-2">
         <h3 className="flex-1 text-xl leading-tight text-ink">
-          <span aria-hidden="true">📊</span> 지금까지의 나
+          <span aria-hidden="true">📊</span> {t('ui.drawer.title')}
         </h3>
         {!wide && (
           <button
@@ -201,13 +207,13 @@ export function StatsDrawer({
             onClick={() => setFull((f) => !f)}
             className="rounded-full border-2 border-outline/50 bg-paper px-2.5 py-0.5 font-display text-base text-ink"
           >
-            {full ? '간단히 ▴' : '자세히 ▾'}
+            {t(full ? 'ui.drawer.simple' : 'ui.drawer.detail')}
           </button>
         )}
         <button
           type="button"
           onClick={onClose}
-          aria-label="능력치 닫기"
+          aria-label={t('ui.drawer.close')}
           className="inline-flex h-9 w-9 items-center justify-center rounded-full border-[2.5px] border-outline bg-paper font-display text-base text-ink hover:bg-paper-2 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-sky-deep"
         >
           <span aria-hidden="true">✕</span>

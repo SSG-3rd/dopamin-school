@@ -11,12 +11,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import { getAbilityView, getOptionViews, type OptionView } from '@/engine/view';
+import { getAbilityView, getOptionViews, type EffectLine, type OptionView } from '@/engine/view';
+import { lit } from '@/engine/text';
 import type { GameState } from '@/engine/types';
 import { Button, Chip } from '@/components/ui';
+import { useI18n } from '@/i18n/client';
+import type { Translator } from '@/i18n/translator';
 import { playSound } from '@/lib/sound';
 import { digitKey, isEnter, useAct, useHotkeys, useMediaQuery, useTiming } from './hooks';
-import { KIND_META, pct, previewTone, signed } from './meta';
+import { KIND_META, fragmentTone, pct, signed, textKey } from './meta';
 import { STATS_DRAWER_WIDTH, StatsDrawer, StatsToggle } from './StatsDrawer';
 
 /*
@@ -49,7 +52,7 @@ if (typeof window !== 'undefined') {
 /** 같은 선택 창인지 가르는 key. 다른 선택으로 넘어가면 카드를 새로 깐다. */
 export function pickerKey(game: GameState): string {
   const p = game.pending;
-  return `pick-${game.turn}-${p?.source ?? ''}-${p?.eventId ?? p?.title ?? ''}-${p?.pickFor ?? ''}`;
+  return `pick-${game.turn}-${p?.source ?? ''}-${p?.eventId ?? textKey(p?.title)}-${p?.pickFor ?? ''}`;
 }
 
 // ───────── 등급(색) ─────────
@@ -136,39 +139,48 @@ const LEAD_EMOJI =
   /^((?:\p{Extended_Pictographic}|\p{Regional_Indicator}{2})(?:️|⃣|\p{Emoji_Modifier}|‍\p{Extended_Pictographic}️?)*)\s*/u;
 
 /** "🎸 밴드부" → 메달 🎸 + 이름 "밴드부". 이모지가 없으면 종류 아이콘. */
-function splitLabel(v: OptionView): { icon: string; name: string } {
-  const label = v.option.label;
+function splitLabel(v: OptionView, tr: Translator): { icon: string; name: string } {
+  const label = tr.text(v.option.label);
   const m = label.match(LEAD_EMOJI);
   if (m && m[1] && label.length > m[0].length) return { icon: m[1], name: label.slice(m[0].length).trim() };
   return { icon: KIND_META[v.option.kind].icon, name: label };
 }
 
-function kindLine(v: OptionView): string {
-  const k = KIND_META[v.option.kind];
-  if (v.judge) return `${k.word} · ${v.judge.byLabel} 판정`;
-  if (v.option.kind === 'growth' || v.option.kind === 'adventure') return `${k.word} · 확정`;
-  return k.word;
+function kindLine(v: OptionView, tr: Translator): string {
+  const kind = tr.t(KIND_META[v.option.kind].word);
+  if (v.judge) return tr.t('ui.picker.byCheck', { kind: lit(kind), by: v.judge.byLabel });
+  if (v.option.kind === 'growth' || v.option.kind === 'adventure') return tr.t('ui.picker.sure', { kind: lit(kind) });
+  return kind;
 }
 
 const NUMERIC = /[+−-]\s?\d/;
+/** 설명 글을 조각으로 나누는 자리: · (가운뎃점), ・(일본어), 쉼표 */
+const DESC_SEP = /\s*[·・]\s*|[,，、]\s*/;
+
+interface Chip {
+  text: string;
+  tone: EffectLine['tone'];
+}
 
 /**
  * 효과 칩과 설명 글을 나눈다.
  * - 효과가 없어 설명만 있는 경우: "인맥 +10 · 스트레스 −5"처럼 숫자 있는 조각은 칩, 나머지는 글.
  * - 설명이 칩을 그대로 되풀이하면(시험 전략) 설명은 숨긴다.
  */
-function splitDetails(v: OptionView): { chips: string[]; text: string | null } {
-  const desc = v.option.desc?.trim();
-  if (!desc) return { chips: v.preview, text: null };
-  const parts = desc.split(/\s*·\s*|,\s+/).filter(Boolean);
-  const fromDesc = v.preview.length === 1 && v.preview[0] === v.option.desc;
+function splitDetails(v: OptionView, tr: Translator): { chips: Chip[]; text: string | null } {
+  const preview: Chip[] = v.preview.map((l) => ({ text: tr.text(l.text), tone: l.tone }));
+  const desc = tr.text(v.option.desc).trim();
+  if (!desc) return { chips: preview, text: null };
+  const parts = desc.split(DESC_SEP).filter(Boolean);
+  const fromDesc = v.preview.length === 1 && v.preview[0].text === v.option.desc;
   if (fromDesc) {
-    const chips = parts.filter((p) => NUMERIC.test(p));
+    const inverse = [tr.t('stress.name'), tr.t('record.late')];
+    const chips = parts.filter((p) => NUMERIC.test(p)).map((p) => ({ text: p, tone: fragmentTone(p, inverse) }));
     const rest = parts.filter((p) => !NUMERIC.test(p));
     return { chips, text: rest.length ? rest.join(' · ') : null };
   }
-  const covered = parts.every((p) => v.preview.some((c) => c.includes(p) || p.includes(c)));
-  return { chips: v.preview, text: covered ? null : desc };
+  const covered = parts.every((p) => preview.some((c) => c.text.includes(p) || p.includes(c.text)));
+  return { chips: preview, text: covered ? null : desc };
 }
 
 function probTone(p: number): string {
@@ -177,12 +189,12 @@ function probTone(p: number): string {
   return 'text-ink';
 }
 
-function ariaLabel(v: OptionView): string {
-  const { name } = splitLabel(v);
-  const bits = [`${v.key}번`, name, kindLine(v)];
-  if (v.judge) bits.push(`성공 확률 ${pct(v.judge.probability)}`);
-  if (v.unlocked) bits.push('해금 선택지');
-  if (v.disabled) bits.push(`고를 수 없음${v.reason ? `: ${v.reason}` : ''}`);
+function ariaLabel(v: OptionView, tr: Translator): string {
+  const { name } = splitLabel(v, tr);
+  const bits = [tr.t('ui.picker.ariaNumber', { n: v.key }), name, kindLine(v, tr)];
+  if (v.judge) bits.push(tr.t('ui.picker.ariaChance', { p: lit(pct(v.judge.probability)) }));
+  if (v.unlocked) bits.push(tr.t('ui.picker.ariaUnlocked'));
+  if (v.disabled) bits.push(v.reason ? tr.t('ui.picker.ariaDisabledReason', { reason: v.reason }) : tr.t('ui.picker.ariaDisabled'));
   return bits.join(', ');
 }
 
@@ -207,15 +219,15 @@ function Medallion({ icon, look, size, disabled }: { icon: string; look: TierLoo
   );
 }
 
-function ChipRow({ items, label, align }: { items: string[]; label?: string; align: 'center' | 'start' }) {
+function ChipRow({ items, label, align }: { items: Chip[]; label?: string; align: 'center' | 'start' }) {
   if (items.length === 0) return null;
   return (
     <span className={`flex flex-col gap-1 ${align === 'center' ? 'items-center' : 'items-start'}`}>
       {label && <span className="font-display text-base leading-none text-muted">{label}</span>}
       <span className={`flex flex-wrap gap-1 ${align === 'center' ? 'justify-center' : 'justify-start'}`}>
-        {items.map((t, i) => (
-          <Chip key={`${t}-${i}`} tone={previewTone(t)} className="max-w-full whitespace-normal text-center">
-            {t}
+        {items.map((c, i) => (
+          <Chip key={`${c.text}-${i}`} tone={c.tone} className="max-w-full whitespace-normal text-center">
+            {c.text}
           </Chip>
         ))}
       </span>
@@ -224,14 +236,16 @@ function ChipRow({ items, label, align }: { items: string[]; label?: string; ali
 }
 
 function JudgeBox({ judge, armed, dense }: { judge: NonNullable<OptionView['judge']>; armed: boolean; dense: boolean }) {
+  const { t } = useI18n();
+  const modifier = t('ui.picker.modifier', { bonus: lit(signed(judge.bonus)), diff: judge.diff });
   if (dense) {
     return (
       <span className="text-base">
-        <span aria-hidden="true">🎲</span> 성공{' '}
+        <span aria-hidden="true">🎲</span> {t('ui.picker.success')}{' '}
         <strong className={`font-display text-xl font-normal ${probTone(judge.probability)}`}>{pct(judge.probability)}</strong>
         <span className="text-muted">
           {' '}
-          · 보정 {signed(judge.bonus)} · 난이도 {judge.diff}
+          · {modifier}
         </span>
       </span>
     );
@@ -243,12 +257,10 @@ function JudgeBox({ judge, armed, dense }: { judge: NonNullable<OptionView['judg
       }`}
     >
       <span className="text-base leading-tight text-muted">
-        <span aria-hidden="true">{armed ? '🎉' : '🎲'}</span> 성공 확률
+        <span aria-hidden="true">{armed ? '🎉' : '🎲'}</span> {t('ui.picker.chance')}
       </span>
       <span className={`font-display text-[36px] leading-none ${probTone(judge.probability)}`}>{pct(judge.probability)}</span>
-      <span className="text-base leading-tight text-muted">
-        보정 {signed(judge.bonus)} · 난이도 {judge.diff}
-      </span>
+      <span className="text-base leading-tight text-muted">{modifier}</span>
     </span>
   );
 }
@@ -265,21 +277,23 @@ function OptionDetails({
   armed: boolean;
   dense?: boolean;
 }) {
-  const { chips, text } = splitDetails(view);
+  const tr = useI18n();
+  const { t } = tr;
+  const { chips, text } = splitDetails(view, tr);
   const j = view.judge;
-  const fail = view.failPreview ?? [];
+  const fail: Chip[] = (view.failPreview ?? []).map((l) => ({ text: tr.text(l.text), tone: l.tone }));
   return (
     <>
       {text && (
         <span className={`block text-base leading-snug text-muted ${align === 'center' ? 'text-center' : 'text-left'}`}>{text}</span>
       )}
-      <ChipRow items={chips} label={j && fail.length > 0 ? '성공 시' : undefined} align={align} />
+      <ChipRow items={chips} label={j && fail.length > 0 ? t('ui.picker.onSuccess') : undefined} align={align} />
       {j && <JudgeBox judge={j} armed={armed} dense={dense} />}
-      <ChipRow items={fail} label="실패 시" align={align} />
-      {!text && chips.length === 0 && !j && <span className="text-base text-muted">특별한 변화 없음</span>}
+      <ChipRow items={fail} label={t('ui.picker.onFail')} align={align} />
+      {!text && chips.length === 0 && !j && <span className="text-base text-muted">{t('ui.picker.noChange')}</span>}
       {view.disabled && view.reason && (
         <span className="font-display text-base leading-snug text-bad">
-          <span aria-hidden="true">🔒</span> {view.reason}
+          <span aria-hidden="true">🔒</span> {tr.text(view.reason)}
         </span>
       )}
     </>
@@ -298,6 +312,7 @@ function HotkeyBadge({ n, className = '' }: { n: number; className?: string }) {
 }
 
 function UnlockRibbon({ small }: { small?: boolean }) {
+  const { t } = useI18n();
   return (
     <span
       aria-hidden="true"
@@ -305,7 +320,7 @@ function UnlockRibbon({ small }: { small?: boolean }) {
         small ? '-right-1.5 -top-2 px-1.5 py-1 text-[13px]' : '-right-2.5 -top-3 px-2.5 py-1.5 text-base'
       }`}
     >
-      🔓 해금
+      {t('ui.picker.unlocked')}
     </span>
   );
 }
@@ -349,7 +364,8 @@ function AugmentCard({
 }: CardProps) {
   const descId = useId();
   const look = TIERS[tierOf(view)];
-  const { icon, name } = splitLabel(view);
+  const tr = useI18n();
+  const { icon, name } = splitLabel(view, tr);
   const disabled = view.disabled;
   const stagger = fast ? 0.03 : 0.08;
   const sel = selectMs / 1000;
@@ -420,7 +436,7 @@ function AugmentCard({
   const common = {
     type: 'button' as const,
     ref: buttonRef,
-    'aria-label': ariaLabel(view),
+    'aria-label': ariaLabel(view, tr),
     'aria-describedby': descId,
     'aria-disabled': disabled || undefined,
     'aria-keyshortcuts': String(view.key),
@@ -457,7 +473,7 @@ function AugmentCard({
           <span className="relative z-10 flex flex-col items-center gap-1.5">
             <Medallion icon={icon} look={look} size={74} disabled={disabled} />
             <span className="mt-1 text-center font-display text-[21px] leading-tight text-ink">{name}</span>
-            <span className="text-center text-base leading-tight text-muted">{kindLine(view)}</span>
+            <span className="text-center text-base leading-tight text-muted">{kindLine(view, tr)}</span>
           </span>
           <span aria-hidden="true" className="relative z-10 my-0.5 w-full border-t-[2.5px] border-dashed border-outline/35" />
           <span id={descId} className="relative z-10 flex w-full flex-col items-center gap-2">
@@ -487,7 +503,7 @@ function AugmentCard({
           </span>
           <span className="relative z-10 flex min-w-0 flex-1 flex-col items-start gap-1">
             <span className="font-display text-[20px] leading-tight text-ink">{name}</span>
-            <span className="text-base leading-tight text-muted">{kindLine(view)}</span>
+            <span className="text-base leading-tight text-muted">{kindLine(view, tr)}</span>
             <span id={descId} className="flex w-full flex-col items-start gap-1.5">
               <OptionDetails view={view} align="start" armed={armed} dense />
             </span>
@@ -523,12 +539,12 @@ function AugmentCard({
           <span className="relative z-10 flex flex-col items-center gap-1">
             <Medallion icon={icon} look={look} size={48} disabled={disabled} />
             <span className="text-center font-display text-base leading-tight text-ink">{name}</span>
-            <span className="text-center text-sm leading-tight text-muted">{kindLine(view)}</span>
+            <span className="text-center text-sm leading-tight text-muted">{kindLine(view, tr)}</span>
           </span>
           <span id={descId} className="relative z-10 mt-auto flex flex-col items-center pt-0.5">
             {disabled ? (
               <span className="text-center font-display text-sm leading-tight text-bad">
-                <span aria-hidden="true">🔒</span> {view.reason ?? '잠김'}
+                <span aria-hidden="true">🔒</span> {view.reason ? tr.text(view.reason) : tr.t('ui.picker.locked')}
               </span>
             ) : view.judge ? (
               <span className={`font-display text-[24px] leading-none ${probTone(view.judge.probability)}`}>
@@ -567,17 +583,19 @@ function DetailPanel({
   onPick: (id: string) => void;
   panelRef: Ref<HTMLElement>;
 }) {
+  const tr = useI18n();
+  const { t } = tr;
   if (!full) {
     // 넓은 화면 + 터치: 카드에 내용이 다 있으니 고르기 버튼만
     return (
       <section ref={panelRef} aria-live="polite" className="flex min-h-14 w-full justify-center">
         {view ? (
           <Button size="lg" disabled={view.disabled} onClick={() => onPick(view.option.id)}>
-            ‘{splitLabel(view).name}’ 이걸로 고르기
+            {t('ui.picker.pickNamed', { name: lit(splitLabel(view, tr).name) })}
           </Button>
         ) : (
           <p className="rounded-full border-2 border-outline bg-paper px-4 py-1.5 text-base text-muted">
-            카드를 누르면 들어 올려요. 한 번 더 누르면 골라요.
+            {t('ui.picker.hintLift')}
           </p>
         )}
       </section>
@@ -588,7 +606,7 @@ function DetailPanel({
     <section
       ref={panelRef}
       aria-live="polite"
-      aria-label="고른 카드 자세히"
+      aria-label={t('ui.picker.detailAria')}
       className="w-full max-w-[520px] scroll-mb-4 rounded-[22px] border-[3px] border-outline bg-paper p-4 shadow-[0_4px_0_0_rgb(107_79_58/0.25)]"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -602,12 +620,12 @@ function DetailPanel({
             className="flex flex-col gap-3"
           >
             <div className="flex items-center gap-3">
-              <Medallion icon={splitLabel(view).icon} look={look} size={52} disabled={view.disabled} />
+              <Medallion icon={splitLabel(view, tr).icon} look={look} size={52} disabled={view.disabled} />
               <div className="min-w-0">
-                <h3 className="text-[22px] leading-tight text-ink">{splitLabel(view).name}</h3>
+                <h3 className="text-[22px] leading-tight text-ink">{splitLabel(view, tr).name}</h3>
                 <p className="text-base leading-tight text-muted">
-                  {kindLine(view)}
-                  {view.unlocked && ' · 🔓 해금'}
+                  {kindLine(view, tr)}
+                  {view.unlocked && ` · ${t('ui.picker.unlocked')}`}
                 </p>
               </div>
             </div>
@@ -615,7 +633,7 @@ function DetailPanel({
               <OptionDetails view={view} align="start" armed={armed && !!view.judge} />
             </div>
             <Button size="lg" block disabled={view.disabled} onClick={() => onPick(view.option.id)}>
-              {view.disabled ? '🔒 고를 수 없어요' : '이걸로 고르기'}
+              {t(view.disabled ? 'ui.picker.cannotPick' : 'ui.picker.pick')}
             </Button>
           </motion.div>
         ) : (
@@ -626,7 +644,7 @@ function DetailPanel({
             exit={{ opacity: 0 }}
             className="text-center text-base text-muted"
           >
-            카드를 누르면 자세히 보여요. 한 번 더 누르면 골라요.
+            {t('ui.picker.hintDetail')}
           </motion.p>
         )}
       </AnimatePresence>
@@ -665,6 +683,7 @@ function tallWidth(n: number): number {
 // ───────── 본체 ─────────
 export function AugmentPicker({ game }: { game: GameState }) {
   const p = game.pending;
+  const tr = useI18n();
   const dispatch = useAct(game);
   const timing = useTiming();
   const fast = timing.fast;
@@ -923,11 +942,11 @@ export function AugmentPicker({ game }: { game: GameState }) {
             )}
             <div className="min-w-0 flex-1">
               <h2 id={titleId} className={`${wide ? 'text-[26px]' : 'text-[22px]'} leading-tight text-ink`}>
-                {p.title}
+                {tr.text(p.title)}
               </h2>
               {p.text && (
                 <p id={textId} className={`mt-1 leading-relaxed text-ink/90 ${wide ? 'text-lg' : 'text-base'}`}>
-                  {p.text}
+                  {tr.text(p.text)}
                 </p>
               )}
             </div>
@@ -939,8 +958,8 @@ export function AugmentPicker({ game }: { game: GameState }) {
         </motion.div>
 
         <p className="mt-1 rounded-full border-2 border-outline bg-paper/95 px-4 py-1 font-display text-lg leading-tight text-ink shadow-[0_2px_0_0_rgb(107_79_58/0.25)]">
-          <span aria-hidden="true">✨</span> 하나를 골라요
-          {fine && n > 1 && <span className="text-base text-muted"> · 숫자 키 1~{n}</span>}
+          <span aria-hidden="true">✨</span> {tr.t('ui.picker.pickOne')}
+          {fine && n > 1 && <span className="text-base text-muted"> · {tr.t('ui.picker.numberKeys', { n })}</span>}
         </p>
 
         {/* 카드 */}
@@ -963,10 +982,13 @@ export function AugmentPicker({ game }: { game: GameState }) {
             }`}
           >
             <span>
-              <span aria-hidden="true">🎉</span> {armed ? `${ability.label} 발동 중 (취소)` : `${ability.label} 쓰기`}
+              <span aria-hidden="true">🎉</span>{' '}
+              {tr.t(armed ? 'ui.picker.abilityActive' : 'ui.picker.abilityUse', { name: ability.label })}
             </span>
             <span className={armed ? 'text-ink/80' : 'text-muted'}>
-              {armed ? '판정 기준: 인맥' : '판정 기준을 인맥으로'} · 남은 {ability.usesLeft}회{fine ? ' · A키' : ''}
+              {tr.t(armed ? 'ui.picker.abilityBasisOn' : 'ui.picker.abilityBasisOff')} ·{' '}
+              {tr.t('ui.picker.usesLeft', { n: ability.usesLeft })}
+              {fine ? ` · ${tr.t('ui.picker.aKey')}` : ''}
             </span>
           </button>
         )}

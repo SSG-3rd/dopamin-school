@@ -19,6 +19,9 @@ import { newGame } from '@/engine/state';
 import type { Action, GameState } from '@/engine/types';
 import { getOptionViews } from '@/engine/view';
 import { content } from '@/engine/content';
+import { createTranslator } from '@/i18n/translator';
+
+const ko = createTranslator('ko');
 
 function started(traitId = 'effort', seed = 42): GameState {
   let s = newGame(seed, 0);
@@ -235,7 +238,7 @@ describe('번아웃', () => {
     expect(s.burnoutPending).toBe(true);
     const r = reduce(s, { type: 'CONTINUE' }).state;
     expect(r.phase).toBe('burnout');
-    expect(r.pending?.text).toContain('학업 −15');
+    expect(ko.text(r.pending?.text)).toContain('학업 −15');
   });
 });
 
